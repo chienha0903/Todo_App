@@ -1,6 +1,6 @@
 package errors
 
-type Reason String
+type Reason string
 
 const (
 	REASON_NOT_FOUND Reason = "NOT_FOUND"
@@ -10,4 +10,18 @@ const (
 	REASON_INTERNAL_SERVER_ERROR Reason = "INTERNAL_SERVER_ERROR"
 )
 
-type Error struct
+type Error struct {
+	Reason  Reason
+	Message string
+}
+
+func New(reason Reason, message string) *Error {
+	return &Error{
+		Reason:  reason,
+		Message: message,
+	}
+}
+
+func (e *Error) Error() string {
+	return string(e.Reason) + ": " + e.Message
+}
