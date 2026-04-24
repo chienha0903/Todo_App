@@ -1,6 +1,10 @@
 package config
 
-import "os"
+import (
+	"os"
+
+	"github.com/joho/godotenv"
+)
 
 type Config struct {
 	AppName string
@@ -10,6 +14,9 @@ type Config struct {
 }
 
 func Load() (*Config, error) {
+	// Load .env if exists. Ignore error to allow pure environment-based config.
+	_ = godotenv.Load()
+
 	cfg := &Config{
 		AppName: getenv("APP_NAME", "todo-app"),
 		AppPort: getenv("APP_PORT", "50051"),
