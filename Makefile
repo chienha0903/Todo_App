@@ -2,7 +2,8 @@ APP_TODOS = todos
 APP_BFF   = bff
 BIN_DIR   = bin
 
-.PHONY: run-todos run-bff build build-todos build-bff proto wire tidy fmt vet
+.PHONY: run-todos run-bff build build-todos build-bff proto wire tidy fmt vet \
+        docker-up docker-down docker-logs
 
 ## Chạy gRPC todos service
 run-todos:
@@ -47,3 +48,19 @@ fmt:
 
 vet:
 	go vet ./...
+
+## Docker
+docker-up:
+	docker compose up -d --build
+
+docker-down:
+	docker compose down
+
+docker-logs:
+	docker compose logs -f
+
+docker-logs-todos:
+	docker compose logs -f todos
+
+docker-ps:
+	docker compose ps

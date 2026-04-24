@@ -2,7 +2,7 @@ package output
 
 import "time"
 
-type TodoOutput struct {
+type Todo struct {
 	ID          int64
 	UserID      int64
 	Title       string
@@ -12,4 +12,16 @@ type TodoOutput struct {
 	DueDate     *time.Time
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+}
+
+type TodoGetter = Todo
+
+type TodoLister []Todo
+
+type TodoCreator = Todo
+
+type TodoUpdater = Todo
+
+type TodoDeleter struct {
+	ID int64
 }

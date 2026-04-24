@@ -6,21 +6,60 @@ option go_package = "github.com/chienha0903/Todo_App/proto/todo;todopb";
 
 service TodoService {
   rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse);
+  rpc GetTodo(GetTodoRequest)       returns (GetTodoResponse);
+  rpc ListTodos(ListTodosRequest)   returns (ListTodosResponse);
+  rpc UpdateTodo(UpdateTodoRequest) returns (UpdateTodoResponse);
+  rpc DeleteTodo(DeleteTodoRequest) returns (DeleteTodoResponse);
 }
 
+// ── CreateTodo ──────────────────────────────────────────────
 message CreateTodoRequest {
   int64  user_id     = 1;
   string title       = 2;
   string description = 3;
   string priority    = 4;
-  // RFC3339 string, optional
-  string due_date    = 5;
+  string due_date    = 5; // RFC3339, optional
 }
-
 message CreateTodoResponse {
   Todo todo = 1;
 }
 
+// ── GetTodo ─────────────────────────────────────────────────
+message GetTodoRequest {
+  int64 id = 1;
+}
+message GetTodoResponse {
+  Todo todo = 1;
+}
+
+// ── ListTodos ───────────────────────────────────────────────
+message ListTodosRequest {
+  int64 user_id = 1;
+}
+message ListTodosResponse {
+  repeated Todo todos = 1;
+}
+
+// ── UpdateTodo ──────────────────────────────────────────────
+message UpdateTodoRequest {
+  int64  id          = 1;
+  string title       = 2;
+  string description = 3;
+  string priority    = 4;
+  string status      = 5;
+  string due_date    = 6; // RFC3339, optional
+}
+message UpdateTodoResponse {
+  Todo todo = 1;
+}
+
+// ── DeleteTodo ──────────────────────────────────────────────
+message DeleteTodoRequest {
+  int64 id = 1;
+}
+message DeleteTodoResponse {}
+
+// ── Shared ──────────────────────────────────────────────────
 message Todo {
   int64  id          = 1;
   int64  user_id     = 2;
