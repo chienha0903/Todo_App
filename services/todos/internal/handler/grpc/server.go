@@ -12,7 +12,12 @@ import (
 var ProviderSet = wire.NewSet(todohandler.NewTodoHandler, NewGRPCServer)
 
 func NewGRPCServer(h *todohandler.TodoHandler) *grpc.Server {
-	srv := grpc.NewServer()
+	srv := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			UnaryRecoveryInterceptor,
+			UnaryLoggingInterceptor,
+		),
+	)
 	todopb.RegisterTodoServiceServer(srv, h)
 	reflection.Register(srv)
 	return srv

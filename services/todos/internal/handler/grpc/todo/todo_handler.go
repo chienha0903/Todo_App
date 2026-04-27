@@ -6,8 +6,6 @@ import (
 	todopb "github.com/chienha0903/Todo_App/proto/todo"
 	"github.com/chienha0903/Todo_App/services/todos/internal/handler/grpc/mapper"
 	todousecase "github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type TodoHandler struct {
@@ -72,8 +70,4 @@ func (h *TodoHandler) DeleteTodo(ctx context.Context, req *todopb.DeleteTodoRequ
 		return nil, toGRPCError(err)
 	}
 	return &todopb.DeleteTodoResponse{}, nil
-}
-
-func toGRPCError(err error) error {
-	return status.Error(codes.InvalidArgument, err.Error())
 }
