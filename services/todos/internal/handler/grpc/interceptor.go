@@ -23,7 +23,7 @@ func UnaryLoggingInterceptor(
 
 	code := status.Code(err)
 	log.Printf(
-		"grpc method=%s code=%s duration=%s",
+		"INFO: gRPC method=%s code=%s duration=%s",
 		info.FullMethod,
 		code.String(),
 		time.Since(start),
@@ -40,7 +40,7 @@ func UnaryRecoveryInterceptor(
 ) (resp any, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Printf("grpc panic method=%s panic=%v stack=%s", info.FullMethod, r, debug.Stack())
+			log.Printf("ERROR: gRPC panic method=%s panic=%v stack=%s", info.FullMethod, r, debug.Stack())
 			err = status.Error(codes.Internal, "internal server error")
 		}
 	}()
