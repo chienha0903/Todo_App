@@ -8,9 +8,9 @@ package di
 
 import (
 	"github.com/chienha0903/Todo_App/services/todos/internal/config"
+	"github.com/chienha0903/Todo_App/services/todos/internal/domain/service"
 	grpc2 "github.com/chienha0903/Todo_App/services/todos/internal/handler/grpc"
 	todohandler "github.com/chienha0903/Todo_App/services/todos/internal/handler/grpc/todo"
-	"github.com/chienha0903/Todo_App/services/todos/internal/domain/service"
 	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore"
 	"google.golang.org/grpc"
 )
@@ -22,12 +22,12 @@ func InitGRPCServer(cfg *config.Config) (*grpc.Server, error) {
 		return nil, err
 	}
 	todoRepo := datastore.NewTodoRepo(pool)
-	todoCreater := service.NewTodoCreater(todoRepo)
+	todoCreator := service.NewTodoCreator(todoRepo)
 	todoGetter := service.NewTodoGetter(todoRepo)
 	todoLister := service.NewTodoLister(todoRepo)
 	todoUpdater := service.NewTodoUpdater(todoRepo, todoRepo)
 	todoDeleter := service.NewTodoDeleter(todoRepo)
-	todoHandler := todohandler.NewTodoHandler(todoCreater, todoGetter, todoLister, todoUpdater, todoDeleter)
+	todoHandler := todohandler.NewTodoHandler(todoCreator, todoGetter, todoLister, todoUpdater, todoDeleter)
 	server := grpc2.NewGRPCServer(todoHandler)
 	return server, nil
 }

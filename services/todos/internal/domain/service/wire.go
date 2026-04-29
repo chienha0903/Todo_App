@@ -3,7 +3,7 @@ package service
 import "github.com/google/wire"
 
 var ProviderSet = wire.NewSet(
-	NewTodoCreater,
+	NewTodoCreator,
 	NewTodoGetter,
 	NewTodoLister,
 	NewTodoUpdater,

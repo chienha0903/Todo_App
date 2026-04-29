@@ -11,19 +11,19 @@ import (
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/output"
 )
 
-type TodoCreater interface {
+type TodoCreator interface {
 	Create(ctx context.Context, in *input.CreateTodoInput) (*output.TodoCreator, error)
 }
 
-type todoCreater struct {
+type todoCreator struct {
 	cmdGW gateway.TodoCommandGateway
 }
 
-func NewTodoCreater(cmdGW gateway.TodoCommandGateway) TodoCreater {
-	return &todoCreater{cmdGW: cmdGW}
+func NewTodoCreator(cmdGW gateway.TodoCommandGateway) TodoCreator {
+	return &todoCreator{cmdGW: cmdGW}
 }
 
-func (s *todoCreater) Create(ctx context.Context, in *input.CreateTodoInput) (*output.TodoCreator, error) {
+func (s *todoCreator) Create(ctx context.Context, in *input.CreateTodoInput) (*output.TodoCreator, error) {
 	titleVO, err := vo.NewTodoTitle(in.Title)
 	if err != nil {
 		return nil, err

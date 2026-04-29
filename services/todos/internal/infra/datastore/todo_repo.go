@@ -2,11 +2,14 @@ package datastore
 
 import (
 	"context"
+	stderrors "errors"
 	"fmt"
 	"time"
 
+	apperrors "github.com/chienha0903/Todo_App/pkg/errors"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 	vo "github.com/chienha0903/Todo_App/services/todos/internal/domain/valueobject"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -57,7 +60,7 @@ func (r *todoRepo) UpdateTodo(ctx context.Context, t *entity.Todo) error {
 		dueDate = &v
 	}
 
-	_, err := r.db.Exec(ctx, q,
+	result, err := r.db.Exec(ctx, q,
 		t.Title.Value(),
 		t.Description.Value(),
 		t.Status.String(),
@@ -66,12 +69,24 @@ func (r *todoRepo) UpdateTodo(ctx context.Context, t *entity.Todo) error {
 		t.UpdatedAt,
 		t.ID,
 	)
-	return err
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return apperrors.New(apperrors.REASON_NOT_FOUND, "Todo not found")
+	}
+	return nil
 }
 
 func (r *todoRepo) DeleteTodo(ctx context.Context, id entity.TodoID) error {
-	_, err := r.db.Exec(ctx, `DELETE FROM todos WHERE id=$1`, id)
-	return err
+	result, err := r.db.Exec(ctx, `DELETE FROM todos WHERE id=$1`, id)
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return apperrors.New(apperrors.REASON_NOT_FOUND, "Todo not found")
+	}
+	return nil
 }
 
 // --- TodoQueryGateway ---
@@ -82,7 +97,11 @@ func (r *todoRepo) GetTodo(ctx context.Context, id entity.TodoID) (*entity.Todo,
 		FROM todos WHERE id=$1`
 
 	row := r.db.QueryRow(ctx, q, id)
-	return scanTodo(row)
+	todo, err := scanTodo(row)
+	if err != nil {
+		return nil, mapTodoRepoError(err)
+	}
+	return todo, nil
 }
 
 func (r *todoRepo) GetTodos(ctx context.Context, userID entity.UserID) ([]*entity.Todo, error) {
@@ -166,4 +185,11 @@ func scanTodo(s scanner) (*entity.Todo, error) {
 	}
 
 	return t, nil
+}
+
+func mapTodoRepoError(err error) error {
+	if stderrors.Is(err, pgx.ErrNoRows) {
+		return apperrors.New(apperrors.REASON_NOT_FOUND, "Todo not found")
+	}
+	return err
 }

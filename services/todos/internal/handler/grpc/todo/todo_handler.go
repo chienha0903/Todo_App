@@ -34,7 +34,11 @@ func NewTodoHandler(
 }
 
 func (h *TodoHandler) CreateTodo(ctx context.Context, req *todopb.CreateTodoRequest) (*todopb.CreateTodoResponse, error) {
-	out, err := h.creator.Create(ctx, mapper.ToCreateTodoInput(req))
+	in, err := mapper.ToCreateTodoInput(req)
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+	out, err := h.creator.Create(ctx, in)
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
@@ -58,7 +62,11 @@ func (h *TodoHandler) ListTodos(ctx context.Context, req *todopb.ListTodosReques
 }
 
 func (h *TodoHandler) UpdateTodo(ctx context.Context, req *todopb.UpdateTodoRequest) (*todopb.UpdateTodoResponse, error) {
-	out, err := h.updater.Update(ctx, mapper.ToUpdateTodoInput(req))
+	in, err := mapper.ToUpdateTodoInput(req)
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+	out, err := h.updater.Update(ctx, in)
 	if err != nil {
 		return nil, toGRPCError(err)
 	}

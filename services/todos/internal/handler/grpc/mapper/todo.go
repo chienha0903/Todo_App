@@ -3,12 +3,13 @@ package mapper
 import (
 	"time"
 
+	"github.com/chienha0903/Todo_App/pkg/errors"
 	todopb "github.com/chienha0903/Todo_App/proto/todo"
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/input"
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/output"
 )
 
-func ToCreateTodoInput(req *todopb.CreateTodoRequest) *input.CreateTodoInput {
+func ToCreateTodoInput(req *todopb.CreateTodoRequest) (*input.CreateTodoInput, error) {
 	in := &input.CreateTodoInput{
 		UserID:      req.UserId,
 		Title:       req.Title,
@@ -16,11 +17,13 @@ func ToCreateTodoInput(req *todopb.CreateTodoRequest) *input.CreateTodoInput {
 		Priority:    req.Priority,
 	}
 	if req.DueDate != "" {
-		if t, err := time.Parse(time.RFC3339, req.DueDate); err == nil {
-			in.DueDate = &t
+		t, err := time.Parse(time.RFC3339, req.DueDate)
+		if err != nil {
+			return nil, errors.New(errors.REASON_INVALID_PARAMETER, "Due date must be RFC3339 format")
 		}
+		in.DueDate = &t
 	}
-	return in
+	return in, nil
 }
 
 func ToGetTodoInput(req *todopb.GetTodoRequest) *input.GetTodoInput {
@@ -31,7 +34,7 @@ func ToListTodosInput(req *todopb.ListTodosRequest) *input.ListTodosInput {
 	return &input.ListTodosInput{UserID: req.UserId}
 }
 
-func ToUpdateTodoInput(req *todopb.UpdateTodoRequest) *input.UpdateTodoInput {
+func ToUpdateTodoInput(req *todopb.UpdateTodoRequest) (*input.UpdateTodoInput, error) {
 	in := &input.UpdateTodoInput{
 		ID:          req.Id,
 		Title:       req.Title,
@@ -40,11 +43,13 @@ func ToUpdateTodoInput(req *todopb.UpdateTodoRequest) *input.UpdateTodoInput {
 		Status:      req.Status,
 	}
 	if req.DueDate != "" {
-		if t, err := time.Parse(time.RFC3339, req.DueDate); err == nil {
-			in.DueDate = &t
+		t, err := time.Parse(time.RFC3339, req.DueDate)
+		if err != nil {
+			return nil, errors.New(errors.REASON_INVALID_PARAMETER, "Due date must be RFC3339 format")
 		}
+		in.DueDate = &t
 	}
-	return in
+	return in, nil
 }
 
 func ToDeleteTodoInput(req *todopb.DeleteTodoRequest) *input.DeleteTodoInput {

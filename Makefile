@@ -11,7 +11,7 @@ run-todos:
 
 ## Chạy BFF HTTP server
 run-bff:
-	go run ./services/bff/cmd/main.go
+	go run ./services/todo-bff/cmd/main.go
 
 ## Build tất cả
 build: build-todos build-bff
@@ -20,7 +20,7 @@ build-todos:
 	go build -o $(BIN_DIR)/$(APP_TODOS) ./services/todos/cmd/main.go
 
 build-bff:
-	go build -o $(BIN_DIR)/$(APP_BFF) ./services/bff/cmd/main.go
+	go build -o $(BIN_DIR)/$(APP_BFF) ./services/todo-bff/cmd/main.go
 
 ## Generate protobuf Go code
 ## Cần: brew install protobuf
@@ -38,7 +38,7 @@ proto:
 ## Cần: go install github.com/google/wire/cmd/wire@latest
 wire:
 	wire gen ./services/todos/internal/di/
-	wire gen ./services/bff/internal/di/
+	wire gen ./services/todo-bff/internal/di/
 
 tidy:
 	go mod tidy
