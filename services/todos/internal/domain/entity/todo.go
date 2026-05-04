@@ -8,19 +8,19 @@ import (
 
 type TodoID int64
 type UserID int64
-type TodolistID int64
+type TodoListID int64
 
 type Todo struct {
-	ID          TodoID              `json:"id"`
-	UserID      UserID              `json:"user_id"`
-	TodolistID  TodolistID          `json:"todolist_id"`
-	Title       vo.TodoTitle        `json:"title"`
-	Description vo.TodoDescription  `json:"description"`
-	Status      vo.TodoStatus       `json:"status"`
-	Priority    vo.TodoPriority     `json:"priority"`
-	DueDate     *vo.TodoDueDate     `json:"due_date,omitempty"`
-	CreatedAt   time.Time           `json:"created_at"`
-	UpdatedAt   time.Time           `json:"updated_at"`
+	ID          TodoID             `json:"id"`
+	UserID      UserID             `json:"user_id"`
+	TodoListID  TodoListID         `json:"todo_list_id"`
+	Title       vo.TodoTitle       `json:"title"`
+	Description vo.TodoDescription `json:"description"`
+	Status      vo.TodoStatus      `json:"status"`
+	Priority    vo.TodoPriority    `json:"priority"`
+	DueDate     *vo.TodoDueDate    `json:"due_date,omitempty"`
+	CreatedAt   time.Time          `json:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
 func IsOverdue(t *Todo) bool {

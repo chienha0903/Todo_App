@@ -3,11 +3,11 @@ package errors
 type Reason string
 
 const (
-	REASON_NOT_FOUND             Reason = "NOT_FOUND"
-	REASON_INVALID_PARAMETER     Reason = "INVALID_PARAMETER"
-	REASON_UNAUTHORIZED          Reason = "UNAUTHORIZED"
-	REASON_PERMISSION_DENIED     Reason = "PERMISSION_DENIED"
-	REASON_INTERNAL_SERVER_ERROR Reason = "INTERNAL_SERVER_ERROR"
+	ReasonNotFound            Reason = "NOT_FOUND"
+	ReasonInvalidParameter    Reason = "INVALID_PARAMETER"
+	ReasonUnauthorized        Reason = "UNAUTHORIZED"
+	ReasonPermissionDenied    Reason = "PERMISSION_DENIED"
+	ReasonInternalServerError Reason = "INTERNAL_SERVER_ERROR"
 )
 
 type Error struct {
@@ -15,7 +15,7 @@ type Error struct {
 	Message string
 }
 
-func New(reason Reason, message string) *Error {
+func NewAppError(reason Reason, message string) *Error {
 	return &Error{
 		Reason:  reason,
 		Message: message,

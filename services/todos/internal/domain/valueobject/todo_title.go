@@ -13,7 +13,7 @@ type TodoTitle struct {
 func NewTodoTitle(value string) (TodoTitle, error) {
 	value = strings.TrimSpace(value)
 	if value == "" {
-		return TodoTitle{}, errors.New(errors.REASON_INVALID_PARAMETER, "Title cannot be empty")
+		return TodoTitle{}, errors.NewAppError(errors.ReasonInvalidParameter, "Title cannot be empty")
 	}
 	return TodoTitle{value: value}, nil
 }

@@ -27,15 +27,15 @@ func toGRPCError(err error) error {
 
 func toGRPCCode(reason apperrors.Reason) codes.Code {
 	switch reason {
-	case apperrors.REASON_NOT_FOUND:
+	case apperrors.ReasonNotFound:
 		return codes.NotFound
-	case apperrors.REASON_INVALID_PARAMETER:
+	case apperrors.ReasonInvalidParameter:
 		return codes.InvalidArgument
-	case apperrors.REASON_UNAUTHORIZED:
+	case apperrors.ReasonUnauthorized:
 		return codes.Unauthenticated
-	case apperrors.REASON_PERMISSION_DENIED:
+	case apperrors.ReasonPermissionDenied:
 		return codes.PermissionDenied
-	case apperrors.REASON_INTERNAL_SERVER_ERROR:
+	case apperrors.ReasonInternalServerError:
 		return codes.Internal
 	default:
 		return codes.Internal

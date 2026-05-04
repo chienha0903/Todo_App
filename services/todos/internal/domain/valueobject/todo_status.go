@@ -9,9 +9,9 @@ import (
 type TodoStatus string
 
 const (
-	TODO_STATUS_PENDING TodoStatus = "PENDING"
+	TODO_STATUS_PENDING     TodoStatus = "PENDING"
 	TODO_STATUS_IN_PROGRESS TodoStatus = "IN_PROGRESS"
-	TODO_STATUS_COMPLETED TodoStatus = "COMPLETED"
+	TODO_STATUS_COMPLETED   TodoStatus = "COMPLETED"
 )
 
 func (s TodoStatus) String() string {
@@ -21,7 +21,7 @@ func (s TodoStatus) String() string {
 func NewTodoStatus(value string) (TodoStatus, error) {
 	normalized := strings.ToUpper(strings.TrimSpace(value))
 	if normalized == "" {
-		return "", errors.New(errors.REASON_INVALID_PARAMETER, "Status cannot be empty")
+		return "", errors.NewAppError(errors.ReasonInvalidParameter, "Status cannot be empty")
 	}
 
 	status := TodoStatus(normalized)
@@ -29,6 +29,6 @@ func NewTodoStatus(value string) (TodoStatus, error) {
 	case TODO_STATUS_PENDING, TODO_STATUS_IN_PROGRESS, TODO_STATUS_COMPLETED:
 		return status, nil
 	default:
-		return "", errors.New(errors.REASON_INVALID_PARAMETER, "Status is invalid")
+		return "", errors.NewAppError(errors.ReasonInvalidParameter, "Status is invalid")
 	}
 }

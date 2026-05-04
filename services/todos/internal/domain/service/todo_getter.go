@@ -5,19 +5,16 @@ import (
 
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/gateway"
+	todousecase "github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo"
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/input"
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/output"
 )
-
-type TodoGetter interface {
-	Get(ctx context.Context, in *input.GetTodoInput) (*output.TodoGetter, error)
-}
 
 type todoGetter struct {
 	qryGW gateway.TodoQueryGateway
 }
 
-func NewTodoGetter(qryGW gateway.TodoQueryGateway) TodoGetter {
+func NewTodoGetter(qryGW gateway.TodoQueryGateway) todousecase.TodoGetter {
 	return &todoGetter{qryGW: qryGW}
 }
 

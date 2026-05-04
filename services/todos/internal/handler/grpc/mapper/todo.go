@@ -10,18 +10,17 @@ import (
 )
 
 func ToCreateTodoInput(req *todopb.CreateTodoRequest) (*input.CreateTodoInput, error) {
+	dueDate, err := parseOptionalDueDate(req.DueDate)
+	if err != nil {
+		return nil, err
+	}
+
 	in := &input.CreateTodoInput{
 		UserID:      req.UserId,
 		Title:       req.Title,
 		Description: req.Description,
 		Priority:    req.Priority,
-	}
-	if req.DueDate != "" {
-		t, err := time.Parse(time.RFC3339, req.DueDate)
-		if err != nil {
-			return nil, errors.New(errors.REASON_INVALID_PARAMETER, "Due date must be RFC3339 format")
-		}
-		in.DueDate = &t
+		DueDate:     dueDate,
 	}
 	return in, nil
 }
@@ -35,19 +34,18 @@ func ToListTodosInput(req *todopb.ListTodosRequest) *input.ListTodosInput {
 }
 
 func ToUpdateTodoInput(req *todopb.UpdateTodoRequest) (*input.UpdateTodoInput, error) {
+	dueDate, err := parseOptionalDueDate(req.DueDate)
+	if err != nil {
+		return nil, err
+	}
+
 	in := &input.UpdateTodoInput{
 		ID:          req.Id,
 		Title:       req.Title,
 		Description: req.Description,
 		Priority:    req.Priority,
 		Status:      req.Status,
-	}
-	if req.DueDate != "" {
-		t, err := time.Parse(time.RFC3339, req.DueDate)
-		if err != nil {
-			return nil, errors.New(errors.REASON_INVALID_PARAMETER, "Due date must be RFC3339 format")
-		}
-		in.DueDate = &t
+		DueDate:     dueDate,
 	}
 	return in, nil
 }
@@ -80,4 +78,20 @@ func ToProtoTodos(todos output.TodoLister) []*todopb.Todo {
 		items = append(items, ToProtoTodo(&t))
 	}
 	return items
+}
+
+func parseOptionalDueDate(value string) (*time.Time, error) {
+	if value == "" {
+		return nil, nil
+	}
+
+	dueDate, err := time.Parse(time.RFC3339, value)
+	if err != nil {
+		return nil, errors.NewAppError(
+			errors.ReasonInvalidParameter,
+			"Due date must be RFC3339 format",
+		)
+	}
+
+	return &dueDate, nil
 }

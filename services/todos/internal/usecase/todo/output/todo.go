@@ -18,7 +18,7 @@ type TodoGetter = Todo
 
 type TodoLister []Todo
 
-type TodoCreator = Todo
+type TodoCreater = Todo
 
 type TodoUpdater = Todo
 

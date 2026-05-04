@@ -2,8 +2,10 @@ package gateway
 
 import (
 	"context"
+	
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 )
+
 type TodoCommandGateway interface {
 	CreateTodo(ctx context.Context, todo *entity.Todo) error
 	UpdateTodo(ctx context.Context, todo *entity.Todo) error

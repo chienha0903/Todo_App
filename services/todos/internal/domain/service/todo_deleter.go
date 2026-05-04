@@ -5,18 +5,15 @@ import (
 
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/gateway"
+	todousecase "github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo"
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/input"
 )
-
-type TodoDeleter interface {
-	Delete(ctx context.Context, in *input.DeleteTodoInput) error
-}
 
 type todoDeleter struct {
 	cmdGW gateway.TodoCommandGateway
 }
 
-func NewTodoDeleter(cmdGW gateway.TodoCommandGateway) TodoDeleter {
+func NewTodoDeleter(cmdGW gateway.TodoCommandGateway) todousecase.TodoDeleter {
 	return &todoDeleter{cmdGW: cmdGW}
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"net"
 	"os"
@@ -12,39 +13,38 @@ import (
 func main() {
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, nil)))
 
+	if err := run(); err != nil {
+		slog.Error("app failed", "component", "grpc_server", "event", "app_failed", "error", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	cfg, err := config.Load()
 	if err != nil {
-		slog.Error("load config failed", "component", "app", "event", "load_config_failed", "error", err)
-		os.Exit(1)
+		return fmt.Errorf("load config: %w", err)
 	}
 
 	srv, err := di.InitGRPCServer(cfg)
 	if err != nil {
-		slog.Error(
-			"init server failed",
-			"component", "grpc_server",
-			"event", "init_server_failed",
-			"app", cfg.AppName,
-			"env", cfg.AppEnv,
-			"error", err,
-		)
-		os.Exit(1)
+		return fmt.Errorf("init grpc server: %w", err)
 	}
 
 	lis, err := net.Listen("tcp", ":"+cfg.AppPort)
 	if err != nil {
-		slog.Error(
-			"listen failed",
-			"component", "grpc_server",
-			"event", "listen_failed",
-			"app", cfg.AppName,
-			"port", cfg.AppPort,
-			"env", cfg.AppEnv,
-			"error", err,
-		)
-		os.Exit(1)
+		return fmt.Errorf("listen grpc server: %w", err)
 	}
 
+	logGRPCServerStarted(cfg)
+
+	if err := srv.Serve(lis); err != nil {
+		return fmt.Errorf("serve grpc server: %w", err)
+	}
+
+	return nil
+}
+
+func logGRPCServerStarted(cfg *config.Config) {
 	slog.Info(
 		"server started",
 		"component", "grpc_server",
@@ -53,16 +53,4 @@ func main() {
 		"port", cfg.AppPort,
 		"env", cfg.AppEnv,
 	)
-	if err := srv.Serve(lis); err != nil {
-		slog.Error(
-			"serve failed",
-			"component", "grpc_server",
-			"event", "serve_failed",
-			"app", cfg.AppName,
-			"port", cfg.AppPort,
-			"env", cfg.AppEnv,
-			"error", err,
-		)
-		os.Exit(1)
-	}
 }

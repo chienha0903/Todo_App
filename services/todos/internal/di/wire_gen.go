@@ -10,10 +10,12 @@ import (
 	"github.com/chienha0903/Todo_App/services/todos/internal/config"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/service"
 	grpc2 "github.com/chienha0903/Todo_App/services/todos/internal/handler/grpc"
-	todohandler "github.com/chienha0903/Todo_App/services/todos/internal/handler/grpc/todo"
+	"github.com/chienha0903/Todo_App/services/todos/internal/handler/grpc/todo"
 	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore"
 	"google.golang.org/grpc"
 )
+
+// Injectors from wire.go:
 
 // InitGRPCServer wires all dependencies and returns a ready *grpc.Server.
 func InitGRPCServer(cfg *config.Config) (*grpc.Server, error) {
@@ -22,12 +24,14 @@ func InitGRPCServer(cfg *config.Config) (*grpc.Server, error) {
 		return nil, err
 	}
 	todoRepo := datastore.NewTodoRepo(pool)
-	todoCreator := service.NewTodoCreator(todoRepo)
-	todoGetter := service.NewTodoGetter(todoRepo)
-	todoLister := service.NewTodoLister(todoRepo)
-	todoUpdater := service.NewTodoUpdater(todoRepo, todoRepo)
-	todoDeleter := service.NewTodoDeleter(todoRepo)
-	todoHandler := todohandler.NewTodoHandler(todoCreator, todoGetter, todoLister, todoUpdater, todoDeleter)
+	todoCommandGateway := datastore.NewTodoCommandGateway(todoRepo)
+	todoCreator := service.NewTodoCreator(todoCommandGateway)
+	todoQueryGateway := datastore.NewTodoQueryGateway(todoRepo)
+	todoGetter := service.NewTodoGetter(todoQueryGateway)
+	todoLister := service.NewTodoLister(todoQueryGateway)
+	todoUpdater := service.NewTodoUpdater(todoCommandGateway, todoQueryGateway)
+	todoDeleter := service.NewTodoDeleter(todoCommandGateway)
+	todoHandler := todo.NewTodoHandler(todoCreator, todoGetter, todoLister, todoUpdater, todoDeleter)
 	server := grpc2.NewGRPCServer(todoHandler)
 	return server, nil
 }

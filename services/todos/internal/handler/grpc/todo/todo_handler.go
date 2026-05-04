@@ -33,7 +33,10 @@ func NewTodoHandler(
 	}
 }
 
-func (h *TodoHandler) CreateTodo(ctx context.Context, req *todopb.CreateTodoRequest) (*todopb.CreateTodoResponse, error) {
+func (h *TodoHandler) CreateTodo(
+	ctx context.Context,
+	req *todopb.CreateTodoRequest,
+) (*todopb.CreateTodoResponse, error) {
 	in, err := mapper.ToCreateTodoInput(req)
 	if err != nil {
 		return nil, toGRPCError(err)
@@ -45,7 +48,10 @@ func (h *TodoHandler) CreateTodo(ctx context.Context, req *todopb.CreateTodoRequ
 	return &todopb.CreateTodoResponse{Todo: mapper.ToProtoTodo(out)}, nil
 }
 
-func (h *TodoHandler) GetTodo(ctx context.Context, req *todopb.GetTodoRequest) (*todopb.GetTodoResponse, error) {
+func (h *TodoHandler) GetTodo(
+	ctx context.Context,
+	req *todopb.GetTodoRequest,
+) (*todopb.GetTodoResponse, error) {
 	out, err := h.getter.Get(ctx, mapper.ToGetTodoInput(req))
 	if err != nil {
 		return nil, toGRPCError(err)
@@ -53,7 +59,10 @@ func (h *TodoHandler) GetTodo(ctx context.Context, req *todopb.GetTodoRequest) (
 	return &todopb.GetTodoResponse{Todo: mapper.ToProtoTodo(out)}, nil
 }
 
-func (h *TodoHandler) ListTodos(ctx context.Context, req *todopb.ListTodosRequest) (*todopb.ListTodosResponse, error) {
+func (h *TodoHandler) ListTodos(
+	ctx context.Context,
+	req *todopb.ListTodosRequest,
+) (*todopb.ListTodosResponse, error) {
 	todos, err := h.lister.List(ctx, mapper.ToListTodosInput(req))
 	if err != nil {
 		return nil, toGRPCError(err)
@@ -61,7 +70,10 @@ func (h *TodoHandler) ListTodos(ctx context.Context, req *todopb.ListTodosReques
 	return &todopb.ListTodosResponse{Todos: mapper.ToProtoTodos(todos)}, nil
 }
 
-func (h *TodoHandler) UpdateTodo(ctx context.Context, req *todopb.UpdateTodoRequest) (*todopb.UpdateTodoResponse, error) {
+func (h *TodoHandler) UpdateTodo(
+	ctx context.Context,
+	req *todopb.UpdateTodoRequest,
+) (*todopb.UpdateTodoResponse, error) {
 	in, err := mapper.ToUpdateTodoInput(req)
 	if err != nil {
 		return nil, toGRPCError(err)
@@ -73,7 +85,10 @@ func (h *TodoHandler) UpdateTodo(ctx context.Context, req *todopb.UpdateTodoRequ
 	return &todopb.UpdateTodoResponse{Todo: mapper.ToProtoTodo(out)}, nil
 }
 
-func (h *TodoHandler) DeleteTodo(ctx context.Context, req *todopb.DeleteTodoRequest) (*todopb.DeleteTodoResponse, error) {
+func (h *TodoHandler) DeleteTodo(
+	ctx context.Context,
+	req *todopb.DeleteTodoRequest,
+) (*todopb.DeleteTodoResponse, error) {
 	if err := h.deleter.Delete(ctx, mapper.ToDeleteTodoInput(req)); err != nil {
 		return nil, toGRPCError(err)
 	}

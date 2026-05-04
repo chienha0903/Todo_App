@@ -5,19 +5,16 @@ import (
 
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/gateway"
+	todousecase "github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo"
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/input"
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/output"
 )
-
-type TodoLister interface {
-	List(ctx context.Context, in *input.ListTodosInput) (output.TodoLister, error)
-}
 
 type todoLister struct {
 	qryGW gateway.TodoQueryGateway
 }
 
-func NewTodoLister(qryGW gateway.TodoQueryGateway) TodoLister {
+func NewTodoLister(qryGW gateway.TodoQueryGateway) todousecase.TodoLister {
 	return &todoLister{qryGW: qryGW}
 }
 
@@ -26,9 +23,5 @@ func (s *todoLister) List(ctx context.Context, in *input.ListTodosInput) (output
 	if err != nil {
 		return nil, err
 	}
-	out := make(output.TodoLister, 0, len(todos))
-	for _, t := range todos {
-		out = append(out, toOutput(t))
-	}
-	return out, nil
+	return toOutputs(todos), nil
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type TodoCreator interface {
-	Create(ctx context.Context, in *input.CreateTodoInput) (*output.TodoCreator, error)
+	Create(ctx context.Context, in *input.CreateTodoInput) (*output.TodoCreater, error)
 }
 
 type TodoGetter interface {

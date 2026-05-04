@@ -69,14 +69,14 @@ func TestTodoCreatorCreateInvalidInput(t *testing.T) {
 	if got != nil {
 		t.Fatalf("Create() output = %#v, want nil", got)
 	}
-	assertAppErrorReason(t, err, apperrors.REASON_INVALID_PARAMETER)
+	assertAppErrorReason(t, err, apperrors.ReasonInvalidParameter)
 	if repo.createCalls != 0 {
 		t.Fatalf("CreateTodo calls = %d, want 0", repo.createCalls)
 	}
 }
 
 func TestTodoCreatorCreateGatewayError(t *testing.T) {
-	wantErr := apperrors.New(apperrors.REASON_INTERNAL_SERVER_ERROR, "create failed")
+	wantErr := apperrors.NewAppError(apperrors.ReasonInternalServerError, "create failed")
 	repo := &mockTodoGateway{
 		createFn: func(ctx context.Context, todo *entity.Todo) error {
 			return wantErr

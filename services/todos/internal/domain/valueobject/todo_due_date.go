@@ -12,7 +12,7 @@ type TodoDueDate struct {
 
 func NewTodoDueDate(value time.Time) (TodoDueDate, error) {
 	if value.IsZero() {
-		return TodoDueDate{}, errors.New(errors.REASON_INVALID_PARAMETER, "Due date cannot be empty")
+		return TodoDueDate{}, errors.NewAppError(errors.ReasonInvalidParameter, "Due date cannot be empty")
 	}
 	return TodoDueDate{value: value}, nil
 }

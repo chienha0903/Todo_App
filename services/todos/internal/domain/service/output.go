@@ -22,3 +22,11 @@ func toOutput(t *entity.Todo) output.Todo {
 	}
 	return out
 }
+
+func toOutputs(todos []*entity.Todo) output.TodoLister {
+	out := make(output.TodoLister, 0, len(todos))
+	for _, todo := range todos {
+		out = append(out, toOutput(todo))
+	}
+	return out
+}

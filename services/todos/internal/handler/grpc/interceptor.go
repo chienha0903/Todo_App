@@ -24,28 +24,9 @@ func UnaryLoggingInterceptor(
 	resp, err := handler(ctx, req)
 
 	code := status.Code(err)
-	level := logLevel(code)
-	requestID := requestIDFromContext(ctx)
-	service, method := splitFullMethod(info.FullMethod)
-	durationMS := time.Since(start).Milliseconds()
-	errorMessage := "-"
-	if err != nil {
-		errorMessage = err.Error()
-	}
+	duration := time.Since(start)
 
-	slog.LogAttrs(
-		ctx,
-		level,
-		"grpc request",
-		slog.String("component", "grpc"),
-		slog.String("request_id", requestID),
-		slog.String("grpc_service", service),
-		slog.String("grpc_method", method),
-		slog.String("grpc_full_method", info.FullMethod),
-		slog.String("grpc_code", code.String()),
-		slog.Int64("duration_ms", durationMS),
-		slog.String("error", errorMessage),
-	)
+	logGRPCRequest(ctx, info.FullMethod, code, duration, err)
 
 	return resp, err
 }
@@ -89,6 +70,37 @@ func logLevel(code codes.Code) slog.Level {
 	}
 }
 
+func logGRPCRequest(
+	ctx context.Context,
+	fullMethod string,
+	code codes.Code,
+	duration time.Duration,
+	err error,
+) {
+	service, method := splitFullMethod(fullMethod)
+
+	slog.LogAttrs(
+		ctx,
+		logLevel(code),
+		"grpc request",
+		slog.String("component", "grpc"),
+		slog.String("request_id", requestIDFromContext(ctx)),
+		slog.String("grpc_service", service),
+		slog.String("grpc_method", method),
+		slog.String("grpc_full_method", fullMethod),
+		slog.String("grpc_code", code.String()),
+		slog.Int64("duration_ms", duration.Milliseconds()),
+		slog.String("error", errorMessage(err)),
+	)
+}
+
+func errorMessage(err error) string {
+	if err == nil {
+		return "-"
+	}
+	return err.Error()
+}
+
 func UnaryRecoveryInterceptor(
 	ctx context.Context,
 	req any,
@@ -97,25 +109,28 @@ func UnaryRecoveryInterceptor(
 ) (resp any, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			requestID := requestIDFromContext(ctx)
-			service, method := splitFullMethod(info.FullMethod)
-
-			slog.ErrorContext(
-				ctx,
-				"grpc panic recovered",
-				"component", "grpc",
-				"event", "panic",
-				"request_id", requestID,
-				"grpc_service", service,
-				"grpc_method", method,
-				"grpc_full_method", info.FullMethod,
-				"grpc_code", codes.Internal.String(),
-				"panic", r,
-				"stack", string(debug.Stack()),
-			)
+			logRecoveredPanic(ctx, info.FullMethod, r)
 			err = status.Error(codes.Internal, "internal server error")
 		}
 	}()
 
 	return handler(ctx, req)
+}
+
+func logRecoveredPanic(ctx context.Context, fullMethod string, recovered any) {
+	service, method := splitFullMethod(fullMethod)
+
+	slog.ErrorContext(
+		ctx,
+		"grpc panic recovered",
+		"component", "grpc",
+		"event", "panic",
+		"request_id", requestIDFromContext(ctx),
+		"grpc_service", service,
+		"grpc_method", method,
+		"grpc_full_method", fullMethod,
+		"grpc_code", codes.Internal.String(),
+		"panic", recovered,
+		"stack", string(debug.Stack()),
+	)
 }
