@@ -10,7 +10,7 @@ import (
 
 type TodoHandler struct {
 	todopb.UnimplementedTodoServiceServer
-	creator todousecase.TodoCreator
+	creater todousecase.TodoCreater
 	getter  todousecase.TodoGetter
 	lister  todousecase.TodoLister
 	updater todousecase.TodoUpdater
@@ -18,14 +18,14 @@ type TodoHandler struct {
 }
 
 func NewTodoHandler(
-	creator todousecase.TodoCreator,
+	creater todousecase.TodoCreater,
 	getter todousecase.TodoGetter,
 	lister todousecase.TodoLister,
 	updater todousecase.TodoUpdater,
 	deleter todousecase.TodoDeleter,
 ) *TodoHandler {
 	return &TodoHandler{
-		creator: creator,
+		creater: creater,
 		getter:  getter,
 		lister:  lister,
 		updater: updater,
@@ -41,7 +41,7 @@ func (h *TodoHandler) CreateTodo(
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
-	out, err := h.creator.Create(ctx, in)
+	out, err := h.creater.Create(ctx, in)
 	if err != nil {
 		return nil, toGRPCError(err)
 	}

@@ -7,7 +7,7 @@ import (
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/output"
 )
 
-type TodoCreator interface {
+type TodoCreater interface {
 	Create(ctx context.Context, in *input.CreateTodoInput) (*output.TodoCreater, error)
 }
 
