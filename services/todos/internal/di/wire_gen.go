@@ -25,7 +25,7 @@ func InitGRPCServer(cfg *config.Config) (*grpc.Server, error) {
 	}
 	todoRepo := datastore.NewTodoRepo(pool)
 	todoCommandGateway := datastore.NewTodoCommandGateway(todoRepo)
-	todoCreator := service.NewTodoCreator(todoCommandGateway)
+	todoCreator := service.NewTodoCreater(todoCommandGateway)
 	todoQueryGateway := datastore.NewTodoQueryGateway(todoRepo)
 	todoGetter := service.NewTodoGetter(todoQueryGateway)
 	todoLister := service.NewTodoLister(todoQueryGateway)

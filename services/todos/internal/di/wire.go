@@ -19,7 +19,7 @@ func InitGRPCServer(cfg *config.Config) (*grpc.Server, error) {
 		datastore.NewTodoRepo,
 		datastore.NewTodoCommandGateway,
 		datastore.NewTodoQueryGateway,
-		service.NewTodoCreator,
+		service.NewTodoCreater,
 		service.NewTodoGetter,
 		service.NewTodoLister,
 		service.NewTodoUpdater,

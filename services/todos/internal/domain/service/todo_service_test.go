@@ -20,7 +20,7 @@ func TestTodoCreatorCreate(t *testing.T) {
 			return nil
 		},
 	}
-	svc := NewTodoCreator(repo)
+	svc := NewTodoCreater(repo)
 
 	got, err := svc.Create(context.Background(), &input.CreateTodoInput{
 		UserID:      7,
@@ -56,9 +56,9 @@ func TestTodoCreatorCreate(t *testing.T) {
 	}
 }
 
-func TestTodoCreatorCreateInvalidInput(t *testing.T) {
+func TestTodoCreaterCreateInvalidInput(t *testing.T) {
 	repo := &mockTodoGateway{}
-	svc := NewTodoCreator(repo)
+	svc := NewTodoCreater(repo)
 
 	got, err := svc.Create(context.Background(), &input.CreateTodoInput{
 		UserID:      7,
@@ -82,7 +82,7 @@ func TestTodoCreatorCreateGatewayError(t *testing.T) {
 			return wantErr
 		},
 	}
-	svc := NewTodoCreator(repo)
+	svc := NewTodoCreater(repo)
 
 	got, err := svc.Create(context.Background(), &input.CreateTodoInput{
 		UserID:      7,
