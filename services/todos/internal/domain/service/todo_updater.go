@@ -12,7 +12,9 @@ import (
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/output"
 )
 
-type todoUpdater struct {
+var _ todousecase.TodoUpdater = (*TodoUpdater)(nil)
+
+type TodoUpdater struct {
 	cmdGW gateway.TodoCommandGateway
 	qryGW gateway.TodoQueryGateway
 }
@@ -20,11 +22,11 @@ type todoUpdater struct {
 func NewTodoUpdater(
 	cmdGW gateway.TodoCommandGateway,
 	qryGW gateway.TodoQueryGateway,
-) todousecase.TodoUpdater {
-	return &todoUpdater{cmdGW: cmdGW, qryGW: qryGW}
+) *TodoUpdater {
+	return &TodoUpdater{cmdGW: cmdGW, qryGW: qryGW}
 }
 
-func (s *todoUpdater) Update(
+func (s *TodoUpdater) Update(
 	ctx context.Context,
 	in *input.UpdateTodoInput,
 ) (*output.TodoUpdater, error) {
