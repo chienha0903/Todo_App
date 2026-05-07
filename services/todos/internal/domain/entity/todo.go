@@ -23,12 +23,12 @@ type Todo struct {
 	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
-func IsOverdue(t *Todo) bool {
+func IsOverdue(t *Todo, now time.Time) bool {
 	if t == nil || t.DueDate == nil {
 		return false
 	}
 	if t.Status == vo.TODO_STATUS_COMPLETED {
 		return false
 	}
-	return time.Now().After(t.DueDate.Value())
+	return now.After(t.DueDate.Value())
 }

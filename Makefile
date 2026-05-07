@@ -2,7 +2,7 @@ APP_TODOS = todos
 APP_BFF   = bff
 BIN_DIR   = bin
 
-.PHONY: run-todos run-bff build build-todos build-bff proto wire tidy fmt vet \
+.PHONY: run-todos run-bff build build-todos build-bff proto mock wire tidy fmt vet \
         docker-up docker-down docker-logs
 
 ## Chạy gRPC todos service
@@ -33,6 +33,11 @@ proto:
 		--go-grpc_out=. \
 		--go-grpc_opt=paths=source_relative \
 		proto/todo/todo.proto
+
+## Re-generate mock files
+## Cần: go install go.uber.org/mock/mockgen@latest
+mock:
+	mockgen -source=services/todos/internal/domain/gateway/todo.go -destination=services/todos/internal/domain/gateway/mock/mock_todo.go -package=mock
 
 ## Re-generate Wire DI code
 ## Cần: go install github.com/google/wire/cmd/wire@latest

@@ -2,9 +2,11 @@ package gateway
 
 import (
 	"context"
-	
+
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 )
+
+//go:generate mockgen -source=todo.go -destination=mock/mock_todo.go -package=mock
 
 type TodoCommandGateway interface {
 	CreateTodo(ctx context.Context, todo *entity.Todo) error

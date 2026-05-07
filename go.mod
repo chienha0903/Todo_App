@@ -5,6 +5,7 @@ go 1.26.1
 require (
 	github.com/google/wire v0.7.0
 	github.com/jackc/pgx/v5 v5.9.2
+	go.uber.org/mock v0.6.0
 	google.golang.org/grpc v1.80.0
 	google.golang.org/protobuf v1.36.11
 )
