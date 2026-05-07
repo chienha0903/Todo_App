@@ -19,14 +19,15 @@ import (
 
 // InitGRPCServer wires all dependencies and returns a ready *grpc.Server.
 func InitGRPCServer(cfg *config.Config) (*grpc.Server, error) {
-	pool, err := datastore.NewDB(cfg)
+	db, err := datastore.NewDB(cfg)
 	if err != nil {
 		return nil, err
 	}
-	todoRepo := datastore.NewTodoRepo(pool)
-	todoCommandGateway := datastore.NewTodoCommandGateway(todoRepo)
+	todoCommandRepo := datastore.NewTodoCommandRepo(db)
+	todoCommandGateway := datastore.NewTodoCommandGateway(todoCommandRepo)
 	todoCreator := service.NewTodoCreater(todoCommandGateway)
-	todoQueryGateway := datastore.NewTodoQueryGateway(todoRepo)
+	todoQueryRepo := datastore.NewTodoQueryRepo(db)
+	todoQueryGateway := datastore.NewTodoQueryGateway(todoQueryRepo)
 	todoGetter := service.NewTodoGetter(todoQueryGateway)
 	todoLister := service.NewTodoLister(todoQueryGateway)
 	todoUpdater := service.NewTodoUpdater(todoCommandGateway, todoQueryGateway)

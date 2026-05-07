@@ -16,8 +16,9 @@ import (
 func InitGRPCServer(cfg *config.Config) (*grpc.Server, error) {
 	wire.Build(
 		datastore.NewDB,
-		datastore.NewTodoRepo,
+		datastore.NewTodoCommandRepo,
 		datastore.NewTodoCommandGateway,
+		datastore.NewTodoQueryRepo,
 		datastore.NewTodoQueryGateway,
 		service.NewTodoCreater,
 		service.NewTodoGetter,
