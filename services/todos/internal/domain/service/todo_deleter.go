@@ -9,14 +9,16 @@ import (
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/input"
 )
 
-type todoDeleter struct {
+var _ todousecase.TodoDeleter = (*TodoDeleter)(nil)
+
+type TodoDeleter struct {
 	cmdGW gateway.TodoCommandGateway
 }
 
-func NewTodoDeleter(cmdGW gateway.TodoCommandGateway) todousecase.TodoDeleter {
-	return &todoDeleter{cmdGW: cmdGW}
+func NewTodoDeleter(cmdGW gateway.TodoCommandGateway) *TodoDeleter {
+	return &TodoDeleter{cmdGW: cmdGW}
 }
 
-func (s *todoDeleter) Delete(ctx context.Context, in *input.DeleteTodoInput) error {
+func (s *TodoDeleter) Delete(ctx context.Context, in *input.DeleteTodoInput) error {
 	return s.cmdGW.DeleteTodo(ctx, entity.TodoID(in.ID))
 }

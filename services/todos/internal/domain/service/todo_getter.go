@@ -10,15 +10,17 @@ import (
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/output"
 )
 
-type todoGetter struct {
+var _ todousecase.TodoGetter = (*TodoGetter)(nil)
+
+type TodoGetter struct {
 	qryGW gateway.TodoQueryGateway
 }
 
-func NewTodoGetter(qryGW gateway.TodoQueryGateway) todousecase.TodoGetter {
-	return &todoGetter{qryGW: qryGW}
+func NewTodoGetter(qryGW gateway.TodoQueryGateway) *TodoGetter {
+	return &TodoGetter{qryGW: qryGW}
 }
 
-func (s *todoGetter) Get(ctx context.Context, in *input.GetTodoInput) (*output.TodoGetter, error) {
+func (s *TodoGetter) Get(ctx context.Context, in *input.GetTodoInput) (*output.TodoGetter, error) {
 	todo, err := s.qryGW.GetTodo(ctx, entity.TodoID(in.ID))
 	if err != nil {
 		return nil, err

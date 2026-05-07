@@ -95,7 +95,7 @@ Mỗi phase gồm:
 ### 1.3 Pattern cần học thêm và áp dụng tiếp
 
 - [x] gRPC communication pattern cơ bản
-- [ ] gRPC interceptor pattern
+- [x] gRPC interceptor pattern
 - [ ] GraphQL resolver pattern (học khái niệm, chưa cần code ngay)
 - [ ] REST API pattern
 
@@ -134,31 +134,31 @@ Mỗi phase gồm:
 
 **Mục tiêu:** triển khai lớp BFF để team/client gọi HTTP/REST, BFF chịu trách nhiệm orchestration và gọi gRPC service `todos`.
 
-**Trạng thái:** `Thiếu triển khai thực tế`
+**Trạng thái:** `Đã hoàn thiện CRUD flow`
 
 ### Checklist
 
-- [ ] Chốt scope BFF:
+- [x] Chốt scope BFF:
   - endpoint HTTP cần expose
   - mapping HTTP status code
   - chuẩn request/response JSON
-- [ ] Hoàn thiện cấu trúc service BFF:
+- [x] Hoàn thiện cấu trúc service BFF:
   - `cmd/main.go`
   - config
   - transport handler
   - gRPC client tới `todo.v1.TodoService`
-- [ ] Implement endpoint:
+- [x] Implement endpoint:
   - `POST /todos`
   - `GET /todos/:id`
   - `GET /todos?user_id=...`
   - `PUT /todos/:id`
   - `DELETE /todos/:id`
-- [ ] Thêm mapper giữa HTTP DTO <-> gRPC DTO
-- [ ] Thêm middleware/interceptor tối thiểu:
-  - request logging
-  - panic recovery
-  - timeout
-- [ ] Chuẩn hóa error mapping:
+- [x] Thêm mapper giữa HTTP DTO <-> gRPC DTO
+- [-] Thêm middleware/interceptor tối thiểu:
+  - [ ] request logging
+  - [ ] panic recovery
+  - [x] timeout (context.WithTimeout per request)
+- [x] Chuẩn hóa error mapping:
   - gRPC `NotFound` -> HTTP 404
   - gRPC `InvalidArgument` -> HTTP 400
   - gRPC `Internal` -> HTTP 500
@@ -236,7 +236,7 @@ Mỗi phase gồm:
 
 - [x] Đang có validate từ value object
 - [-] Có map lỗi ra gRPC nhưng còn đơn giản
-- [ ] Chuẩn hóa domain error -> grpc status mapping:
+- [x] Chuẩn hóa domain error -> grpc status mapping:
   - invalid argument
   - not found
   - internal
@@ -255,10 +255,10 @@ Mỗi phase gồm:
 
 ### 4.4 Middleware / interceptor
 
-- [ ] Tìm hiểu gRPC interceptor unary
-- [ ] Thêm logging interceptor
+- [x] Tìm hiểu gRPC interceptor unary
+- [x] Thêm logging interceptor
 - [ ] Thêm request timing interceptor
-- [ ] Nếu phù hợp, thêm recovery interceptor
+- [x] Nếu phù hợp, thêm recovery interceptor
 
 ### Deliverable
 
@@ -299,23 +299,23 @@ Mỗi phase gồm:
 
 **Mục tiêu:** từ code chạy được sang code có khả năng kiểm chứng, biết phân tích case và giảm regression.
 
-**Trạng thái:** `Manual test có nền tảng, unit test gần như chưa có`
+**Trạng thái:** `Đã hoàn thiện unit test domain layer`
 
 ### 6.1 Unit test
 
-- [ ] Viết test cho value objects:
+- [x] Viết test cho value objects:
   - title
   - description
   - priority
   - status
   - due_date
-- [ ] Viết test cho domain service:
+- [x] Viết test cho domain service:
   - happy case
   - invalid input
   - not found
   - repo/gateway error
-- [ ] Mock command/query gateway
-- [ ] Assert đầy đủ input/output/error
+- [x] Mock command/query gateway
+- [x] Assert đầy đủ input/output/error
 
 ### 6.2 Manual test
 

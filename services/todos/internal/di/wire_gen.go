@@ -25,14 +25,14 @@ func InitGRPCServer(cfg *config.Config) (*grpc.Server, error) {
 	}
 	todoCommandRepo := datastore.NewTodoCommandRepo(db)
 	todoCommandGateway := datastore.NewTodoCommandGateway(todoCommandRepo)
-	todoCreator := service.NewTodoCreater(todoCommandGateway)
+	todoCreater := service.NewTodoCreater(todoCommandGateway)
 	todoQueryRepo := datastore.NewTodoQueryRepo(db)
 	todoQueryGateway := datastore.NewTodoQueryGateway(todoQueryRepo)
 	todoGetter := service.NewTodoGetter(todoQueryGateway)
 	todoLister := service.NewTodoLister(todoQueryGateway)
 	todoUpdater := service.NewTodoUpdater(todoCommandGateway, todoQueryGateway)
 	todoDeleter := service.NewTodoDeleter(todoCommandGateway)
-	todoHandler := todo.NewTodoHandler(todoCreator, todoGetter, todoLister, todoUpdater, todoDeleter)
+	todoHandler := todo.NewTodoHandler(todoCreater, todoGetter, todoLister, todoUpdater, todoDeleter)
 	server := grpc2.NewGRPCServer(todoHandler)
 	return server, nil
 }
