@@ -1,0 +1,38 @@
+type Todo {
+  id:          ID!        # string vì GraphQL ID là string
+  userId:      Int!
+  title:       String!
+  description: String!
+  status:      String!
+  priority:    String!
+  dueDate:     String     # optional (nullable)
+  createdAt:   String!
+  updatedAt:   String!
+}
+
+type Query {
+  todo(id: ID!): Todo
+  todos(userId: Int!): [Todo!]!
+}
+
+type Mutation {
+  createTodo(input: CreateTodoInput!): Todo!
+  updateTodo(id: ID!, input: UpdateTodoInput!): Todo!
+  deleteTodo(id: ID!): Boolean!
+}
+
+input CreateTodoInput {
+  userId:      Int!
+  title:       String!
+  description: String!
+  priority:    String!
+  dueDate:     String   # optional, RFC3339
+}
+
+input UpdateTodoInput {
+  title:       String
+  description: String
+  priority:    String
+  status:      String
+  dueDate:     String
+}

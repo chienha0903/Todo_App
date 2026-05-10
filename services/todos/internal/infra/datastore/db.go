@@ -5,6 +5,7 @@ import (
 
 	"github.com/chienha0903/Todo_App/services/todos/internal/config"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/gateway"
+	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -21,6 +22,10 @@ func NewDB(cfg *config.Config) (*gorm.DB, error) {
 	}
 	if err := sqlDB.Ping(); err != nil {
 		return nil, fmt.Errorf("datastore: ping db: %w", err)
+	}
+
+	if err := db.AutoMigrate(&model.Todo{}); err != nil {
+		return nil, fmt.Errorf("datastore: auto migrate: %w", err)
 	}
 
 	return db, nil

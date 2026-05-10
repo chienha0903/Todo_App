@@ -35,14 +35,14 @@ func (r *todoQueryRepo) GetTodos(ctx context.Context, userID entity.UserID) ([]*
 		Order("created_at DESC").
 		Find(&ms)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, mapTodoRepoError(result.Error)
 	}
 
 	todos := make([]*entity.Todo, 0, len(ms))
 	for i := range ms {
 		t, err := mapper.ToEntity(&ms[i])
 		if err != nil {
-			return nil, err
+			return nil, mapTodoRepoError(err)
 		}
 		todos = append(todos, t)
 	}

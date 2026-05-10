@@ -1,1 +1,65 @@
+//go:build wireinject
+
 package di
+
+import (
+	nethttp "net/http"
+	"time"
+
+	todopb "github.com/chienha0903/Todo_App/proto/todo"
+	"github.com/chienha0903/Todo_App/services/todo-bff/internal/config"
+	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/generated"
+	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/resolver"
+	handlerhttp "github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/http"
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/google/wire"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+)
+
+func InitHTTPServer(cfg *config.Config) (*nethttp.Server, error) {
+	wire.Build(
+		NewGRPCConn,
+		NewTodoServiceClient,
+		NewTodoHandler,
+		NewGraphQLResolver,
+		NewHTTPServer,
+	)
+	return nil, nil
+}
+
+func NewGRPCConn(cfg *config.Config) (*grpc.ClientConn, error) {
+	return grpc.NewClient(
+		cfg.TodosGRPCAddr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+}
+
+func NewTodoServiceClient(conn *grpc.ClientConn) todopb.TodoServiceClient {
+	return todopb.NewTodoServiceClient(conn)
+}
+
+func NewTodoHandler(cfg *config.Config, svc todopb.TodoServiceClient) *handlerhttp.TodoHandler {
+	return handlerhttp.NewTodoHandler(svc, cfg.RequestTimeout)
+}
+
+func NewGraphQLResolver(svc todopb.TodoServiceClient, cfg *config.Config) *resolver.Resolver {
+	return resolver.NewResolver(svc, cfg.RequestTimeout)
+}
+
+func NewHTTPServer(cfg *config.Config, todoHandler *handlerhttp.TodoHandler, gqlResolver *resolver.Resolver, conn *grpc.ClientConn) *nethttp.Server {
+	mux := todoHandler.Routes()
+
+	gqlSrv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: gqlResolver}))
+	mux.Handle("/graphql", gqlSrv)
+
+	server := &nethttp.Server{
+		Addr:              ":" + cfg.AppPort,
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
+	}
+	server.RegisterOnShutdown(func() {
+		_ = conn.Close()
+	})
+	return server
+}
