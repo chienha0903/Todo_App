@@ -2,7 +2,7 @@ APP_TODOS = todos
 APP_BFF   = bff
 BIN_DIR   = bin
 
-.PHONY: run-todos run-bff build build-todos build-bff proto mock wire tidy fmt vet \
+.PHONY: run-todos run-bff build build-todos build-bff proto mock wire generate tidy fmt vet \
         docker-up docker-down docker-logs
 
 ## Chạy gRPC todos service
@@ -44,6 +44,10 @@ mock:
 wire:
 	wire gen ./services/todos/internal/di/
 	wire gen ./services/todo-bff/internal/di/
+
+## Re-generate GraphQL code (phải chạy từ services/todo-bff/)
+generate:
+	cd services/todo-bff && go run github.com/99designs/gqlgen generate
 
 tidy:
 	go mod tidy
