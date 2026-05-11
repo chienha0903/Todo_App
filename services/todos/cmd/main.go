@@ -25,10 +25,11 @@ func run() error {
 		return fmt.Errorf("load config: %w", err)
 	}
 
-	srv, err := di.InitGRPCServer(cfg)
+	srv, cleanup, err := di.InitializeApp(cfg)
 	if err != nil {
 		return fmt.Errorf("init grpc server: %w", err)
 	}
+	defer cleanup()
 
 	lis, err := net.Listen("tcp", ":"+cfg.AppPort)
 	if err != nil {

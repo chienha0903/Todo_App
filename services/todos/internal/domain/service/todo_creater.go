@@ -36,10 +36,6 @@ func (s *TodoCreater) Create(ctx context.Context, in *input.CreateTodoInput) (*o
 	return &out, nil
 }
 
-func (s *TodoCreater) validate() error {
-	return nil
-}
-
 func newTodoFromCreateInput(in *input.CreateTodoInput, now time.Time) (*entity.Todo, error) {
 	title, err := vo.NewTodoTitle(in.Title)
 	if err != nil {

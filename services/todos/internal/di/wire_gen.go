@@ -15,13 +15,10 @@ import (
 	"google.golang.org/grpc"
 )
 
-// Injectors from wire.go:
-
-// InitGRPCServer wires all dependencies and returns a ready *grpc.Server.
-func InitGRPCServer(cfg *config.Config) (*grpc.Server, error) {
-	db, err := datastore.NewDB(cfg)
+func InitializeApp(cfg *config.Config) (*grpc.Server, func(), error) {
+	db, cleanup, err := datastore.NewDB(cfg)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	todoCommandRepo := datastore.NewTodoCommandRepo(db)
 	todoCommandGateway := datastore.NewTodoCommandGateway(todoCommandRepo)
@@ -34,5 +31,5 @@ func InitGRPCServer(cfg *config.Config) (*grpc.Server, error) {
 	todoDeleter := service.NewTodoDeleter(todoCommandGateway)
 	todoHandler := todo.NewTodoHandler(todoCreater, todoGetter, todoLister, todoUpdater, todoDeleter)
 	server := grpc2.NewGRPCServer(todoHandler)
-	return server, nil
+	return server, cleanup, nil
 }

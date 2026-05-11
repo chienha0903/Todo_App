@@ -9,35 +9,27 @@ import (
 	"fmt"
 	"strconv"
 
-	todograph "github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/generated"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/model"
-	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/mapper"
-	todopb "github.com/chienha0903/Todo_App/proto/todo"
+	ucin "github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/todo/input"
 )
 
 // CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.CreateTodoInput) (*model.Todo, error) {
-	dueDate, err := mapper.ParseOptionalDueDate(input.DueDate)
-	if err != nil {
-		return nil, err
-	}
-
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
 
-	resp, err := r.todoClient.CreateTodo(ctx, &todopb.CreateTodoRequest{
-		UserId:      int64(input.UserID),
+	todo, err := r.creater.Create(ctx, &ucin.CreateTodo{
+		UserID:      int64(input.UserID),
 		Title:       input.Title,
 		Description: input.Description,
 		Priority:    input.Priority,
-		DueDate:     dueDate,
+		DueDate:     derefStr(input.DueDate),
 	})
 	if err != nil {
-		return nil, todograph.ToGraphQLError(err)
+		return nil, toGraphQLError(err)
 	}
-
-	return mapper.ToModel(resp.GetTodo()), nil
+	return toModel(todo), nil
 }
 
 // UpdateTodo is the resolver for the updateTodo field.
@@ -47,35 +39,21 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, id string, input mode
 		return nil, err
 	}
 
-	dueDate, err := mapper.ParseOptionalDueDate(input.DueDate)
-	if err != nil {
-		return nil, err
-	}
-
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
 
-	req := &todopb.UpdateTodoRequest{Id: todoID}
-	if input.Title != nil {
-		req.Title = *input.Title
-	}
-	if input.Description != nil {
-		req.Description = *input.Description
-	}
-	if input.Priority != nil {
-		req.Priority = *input.Priority
-	}
-	if input.Status != nil {
-		req.Status = *input.Status
-	}
-	req.DueDate = dueDate
-
-	resp, err := r.todoClient.UpdateTodo(ctx, req)
+	todo, err := r.updater.Update(ctx, &ucin.UpdateTodo{
+		ID:          todoID,
+		Title:       derefStr(input.Title),
+		Description: derefStr(input.Description),
+		Priority:    derefStr(input.Priority),
+		Status:      derefStr(input.Status),
+		DueDate:     derefStr(input.DueDate),
+	})
 	if err != nil {
-		return nil, todograph.ToGraphQLError(err)
+		return nil, toGraphQLError(err)
 	}
-
-	return mapper.ToModel(resp.GetTodo()), nil
+	return toModel(todo), nil
 }
 
 // DeleteTodo is the resolver for the deleteTodo field.
@@ -88,11 +66,9 @@ func (r *mutationResolver) DeleteTodo(ctx context.Context, id string) (bool, err
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
 
-	_, err = r.todoClient.DeleteTodo(ctx, &todopb.DeleteTodoRequest{Id: todoID})
-	if err != nil {
-		return false, todograph.ToGraphQLError(err)
+	if err := r.deleter.Delete(ctx, &ucin.DeleteTodo{ID: todoID}); err != nil {
+		return false, toGraphQLError(err)
 	}
-
 	return true, nil
 }
 
@@ -106,29 +82,23 @@ func (r *queryResolver) Todo(ctx context.Context, id string) (*model.Todo, error
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
 
-	resp, err := r.todoClient.GetTodo(ctx, &todopb.GetTodoRequest{Id: todoID})
+	todo, err := r.getter.Get(ctx, &ucin.GetTodo{ID: todoID})
 	if err != nil {
-		return nil, todograph.ToGraphQLError(err)
+		return nil, toGraphQLError(err)
 	}
-
-	return mapper.ToModel(resp.GetTodo()), nil
+	return toModel(todo), nil
 }
 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context, userID int) ([]*model.Todo, error) {
-	if userID <= 0 {
-		return nil, fmt.Errorf("invalid argument: userId must be a positive integer")
-	}
-
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
 
-	resp, err := r.todoClient.ListTodos(ctx, &todopb.ListTodosRequest{UserId: int64(userID)})
+	todos, err := r.lister.List(ctx, &ucin.ListTodos{UserID: int64(userID)})
 	if err != nil {
-		return nil, todograph.ToGraphQLError(err)
+		return nil, toGraphQLError(err)
 	}
-
-	return mapper.ToModels(resp.GetTodos()), nil
+	return toModels(todos), nil
 }
 
 func parseID(id string) (int64, error) {
@@ -137,6 +107,13 @@ func parseID(id string) (int64, error) {
 		return 0, fmt.Errorf("invalid argument: id must be a positive integer")
 	}
 	return parsed, nil
+}
+
+func derefStr(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }
 
 // Mutation returns generated.MutationResolver implementation.

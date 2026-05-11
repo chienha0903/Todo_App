@@ -10,25 +10,25 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewDB(cfg *config.Config) (*gorm.DB, error) {
+func NewDB(cfg *config.Config) (*gorm.DB, func(), error) {
 	db, err := gorm.Open(postgres.Open(cfg.DBDSN), &gorm.Config{})
 	if err != nil {
-		return nil, fmt.Errorf("datastore: connect db: %w", err)
+		return nil, nil, fmt.Errorf("datastore: connect db: %w", err)
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		return nil, fmt.Errorf("datastore: get sql db: %w", err)
+		return nil, nil, fmt.Errorf("datastore: get sql db: %w", err)
 	}
 	if err := sqlDB.Ping(); err != nil {
-		return nil, fmt.Errorf("datastore: ping db: %w", err)
+		return nil, nil, fmt.Errorf("datastore: ping db: %w", err)
 	}
 
 	if err := db.AutoMigrate(&model.Todo{}); err != nil {
-		return nil, fmt.Errorf("datastore: auto migrate: %w", err)
+		return nil, nil, fmt.Errorf("datastore: auto migrate: %w", err)
 	}
 
-	return db, nil
+	return db, func() { _ = sqlDB.Close() }, nil
 }
 
 func NewTodoCommandGateway(repo *todoCommandRepo) gateway.TodoCommandGateway {

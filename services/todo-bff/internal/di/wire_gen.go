@@ -7,63 +7,24 @@
 package di
 
 import (
-	nethttp "net/http"
-	"time"
-
-	"github.com/99designs/gqlgen/graphql/handler"
-	todopb "github.com/chienha0903/Todo_App/proto/todo"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/config"
-	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/generated"
+	"github.com/chienha0903/Todo_App/services/todo-bff/internal/domain/service"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/resolver"
-	handlerhttp "github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/http"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	infratodo "github.com/chienha0903/Todo_App/services/todo-bff/internal/infra/todo"
 )
 
-func InitHTTPServer(cfg *config.Config) (*nethttp.Server, error) {
-	conn, err := NewGRPCConn(cfg)
+func InitializeApp(cfg *config.Config) (*resolver.Resolver, func(), error) {
+	conn, cleanup, err := infratodo.NewGRPCConn(cfg)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	svc := NewTodoServiceClient(conn)
-	todoHandler := NewTodoHandler(cfg, svc)
-	gqlResolver := NewGraphQLResolver(svc, cfg)
-	server := NewHTTPServer(cfg, todoHandler, gqlResolver, conn)
-	return server, nil
-}
-
-func NewGRPCConn(cfg *config.Config) (*grpc.ClientConn, error) {
-	return grpc.NewClient(
-		cfg.TodosGRPCAddr,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-}
-
-func NewTodoServiceClient(conn *grpc.ClientConn) todopb.TodoServiceClient {
-	return todopb.NewTodoServiceClient(conn)
-}
-
-func NewTodoHandler(cfg *config.Config, svc todopb.TodoServiceClient) *handlerhttp.TodoHandler {
-	return handlerhttp.NewTodoHandler(svc, cfg.RequestTimeout)
-}
-
-func NewGraphQLResolver(svc todopb.TodoServiceClient, cfg *config.Config) *resolver.Resolver {
-	return resolver.NewResolver(svc, cfg.RequestTimeout)
-}
-
-func NewHTTPServer(cfg *config.Config, todoHandler *handlerhttp.TodoHandler, gqlResolver *resolver.Resolver, conn *grpc.ClientConn) *nethttp.Server {
-	mux := todoHandler.Routes()
-
-	gqlSrv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: gqlResolver}))
-	mux.Handle("/graphql", gqlSrv)
-
-	server := &nethttp.Server{
-		Addr:              ":" + cfg.AppPort,
-		Handler:           mux,
-		ReadHeaderTimeout: 5 * time.Second,
-	}
-	server.RegisterOnShutdown(func() {
-		_ = conn.Close()
-	})
-	return server
+	client := infratodo.NewTodoServiceClient(conn)
+	gw := infratodo.NewGRPCGateway(client)
+	todoCreater := service.NewTodoCreater(gw)
+	todoGetter := service.NewTodoGetter(gw)
+	todoLister := service.NewTodoLister(gw)
+	todoUpdater := service.NewTodoUpdater(gw)
+	todoDeleter := service.NewTodoDeleter(gw)
+	gqlResolver := resolver.NewResolver(cfg, todoCreater, todoGetter, todoLister, todoUpdater, todoDeleter)
+	return gqlResolver, cleanup, nil
 }

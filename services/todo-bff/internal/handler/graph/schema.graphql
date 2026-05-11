@@ -36,3 +36,7 @@ input UpdateTodoInput {
   status:      String
   dueDate:     String
 }
+
+input DeleteTodoInput {
+  id: ID!
+}
