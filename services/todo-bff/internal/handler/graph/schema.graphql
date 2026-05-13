@@ -1,11 +1,23 @@
+enum TodoStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum TodoPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
 type Todo {
-  id:          ID!        # string vì GraphQL ID là string
+  id:          ID!
   userId:      Int!
   title:       String!
   description: String!
-  status:      String!
-  priority:    String!
-  dueDate:     String     # optional (nullable)
+  status:      TodoStatus!
+  priority:    TodoPriority!
+  dueDate:     String
   createdAt:   String!
   updatedAt:   String!
 }
@@ -25,15 +37,15 @@ input CreateTodoInput {
   userId:      Int!
   title:       String!
   description: String!
-  priority:    String!
-  dueDate:     String   # optional, RFC3339
+  priority:    TodoPriority!
+  dueDate:     String
 }
 
 input UpdateTodoInput {
   title:       String
   description: String
-  priority:    String
-  status:      String
+  priority:    TodoPriority
+  status:      TodoStatus
   dueDate:     String
 }
 

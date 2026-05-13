@@ -3,6 +3,7 @@ package resolver
 import (
 	stderrors "errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/apperror"
@@ -60,6 +61,35 @@ func toGraphQLError(err error) error {
 	return stderrors.New("internal server error")
 }
 
+func parseID(id string) (int64, error) {
+	parsed, err := strconv.ParseInt(id, 10, 64)
+	if err != nil || parsed <= 0 {
+		return 0, fmt.Errorf("invalid argument: id must be a positive integer")
+	}
+	return parsed, nil
+}
+
+func derefStr(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
+func derefPriority(p *model.TodoPriority) string {
+	if p == nil {
+		return ""
+	}
+	return string(*p)
+}
+
+func derefStatus(s *model.TodoStatus) string {
+	if s == nil {
+		return ""
+	}
+	return string(*s)
+}
+
 func toModel(t *output.Todo) *model.Todo {
 	if t == nil {
 		return nil
@@ -69,8 +99,8 @@ func toModel(t *output.Todo) *model.Todo {
 		UserID:      int(t.UserID),
 		Title:       t.Title,
 		Description: t.Description,
-		Status:      t.Status,
-		Priority:    t.Priority,
+		Status:      model.TodoStatus(t.Status),
+		Priority:    model.TodoPriority(t.Priority),
 		CreatedAt:   t.CreatedAt,
 		UpdatedAt:   t.UpdatedAt,
 	}

@@ -2,12 +2,23 @@
 
 package model
 
+import (
+	"bytes"
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type CreateTodoInput struct {
-	UserID      int     `json:"userId"`
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Priority    string  `json:"priority"`
-	DueDate     *string `json:"dueDate,omitempty"`
+	UserID      int          `json:"userId"`
+	Title       string       `json:"title"`
+	Description string       `json:"description"`
+	Priority    TodoPriority `json:"priority"`
+	DueDate     *string      `json:"dueDate,omitempty"`
+}
+
+type DeleteTodoInput struct {
+	ID string `json:"id"`
 }
 
 type Mutation struct {
@@ -17,21 +28,135 @@ type Query struct {
 }
 
 type Todo struct {
-	ID          string  `json:"id"`
-	UserID      int     `json:"userId"`
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Status      string  `json:"status"`
-	Priority    string  `json:"priority"`
-	DueDate     *string `json:"dueDate,omitempty"`
-	CreatedAt   string  `json:"createdAt"`
-	UpdatedAt   string  `json:"updatedAt"`
+	ID          string       `json:"id"`
+	UserID      int          `json:"userId"`
+	Title       string       `json:"title"`
+	Description string       `json:"description"`
+	Status      TodoStatus   `json:"status"`
+	Priority    TodoPriority `json:"priority"`
+	DueDate     *string      `json:"dueDate,omitempty"`
+	CreatedAt   string       `json:"createdAt"`
+	UpdatedAt   string       `json:"updatedAt"`
 }
 
 type UpdateTodoInput struct {
-	Title       *string `json:"title,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Priority    *string `json:"priority,omitempty"`
-	Status      *string `json:"status,omitempty"`
-	DueDate     *string `json:"dueDate,omitempty"`
+	Title       *string       `json:"title,omitempty"`
+	Description *string       `json:"description,omitempty"`
+	Priority    *TodoPriority `json:"priority,omitempty"`
+	Status      *TodoStatus   `json:"status,omitempty"`
+	DueDate     *string       `json:"dueDate,omitempty"`
+}
+
+type TodoPriority string
+
+const (
+	TodoPriorityLow    TodoPriority = "LOW"
+	TodoPriorityMedium TodoPriority = "MEDIUM"
+	TodoPriorityHigh   TodoPriority = "HIGH"
+)
+
+var AllTodoPriority = []TodoPriority{
+	TodoPriorityLow,
+	TodoPriorityMedium,
+	TodoPriorityHigh,
+}
+
+func (e TodoPriority) IsValid() bool {
+	switch e {
+	case TodoPriorityLow, TodoPriorityMedium, TodoPriorityHigh:
+		return true
+	}
+	return false
+}
+
+func (e TodoPriority) String() string {
+	return string(e)
+}
+
+func (e *TodoPriority) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TodoPriority(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TodoPriority", str)
+	}
+	return nil
+}
+
+func (e TodoPriority) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TodoPriority) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TodoPriority) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type TodoStatus string
+
+const (
+	TodoStatusPending    TodoStatus = "PENDING"
+	TodoStatusInProgress TodoStatus = "IN_PROGRESS"
+	TodoStatusCompleted  TodoStatus = "COMPLETED"
+)
+
+var AllTodoStatus = []TodoStatus{
+	TodoStatusPending,
+	TodoStatusInProgress,
+	TodoStatusCompleted,
+}
+
+func (e TodoStatus) IsValid() bool {
+	switch e {
+	case TodoStatusPending, TodoStatusInProgress, TodoStatusCompleted:
+		return true
+	}
+	return false
+}
+
+func (e TodoStatus) String() string {
+	return string(e)
+}
+
+func (e *TodoStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TodoStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TodoStatus", str)
+	}
+	return nil
+}
+
+func (e TodoStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *TodoStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e TodoStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

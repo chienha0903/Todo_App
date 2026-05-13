@@ -205,6 +205,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := newExecutionContext(opCtx, e, make(chan graphql.DeferredResult))
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCreateTodoInput,
+		ec.unmarshalInputDeleteTodoInput,
 		ec.unmarshalInputUpdateTodoInput,
 	)
 	first := true
@@ -281,14 +282,26 @@ func newExecutionContext(
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema.graphql", Input: `type Todo {
-  id:          ID!        # string vì GraphQL ID là string
+	{Name: "../schema.graphql", Input: `enum TodoStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum TodoPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+type Todo {
+  id:          ID!
   userId:      Int!
   title:       String!
   description: String!
-  status:      String!
-  priority:    String!
-  dueDate:     String     # optional (nullable)
+  status:      TodoStatus!
+  priority:    TodoPriority!
+  dueDate:     String
   createdAt:   String!
   updatedAt:   String!
 }
@@ -308,16 +321,20 @@ input CreateTodoInput {
   userId:      Int!
   title:       String!
   description: String!
-  priority:    String!
-  dueDate:     String   # optional, RFC3339
+  priority:    TodoPriority!
+  dueDate:     String
 }
 
 input UpdateTodoInput {
   title:       String
   description: String
-  priority:    String
-  status:      String
+  priority:    TodoPriority
+  status:      TodoStatus
   dueDate:     String
+}
+
+input DeleteTodoInput {
+  id: ID!
 }
 `, BuiltIn: false},
 }
@@ -1023,15 +1040,15 @@ func (ec *executionContext) _Todo_status(ctx context.Context, field graphql.Coll
 			return obj.Status, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v model.TodoStatus) graphql.Marshaler {
+			return ec.marshalNTodoStatus2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoStatus(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
 func (ec *executionContext) fieldContext_Todo_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Todo", field, false, false, errors.New("field of type String does not have child fields"))
+	return graphql.NewScalarFieldContext("Todo", field, false, false, errors.New("field of type TodoStatus does not have child fields"))
 }
 
 func (ec *executionContext) _Todo_priority(ctx context.Context, field graphql.CollectedField, obj *model.Todo) (ret graphql.Marshaler) {
@@ -1046,15 +1063,15 @@ func (ec *executionContext) _Todo_priority(ctx context.Context, field graphql.Co
 			return obj.Priority, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v model.TodoPriority) graphql.Marshaler {
+			return ec.marshalNTodoPriority2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoPriority(ctx, selections, v)
 		},
 		true,
 		true,
 	)
 }
 func (ec *executionContext) fieldContext_Todo_priority(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Todo", field, false, false, errors.New("field of type String does not have child fields"))
+	return graphql.NewScalarFieldContext("Todo", field, false, false, errors.New("field of type TodoPriority does not have child fields"))
 }
 
 func (ec *executionContext) _Todo_dueDate(ctx context.Context, field graphql.CollectedField, obj *model.Todo) (ret graphql.Marshaler) {
@@ -2226,7 +2243,7 @@ func (ec *executionContext) unmarshalInputCreateTodoInput(ctx context.Context, o
 			it.Description = data
 		case "priority":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("priority"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNTodoPriority2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoPriority(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2238,6 +2255,36 @@ func (ec *executionContext) unmarshalInputCreateTodoInput(ctx context.Context, o
 				return it, err
 			}
 			it.DueDate = data
+		}
+	}
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputDeleteTodoInput(ctx context.Context, obj any) (model.DeleteTodoInput, error) {
+	var it model.DeleteTodoInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
 		}
 	}
 	return it, nil
@@ -2277,14 +2324,14 @@ func (ec *executionContext) unmarshalInputUpdateTodoInput(ctx context.Context, o
 			it.Description = data
 		case "priority":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("priority"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOTodoPriority2ᚖgithubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoPriority(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Priority = data
 		case "status":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOTodoStatus2ᚖgithubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoStatus(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2973,6 +3020,26 @@ func (ec *executionContext) marshalNTodo2ᚖgithubᚗcomᚋchienha0903ᚋTodo_Ap
 	return ec._Todo(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNTodoPriority2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoPriority(ctx context.Context, v any) (model.TodoPriority, error) {
+	var res model.TodoPriority
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTodoPriority2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoPriority(ctx context.Context, sel ast.SelectionSet, v model.TodoPriority) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNTodoStatus2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoStatus(ctx context.Context, v any) (model.TodoStatus, error) {
+	var res model.TodoStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTodoStatus2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoStatus(ctx context.Context, sel ast.SelectionSet, v model.TodoStatus) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNUpdateTodoInput2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐUpdateTodoInput(ctx context.Context, v any) (model.UpdateTodoInput, error) {
 	res, err := ec.unmarshalInputUpdateTodoInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3172,6 +3239,38 @@ func (ec *executionContext) marshalOTodo2ᚖgithubᚗcomᚋchienha0903ᚋTodo_Ap
 		return graphql.Null
 	}
 	return ec._Todo(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTodoPriority2ᚖgithubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoPriority(ctx context.Context, v any) (*model.TodoPriority, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.TodoPriority)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTodoPriority2ᚖgithubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoPriority(ctx context.Context, sel ast.SelectionSet, v *model.TodoPriority) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOTodoStatus2ᚖgithubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoStatus(ctx context.Context, v any) (*model.TodoStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(model.TodoStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTodoStatus2ᚖgithubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoStatus(ctx context.Context, sel ast.SelectionSet, v *model.TodoStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {
