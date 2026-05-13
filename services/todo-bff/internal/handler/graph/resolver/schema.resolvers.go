@@ -13,7 +13,6 @@ import (
 	ucin "github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/todo/input"
 )
 
-
 // CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.CreateTodoInput) (*model.Todo, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
@@ -90,15 +89,27 @@ func (r *queryResolver) Todo(ctx context.Context, id string) (*model.Todo, error
 }
 
 // Todos is the resolver for the todos field.
-func (r *queryResolver) Todos(ctx context.Context, userID int) ([]*model.Todo, error) {
+func (r *queryResolver) Todos(ctx context.Context, userID int, page *int, pageSize *int) (*model.TodoPage, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
 
-	todos, err := r.lister.List(ctx, &ucin.ListTodos{UserID: int64(userID)})
+	p, ps := 1, 20
+	if page != nil && *page > 0 {
+		p = *page
+	}
+	if pageSize != nil && *pageSize > 0 {
+		ps = *pageSize
+	}
+
+	result, err := r.lister.List(ctx, &ucin.ListTodos{
+		UserID:   int64(userID),
+		Page:     p,
+		PageSize: ps,
+	})
 	if err != nil {
 		return nil, toGraphQLError(err)
 	}
-	return toModels(todos), nil
+	return toPageModel(result), nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
@@ -109,4 +120,3 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-

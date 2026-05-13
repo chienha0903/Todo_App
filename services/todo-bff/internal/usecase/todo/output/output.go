@@ -11,3 +11,11 @@ type Todo struct {
 	CreatedAt   string
 	UpdatedAt   string
 }
+
+type TodoPage struct {
+	Items    []*Todo
+	Total    int
+	Page     int
+	PageSize int
+	HasNext  bool
+}

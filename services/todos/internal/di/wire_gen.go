@@ -15,6 +15,8 @@ import (
 	"google.golang.org/grpc"
 )
 
+// Injectors from wire.go:
+
 func InitializeApp(cfg *config.Config) (*grpc.Server, func(), error) {
 	db, cleanup, err := datastore.NewDB(cfg)
 	if err != nil {
@@ -31,5 +33,7 @@ func InitializeApp(cfg *config.Config) (*grpc.Server, func(), error) {
 	todoDeleter := service.NewTodoDeleter(todoCommandGateway)
 	todoHandler := todo.NewTodoHandler(todoCreater, todoGetter, todoLister, todoUpdater, todoDeleter)
 	server := grpc2.NewGRPCServer(todoHandler)
-	return server, cleanup, nil
+	return server, func() {
+		cleanup()
+	}, nil
 }

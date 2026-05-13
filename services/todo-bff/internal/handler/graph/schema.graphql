@@ -22,9 +22,17 @@ type Todo {
   updatedAt:   String!
 }
 
+type TodoPage {
+  items:    [Todo!]!
+  total:    Int!
+  page:     Int!
+  pageSize: Int!
+  hasNext:  Boolean!
+}
+
 type Query {
   todo(id: ID!): Todo
-  todos(userId: Int!): [Todo!]!
+  todos(userId: Int!, page: Int, pageSize: Int): TodoPage!
 }
 
 type Mutation {

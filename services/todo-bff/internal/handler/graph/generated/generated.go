@@ -44,7 +44,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Todo  func(childComplexity int, id string) int
-		Todos func(childComplexity int, userID int) int
+		Todos func(childComplexity int, userID int, page *int, pageSize *int) int
 	}
 
 	Todo struct {
@@ -58,6 +58,14 @@ type ComplexityRoot struct {
 		UpdatedAt   func(childComplexity int) int
 		UserID      func(childComplexity int) int
 	}
+
+	TodoPage struct {
+		HasNext  func(childComplexity int) int
+		Items    func(childComplexity int) int
+		Page     func(childComplexity int) int
+		PageSize func(childComplexity int) int
+		Total    func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
@@ -67,7 +75,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Todo(ctx context.Context, id string) (*model.Todo, error)
-	Todos(ctx context.Context, userID int) ([]*model.Todo, error)
+	Todos(ctx context.Context, userID int, page *int, pageSize *int) (*model.TodoPage, error)
 }
 
 type executableSchema graphql.ExecutableSchemaState[ResolverRoot, DirectiveRoot, ComplexityRoot]
@@ -139,7 +147,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Query.Todos(childComplexity, args["userId"].(int)), true
+		return e.ComplexityRoot.Query.Todos(childComplexity, args["userId"].(int), args["page"].(*int), args["pageSize"].(*int)), true
 
 	case "Todo.createdAt":
 		if e.ComplexityRoot.Todo.CreatedAt == nil {
@@ -195,6 +203,37 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Todo.UserID(childComplexity), true
+
+	case "TodoPage.hasNext":
+		if e.ComplexityRoot.TodoPage.HasNext == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TodoPage.HasNext(childComplexity), true
+	case "TodoPage.items":
+		if e.ComplexityRoot.TodoPage.Items == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TodoPage.Items(childComplexity), true
+	case "TodoPage.page":
+		if e.ComplexityRoot.TodoPage.Page == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TodoPage.Page(childComplexity), true
+	case "TodoPage.pageSize":
+		if e.ComplexityRoot.TodoPage.PageSize == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TodoPage.PageSize(childComplexity), true
+	case "TodoPage.total":
+		if e.ComplexityRoot.TodoPage.Total == nil {
+			break
+		}
+
+		return e.ComplexityRoot.TodoPage.Total(childComplexity), true
 
 	}
 	return 0, false
@@ -306,9 +345,17 @@ type Todo {
   updatedAt:   String!
 }
 
+type TodoPage {
+  items:    [Todo!]!
+  total:    Int!
+  page:     Int!
+  pageSize: Int!
+  hasNext:  Boolean!
+}
+
 type Query {
   todo(id: ID!): Todo
-  todos(userId: Int!): [Todo!]!
+  todos(userId: Int!, page: Int, pageSize: Int): TodoPage!
 }
 
 type Mutation {
@@ -366,6 +413,22 @@ func (ec *executionContext) childFields_Todo(ctx context.Context, field graphql.
 		return ec.fieldContext_Todo_updatedAt(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
+}
+
+func (ec *executionContext) childFields_TodoPage(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+	switch field.Name {
+	case "items":
+		return ec.fieldContext_TodoPage_items(ctx, field)
+	case "total":
+		return ec.fieldContext_TodoPage_total(ctx, field)
+	case "page":
+		return ec.fieldContext_TodoPage_page(ctx, field)
+	case "pageSize":
+		return ec.fieldContext_TodoPage_pageSize(ctx, field)
+	case "hasNext":
+		return ec.fieldContext_TodoPage_hasNext(ctx, field)
+	}
+	return nil, fmt.Errorf("no field named %q was found under type TodoPage", field.Name)
 }
 
 func (ec *executionContext) childFields___Directive(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -573,6 +636,22 @@ func (ec *executionContext) field_Query_todos_args(ctx context.Context, rawArgs 
 		return nil, err
 	}
 	args["userId"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "page",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["page"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "pageSize",
+		func(ctx context.Context, v any) (*int, error) {
+			return ec.unmarshalOInt2ᚖint(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["pageSize"] = arg2
 	return args, nil
 }
 
@@ -826,11 +905,11 @@ func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.Coll
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Query().Todos(ctx, fc.Args["userId"].(int))
+			return ec.Resolvers.Query().Todos(ctx, fc.Args["userId"].(int), fc.Args["page"].(*int), fc.Args["pageSize"].(*int))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.Todo) graphql.Marshaler {
-			return ec.marshalNTodo2ᚕᚖgithubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *model.TodoPage) graphql.Marshaler {
+			return ec.marshalNTodoPage2ᚖgithubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoPage(ctx, selections, v)
 		},
 		true,
 		true,
@@ -843,7 +922,7 @@ func (ec *executionContext) fieldContext_Query_todos(ctx context.Context, field 
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_Todo(ctx, field)
+			return ec.childFields_TodoPage(ctx, field)
 		},
 	}
 	defer func() {
@@ -1141,6 +1220,130 @@ func (ec *executionContext) _Todo_updatedAt(ctx context.Context, field graphql.C
 }
 func (ec *executionContext) fieldContext_Todo_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Todo", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _TodoPage_items(ctx context.Context, field graphql.CollectedField, obj *model.TodoPage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TodoPage_items(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Items, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v []*model.Todo) graphql.Marshaler {
+			return ec.marshalNTodo2ᚕᚖgithubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoᚄ(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TodoPage_items(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TodoPage",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_Todo(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TodoPage_total(ctx context.Context, field graphql.CollectedField, obj *model.TodoPage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TodoPage_total(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TodoPage_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TodoPage", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _TodoPage_page(ctx context.Context, field graphql.CollectedField, obj *model.TodoPage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TodoPage_page(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.Page, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TodoPage_page(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TodoPage", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _TodoPage_pageSize(ctx context.Context, field graphql.CollectedField, obj *model.TodoPage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TodoPage_pageSize(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.PageSize, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
+			return ec.marshalNInt2int(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TodoPage_pageSize(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TodoPage", field, false, false, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _TodoPage_hasNext(ctx context.Context, field graphql.CollectedField, obj *model.TodoPage) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_TodoPage_hasNext(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.HasNext, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_TodoPage_hasNext(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("TodoPage", field, false, false, errors.New("field of type Boolean does not have child fields"))
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -2586,6 +2789,65 @@ func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
+var todoPageImplementors = []string{"TodoPage"}
+
+func (ec *executionContext) _TodoPage(ctx context.Context, sel ast.SelectionSet, obj *model.TodoPage) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, todoPageImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TodoPage")
+		case "items":
+			out.Values[i] = ec._TodoPage_items(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._TodoPage_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "page":
+			out.Values[i] = ec._TodoPage_page(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageSize":
+			out.Values[i] = ec._TodoPage_pageSize(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "hasNext":
+			out.Values[i] = ec._TodoPage_hasNext(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.Deferred, int32(min(len(deferred), math.MaxInt32)))
+
+	for label, dfs := range deferred {
+		ec.ProcessDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var __DirectiveImplementors = []string{"__Directive"}
 
 func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionSet, obj *introspection.Directive) graphql.Marshaler {
@@ -3020,6 +3282,20 @@ func (ec *executionContext) marshalNTodo2ᚖgithubᚗcomᚋchienha0903ᚋTodo_Ap
 	return ec._Todo(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNTodoPage2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoPage(ctx context.Context, sel ast.SelectionSet, v model.TodoPage) graphql.Marshaler {
+	return ec._TodoPage(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTodoPage2ᚖgithubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoPage(ctx context.Context, sel ast.SelectionSet, v *model.TodoPage) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TodoPage(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNTodoPriority2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐTodoPriority(ctx context.Context, v any) (model.TodoPriority, error) {
 	var res model.TodoPriority
 	err := res.UnmarshalGQL(v)
@@ -3213,6 +3489,24 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	_ = sel
 	_ = ctx
 	res := graphql.MarshalBoolean(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v any) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalInt(*v)
 	return res
 }
 

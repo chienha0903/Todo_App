@@ -63,11 +63,16 @@ func (h *TodoHandler) ListTodos(
 	ctx context.Context,
 	req *todopb.ListTodosRequest,
 ) (*todopb.ListTodosResponse, error) {
-	todos, err := h.lister.List(ctx, mapper.ToListTodosInput(req))
+	page, err := h.lister.List(ctx, mapper.ToListTodosInput(req))
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
-	return &todopb.ListTodosResponse{Todos: mapper.ToProtoTodos(todos)}, nil
+	return &todopb.ListTodosResponse{
+		Todos:    mapper.ToProtoTodos(page.Items),
+		Total:    page.Total,
+		Page:     page.Page,
+		PageSize: page.PageSize,
+	}, nil
 }
 
 func (h *TodoHandler) UpdateTodo(

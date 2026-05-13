@@ -30,7 +30,11 @@ func ToGetTodoInput(req *todopb.GetTodoRequest) *input.GetTodoInput {
 }
 
 func ToListTodosInput(req *todopb.ListTodosRequest) *input.ListTodosInput {
-	return &input.ListTodosInput{UserID: req.UserId}
+	return &input.ListTodosInput{
+		UserID:   req.UserId,
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	}
 }
 
 func ToUpdateTodoInput(req *todopb.UpdateTodoRequest) (*input.UpdateTodoInput, error) {
@@ -71,7 +75,7 @@ func ToProtoTodo(t *output.Todo) *todopb.Todo {
 	return proto
 }
 
-func ToProtoTodos(todos output.TodoLister) []*todopb.Todo {
+func ToProtoTodos(todos []output.Todo) []*todopb.Todo {
 	items := make([]*todopb.Todo, 0, len(todos))
 	for i := range todos {
 		t := todos[i]

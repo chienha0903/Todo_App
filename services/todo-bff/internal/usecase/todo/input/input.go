@@ -13,7 +13,9 @@ type GetTodo struct {
 }
 
 type ListTodos struct {
-	UserID int64
+	UserID   int64
+	Page     int
+	PageSize int
 }
 
 type UpdateTodo struct {

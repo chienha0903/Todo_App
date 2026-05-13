@@ -16,7 +16,12 @@ type Todo struct {
 
 type TodoGetter = Todo
 
-type TodoLister []Todo
+type TodoPage struct {
+	Items    []Todo
+	Total    int32
+	Page     int32
+	PageSize int32
+}
 
 type TodoCreater = Todo
 

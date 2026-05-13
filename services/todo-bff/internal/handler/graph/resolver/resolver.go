@@ -118,3 +118,13 @@ func toModels(todos []*output.Todo) []*model.Todo {
 	}
 	return items
 }
+
+func toPageModel(p *output.TodoPage) *model.TodoPage {
+	return &model.TodoPage{
+		Items:    toModels(p.Items),
+		Total:    p.Total,
+		Page:     p.Page,
+		PageSize: p.PageSize,
+		HasNext:  p.HasNext,
+	}
+}

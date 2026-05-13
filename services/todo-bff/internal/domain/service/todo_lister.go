@@ -20,7 +20,7 @@ func NewTodoLister(gw gateway.TodoGateway) *TodoLister {
 	return &TodoLister{gw: gw}
 }
 
-func (s *TodoLister) List(ctx context.Context, in *input.ListTodos) ([]*output.Todo, error) {
+func (s *TodoLister) List(ctx context.Context, in *input.ListTodos) (*output.TodoPage, error) {
 	if in.UserID <= 0 {
 		return nil, apperror.InvalidArgument("userId must be a positive integer")
 	}

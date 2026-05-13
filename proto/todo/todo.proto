@@ -34,10 +34,15 @@ message GetTodoResponse {
 
 // ── ListTodos ───────────────────────────────────────────────
 message ListTodosRequest {
-  int64 user_id = 1;
+  int64 user_id   = 1;
+  int32 page      = 2; // 1-based, default 1
+  int32 page_size = 3; // default 20
 }
 message ListTodosResponse {
-  repeated Todo todos = 1;
+  repeated Todo todos     = 1;
+  int32         total     = 2;
+  int32         page      = 3;
+  int32         page_size = 4;
 }
 
 // ── UpdateTodo ──────────────────────────────────────────────

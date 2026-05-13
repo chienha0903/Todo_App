@@ -123,16 +123,17 @@ func (mr *MockTodoQueryGatewayMockRecorder) GetTodo(ctx, id any) *gomock.Call {
 }
 
 // GetTodos mocks base method.
-func (m *MockTodoQueryGateway) GetTodos(ctx context.Context, userID entity.UserID) ([]*entity.Todo, error) {
+func (m *MockTodoQueryGateway) GetTodos(ctx context.Context, userID entity.UserID, page, pageSize int32) ([]*entity.Todo, int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTodos", ctx, userID)
+	ret := m.ctrl.Call(m, "GetTodos", ctx, userID, page, pageSize)
 	ret0, _ := ret[0].([]*entity.Todo)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(int64)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // GetTodos indicates an expected call of GetTodos.
-func (mr *MockTodoQueryGatewayMockRecorder) GetTodos(ctx, userID any) *gomock.Call {
+func (mr *MockTodoQueryGatewayMockRecorder) GetTodos(ctx, userID, page, pageSize any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTodos", reflect.TypeOf((*MockTodoQueryGateway)(nil).GetTodos), ctx, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTodos", reflect.TypeOf((*MockTodoQueryGateway)(nil).GetTodos), ctx, userID, page, pageSize)
 }

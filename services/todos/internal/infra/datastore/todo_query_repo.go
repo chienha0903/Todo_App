@@ -28,25 +28,33 @@ func (r *todoQueryRepo) GetTodo(ctx context.Context, id entity.TodoID) (*entity.
 	return mapper.ToEntity(&m)
 }
 
-func (r *todoQueryRepo) GetTodos(ctx context.Context, userID entity.UserID) ([]*entity.Todo, error) {
+func (r *todoQueryRepo) GetTodos(ctx context.Context, userID entity.UserID, page, pageSize int32) ([]*entity.Todo, int64, error) {
+	var total int64
+	r.db.WithContext(ctx).Model(&model.Todo{}).
+		Where("user_id = ?", int64(userID)).
+		Count(&total)
+
+	offset := int((page - 1) * pageSize)
 	var ms []model.Todo
 	result := r.db.WithContext(ctx).
 		Where("user_id = ?", int64(userID)).
 		Order("created_at DESC").
+		Limit(int(pageSize)).
+		Offset(offset).
 		Find(&ms)
 	if result.Error != nil {
-		return nil, mapTodoRepoError(result.Error)
+		return nil, 0, mapTodoRepoError(result.Error)
 	}
 
 	todos := make([]*entity.Todo, 0, len(ms))
 	for i := range ms {
 		t, err := mapper.ToEntity(&ms[i])
 		if err != nil {
-			return nil, mapTodoRepoError(err)
+			return nil, 0, mapTodoRepoError(err)
 		}
 		todos = append(todos, t)
 	}
-	return todos, nil
+	return todos, total, nil
 }
 
 func mapTodoRepoError(err error) error {

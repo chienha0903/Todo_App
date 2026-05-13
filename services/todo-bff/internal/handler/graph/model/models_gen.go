@@ -39,6 +39,14 @@ type Todo struct {
 	UpdatedAt   string       `json:"updatedAt"`
 }
 
+type TodoPage struct {
+	Items    []*Todo `json:"items"`
+	Total    int     `json:"total"`
+	Page     int     `json:"page"`
+	PageSize int     `json:"pageSize"`
+	HasNext  bool    `json:"hasNext"`
+}
+
 type UpdateTodoInput struct {
 	Title       *string       `json:"title,omitempty"`
 	Description *string       `json:"description,omitempty"`

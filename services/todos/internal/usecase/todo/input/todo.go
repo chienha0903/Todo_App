@@ -15,7 +15,9 @@ type GetTodoInput struct {
 }
 
 type ListTodosInput struct {
-	UserID int64
+	UserID   int64
+	Page     int32
+	PageSize int32
 }
 
 type UpdateTodoInput struct {

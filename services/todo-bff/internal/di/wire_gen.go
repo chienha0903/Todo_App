@@ -10,21 +10,25 @@ import (
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/config"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/domain/service"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/resolver"
-	infratodo "github.com/chienha0903/Todo_App/services/todo-bff/internal/infra/todo"
+	"github.com/chienha0903/Todo_App/services/todo-bff/internal/infra/todo"
 )
 
+// Injectors from wire.go:
+
 func InitializeApp(cfg *config.Config) (*resolver.Resolver, func(), error) {
-	conn, cleanup, err := infratodo.NewGRPCConn(cfg)
+	clientConn, cleanup, err := todo.NewGRPCConn(cfg)
 	if err != nil {
 		return nil, nil, err
 	}
-	client := infratodo.NewTodoServiceClient(conn)
-	gw := infratodo.NewGRPCGateway(client)
-	todoCreater := service.NewTodoCreater(gw)
-	todoGetter := service.NewTodoGetter(gw)
-	todoLister := service.NewTodoLister(gw)
-	todoUpdater := service.NewTodoUpdater(gw)
-	todoDeleter := service.NewTodoDeleter(gw)
-	gqlResolver := resolver.NewResolver(cfg, todoCreater, todoGetter, todoLister, todoUpdater, todoDeleter)
-	return gqlResolver, cleanup, nil
+	todoServiceClient := todo.NewTodoServiceClient(clientConn)
+	todoGateway := todo.NewGRPCGateway(todoServiceClient)
+	todoCreater := service.NewTodoCreater(todoGateway)
+	todoGetter := service.NewTodoGetter(todoGateway)
+	todoLister := service.NewTodoLister(todoGateway)
+	todoUpdater := service.NewTodoUpdater(todoGateway)
+	todoDeleter := service.NewTodoDeleter(todoGateway)
+	resolverResolver := resolver.NewResolver(cfg, todoCreater, todoGetter, todoLister, todoUpdater, todoDeleter)
+	return resolverResolver, func() {
+		cleanup()
+	}, nil
 }

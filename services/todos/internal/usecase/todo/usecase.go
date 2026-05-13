@@ -16,7 +16,7 @@ type TodoGetter interface {
 }
 
 type TodoLister interface {
-	List(ctx context.Context, in *input.ListTodosInput) (output.TodoLister, error)
+	List(ctx context.Context, in *input.ListTodosInput) (*output.TodoPage, error)
 }
 
 type TodoUpdater interface {

@@ -61,12 +61,25 @@ func (g *grpcGateway) GetTodo(ctx context.Context, in input.GetTodo) (*output.To
 	return toOutput(resp.GetTodo()), nil
 }
 
-func (g *grpcGateway) ListTodos(ctx context.Context, in input.ListTodos) ([]*output.Todo, error) {
-	resp, err := g.client.ListTodos(ctx, &todopb.ListTodosRequest{UserId: in.UserID})
+func (g *grpcGateway) ListTodos(ctx context.Context, in input.ListTodos) (*output.TodoPage, error) {
+	resp, err := g.client.ListTodos(ctx, &todopb.ListTodosRequest{
+		UserId:   in.UserID,
+		Page:     int32(in.Page),
+		PageSize: int32(in.PageSize),
+	})
 	if err != nil {
 		return nil, toAppError(err)
 	}
-	return toOutputs(resp.GetTodos()), nil
+	total := int(resp.Total)
+	page := int(resp.Page)
+	pSize := int(resp.PageSize)
+	return &output.TodoPage{
+		Items:    toOutputs(resp.GetTodos()),
+		Total:    total,
+		Page:     page,
+		PageSize: pSize,
+		HasNext:  page*pSize < total,
+	}, nil
 }
 
 func (g *grpcGateway) UpdateTodo(ctx context.Context, in input.UpdateTodo) (*output.Todo, error) {

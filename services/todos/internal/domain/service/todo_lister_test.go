@@ -19,50 +19,79 @@ func TestTodoListerList(t *testing.T) {
 		setupMock  func(repo *gatewaymock.MockTodoQueryGateway)
 		wantErr    bool
 		wantReason apperrors.Reason
-		check      func(t *testing.T, got output.TodoLister)
+		check      func(t *testing.T, got *output.TodoPage)
 	}{
 		{
 			name:  "success - returns todos",
-			input: &input.ListTodosInput{UserID: 7},
+			input: &input.ListTodosInput{UserID: 7, Page: 1, PageSize: 20},
 			setupMock: func(repo *gatewaymock.MockTodoQueryGateway) {
 				todos := []*entity.Todo{newFixtureTodo()}
 				repo.EXPECT().
-					GetTodos(gomock.Any(), entity.UserID(7)).
-					Return(todos, nil)
+					GetTodos(gomock.Any(), entity.UserID(7), int32(1), int32(20)).
+					Return(todos, int64(1), nil)
 			},
-			check: func(t *testing.T, got output.TodoLister) {
-				if len(got) != 1 {
-					t.Fatalf("len = %d, want 1", len(got))
+			check: func(t *testing.T, got *output.TodoPage) {
+				if len(got.Items) != 1 {
+					t.Fatalf("len = %d, want 1", len(got.Items))
 				}
-				if got[0].ID != 5 || got[0].UserID != 7 {
-					t.Fatalf("id/user_id = %d/%d, want 5/7", got[0].ID, got[0].UserID)
+				if got.Items[0].ID != 5 || got.Items[0].UserID != 7 {
+					t.Fatalf("id/user_id = %d/%d, want 5/7", got.Items[0].ID, got.Items[0].UserID)
 				}
-				if got[0].Title != "Buy milk" {
-					t.Fatalf("title = %q, want %q", got[0].Title, "Buy milk")
+				if got.Items[0].Title != "Buy milk" {
+					t.Fatalf("title = %q, want %q", got.Items[0].Title, "Buy milk")
+				}
+				if got.Total != 1 {
+					t.Fatalf("total = %d, want 1", got.Total)
+				}
+				if got.Page != 1 {
+					t.Fatalf("page = %d, want 1", got.Page)
+				}
+				if got.PageSize != 20 {
+					t.Fatalf("pageSize = %d, want 20", got.PageSize)
 				}
 			},
 		},
 		{
 			name:  "success - empty list",
-			input: &input.ListTodosInput{UserID: 7},
+			input: &input.ListTodosInput{UserID: 7, Page: 1, PageSize: 20},
 			setupMock: func(repo *gatewaymock.MockTodoQueryGateway) {
 				repo.EXPECT().
-					GetTodos(gomock.Any(), entity.UserID(7)).
-					Return([]*entity.Todo{}, nil)
+					GetTodos(gomock.Any(), entity.UserID(7), int32(1), int32(20)).
+					Return([]*entity.Todo{}, int64(0), nil)
 			},
-			check: func(t *testing.T, got output.TodoLister) {
-				if len(got) != 0 {
-					t.Fatalf("len = %d, want 0", len(got))
+			check: func(t *testing.T, got *output.TodoPage) {
+				if len(got.Items) != 0 {
+					t.Fatalf("len = %d, want 0", len(got.Items))
+				}
+				if got.Total != 0 {
+					t.Fatalf("total = %d, want 0", got.Total)
+				}
+			},
+		},
+		{
+			name:  "fallback to defaults when page/pageSize <= 0",
+			input: &input.ListTodosInput{UserID: 7, Page: 0, PageSize: 0},
+			setupMock: func(repo *gatewaymock.MockTodoQueryGateway) {
+				repo.EXPECT().
+					GetTodos(gomock.Any(), entity.UserID(7), int32(1), int32(20)).
+					Return([]*entity.Todo{}, int64(0), nil)
+			},
+			check: func(t *testing.T, got *output.TodoPage) {
+				if got.Page != 1 {
+					t.Fatalf("page = %d, want 1 (default)", got.Page)
+				}
+				if got.PageSize != 20 {
+					t.Fatalf("pageSize = %d, want 20 (default)", got.PageSize)
 				}
 			},
 		},
 		{
 			name:  "gateway error",
-			input: &input.ListTodosInput{UserID: 7},
+			input: &input.ListTodosInput{UserID: 7, Page: 1, PageSize: 20},
 			setupMock: func(repo *gatewaymock.MockTodoQueryGateway) {
 				repo.EXPECT().
-					GetTodos(gomock.Any(), entity.UserID(7)).
-					Return(nil, apperrors.NewAppError(apperrors.ReasonInternalServerError, "db error"))
+					GetTodos(gomock.Any(), entity.UserID(7), int32(1), int32(20)).
+					Return(nil, int64(0), apperrors.NewAppError(apperrors.ReasonInternalServerError, "db error"))
 			},
 			wantErr:    true,
 			wantReason: apperrors.ReasonInternalServerError,

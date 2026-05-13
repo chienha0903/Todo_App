@@ -12,7 +12,7 @@ import (
 type TodoGateway interface {
 	CreateTodo(ctx context.Context, in input.CreateTodo) (*output.Todo, error)
 	GetTodo(ctx context.Context, in input.GetTodo) (*output.Todo, error)
-	ListTodos(ctx context.Context, in input.ListTodos) ([]*output.Todo, error)
+	ListTodos(ctx context.Context, in input.ListTodos) (*output.TodoPage, error)
 	UpdateTodo(ctx context.Context, in input.UpdateTodo) (*output.Todo, error)
 	DeleteTodo(ctx context.Context, in input.DeleteTodo) error
 }

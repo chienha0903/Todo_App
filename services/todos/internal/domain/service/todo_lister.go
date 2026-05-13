@@ -20,10 +20,24 @@ func NewTodoLister(qryGW gateway.TodoQueryGateway) *TodoLister {
 	return &TodoLister{qryGW: qryGW}
 }
 
-func (s *TodoLister) List(ctx context.Context, in *input.ListTodosInput) (output.TodoLister, error) {
-	todos, err := s.qryGW.GetTodos(ctx, entity.UserID(in.UserID))
+func (s *TodoLister) List(ctx context.Context, in *input.ListTodosInput) (*output.TodoPage, error) {
+	page := in.Page
+	if page <= 0 {
+		page = 1
+	}
+	pageSize := in.PageSize
+	if pageSize <= 0 {
+		pageSize = 20
+	}
+
+	todos, total, err := s.qryGW.GetTodos(ctx, entity.UserID(in.UserID), page, pageSize)
 	if err != nil {
 		return nil, err
 	}
-	return toOutputs(todos), nil
+	return &output.TodoPage{
+		Items:    toOutputSlice(todos),
+		Total:    int32(total),
+		Page:     page,
+		PageSize: pageSize,
+	}, nil
 }
