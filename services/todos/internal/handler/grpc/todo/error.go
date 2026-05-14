@@ -17,25 +17,25 @@ func toGRPCError(err error) error {
 		return err
 	}
 
-	var appErr *apperrors.Error
+	var appErr *apperrors.AppError
 	if !stderrors.As(err, &appErr) {
 		return status.Error(codes.Internal, "internal server error")
 	}
 
-	return status.Error(toGRPCCode(appErr.Reason), appErr.Message)
+	return status.Error(toGRPCCode(appErr.Code), appErr.Message)
 }
 
-func toGRPCCode(reason apperrors.Reason) codes.Code {
-	switch reason {
-	case apperrors.ReasonNotFound:
+func toGRPCCode(code apperrors.ErrorCode) codes.Code {
+	switch code {
+	case apperrors.ErrNotFound:
 		return codes.NotFound
-	case apperrors.ReasonInvalidParameter:
+	case apperrors.ErrInvalidParameter:
 		return codes.InvalidArgument
-	case apperrors.ReasonUnauthorized:
+	case apperrors.ErrAuthN:
 		return codes.Unauthenticated
-	case apperrors.ReasonPermissionDenied:
+	case apperrors.ErrAuthZ:
 		return codes.PermissionDenied
-	case apperrors.ReasonInternalServerError:
+	case apperrors.ErrInternal:
 		return codes.Internal
 	default:
 		return codes.Internal

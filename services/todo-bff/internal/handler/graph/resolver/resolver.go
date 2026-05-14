@@ -1,7 +1,6 @@
 package resolver
 
 import (
-	stderrors "errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -40,31 +39,10 @@ func NewResolver(
 	}
 }
 
-func toGraphQLError(err error) error {
-	var appErr *apperror.Error
-	if stderrors.As(err, &appErr) {
-		switch appErr.Code {
-		case apperror.CodeNotFound:
-			return fmt.Errorf("not found: %s", appErr.Message)
-		case apperror.CodeInvalidArgument:
-			return fmt.Errorf("invalid argument: %s", appErr.Message)
-		case apperror.CodeUnauthorized:
-			return stderrors.New("unauthorized")
-		case apperror.CodePermissionDenied:
-			return stderrors.New("permission denied")
-		case apperror.CodeTimeout:
-			return stderrors.New("request timed out")
-		case apperror.CodeUnavailable:
-			return stderrors.New("service unavailable")
-		}
-	}
-	return stderrors.New("internal server error")
-}
-
 func parseID(id string) (int64, error) {
 	parsed, err := strconv.ParseInt(id, 10, 64)
 	if err != nil || parsed <= 0 {
-		return 0, fmt.Errorf("invalid argument: id must be a positive integer")
+		return 0, apperror.InvalidArgument("id must be a positive integer")
 	}
 	return parsed, nil
 }

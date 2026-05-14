@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/apperror"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/domain/gateway"
@@ -24,5 +25,9 @@ func (s *TodoLister) List(ctx context.Context, in *input.ListTodos) (*output.Tod
 	if in.UserID <= 0 {
 		return nil, apperror.InvalidArgument("userId must be a positive integer")
 	}
-	return s.gw.ListTodos(ctx, *in)
+	res, err := s.gw.ListTodos(ctx, *in)
+	if err != nil {
+		return nil, fmt.Errorf("TodoLister.List: %w", err)
+	}
+	return res, nil
 }

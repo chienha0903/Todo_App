@@ -13,6 +13,7 @@ import (
 
 func NewHTTPServer(cfg *config.Config, gqlResolver *resolver.Resolver) *nethttp.Server {
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: gqlResolver}))
+	srv.SetErrorPresenter(resolver.ErrorPresenter)
 
 	mux := nethttp.NewServeMux()
 	mux.HandleFunc("GET /health", healthHandler)

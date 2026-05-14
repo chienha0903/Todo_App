@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/apperror"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/domain/gateway"
@@ -24,5 +25,9 @@ func (s *TodoGetter) Get(ctx context.Context, in *input.GetTodo) (*output.Todo, 
 	if in.ID <= 0 {
 		return nil, apperror.InvalidArgument("id must be a positive integer")
 	}
-	return s.gw.GetTodo(ctx, *in)
+	res, err := s.gw.GetTodo(ctx, *in)
+	if err != nil {
+		return nil, fmt.Errorf("TodoGetter.Get: %w", err)
+	}
+	return res, nil
 }

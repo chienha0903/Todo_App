@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	apperrors "github.com/chienha0903/Todo_App/pkg/errors"
@@ -14,12 +15,12 @@ import (
 
 func TestTodoGetterGet(t *testing.T) {
 	tests := []struct {
-		name       string
-		input      *input.GetTodoInput
-		setupMock  func(repo *gatewaymock.MockTodoQueryGateway)
-		wantErr    bool
-		wantReason apperrors.Reason
-		check      func(t *testing.T, got *output.TodoGetter)
+		name      string
+		input     *input.GetTodoInput
+		setupMock func(repo *gatewaymock.MockTodoQueryGateway)
+		wantErr   bool
+		wantCode  apperrors.ErrorCode
+		check     func(t *testing.T, got *output.TodoGetter)
 	}{
 		{
 			name:  "success",
@@ -47,10 +48,10 @@ func TestTodoGetterGet(t *testing.T) {
 			setupMock: func(repo *gatewaymock.MockTodoQueryGateway) {
 				repo.EXPECT().
 					GetTodo(gomock.Any(), entity.TodoID(99)).
-					Return(nil, apperrors.NewAppError(apperrors.ReasonNotFound, "todo not found"))
+					Return(nil, nil) // repo returns nil,nil for not found
 			},
-			wantErr:    true,
-			wantReason: apperrors.ReasonNotFound,
+			wantErr:  true,
+			wantCode: apperrors.ErrNotFound,
 		},
 		{
 			name:  "gateway internal error",
@@ -58,10 +59,10 @@ func TestTodoGetterGet(t *testing.T) {
 			setupMock: func(repo *gatewaymock.MockTodoQueryGateway) {
 				repo.EXPECT().
 					GetTodo(gomock.Any(), entity.TodoID(5)).
-					Return(nil, apperrors.NewAppError(apperrors.ReasonInternalServerError, "db error"))
+					Return(nil, fmt.Errorf("db error"))
 			},
-			wantErr:    true,
-			wantReason: apperrors.ReasonInternalServerError,
+			wantErr:  true,
+			wantCode: apperrors.ErrInternal,
 		},
 	}
 
@@ -80,7 +81,7 @@ func TestTodoGetterGet(t *testing.T) {
 				if got != nil {
 					t.Fatalf("Get() output = %#v, want nil", got)
 				}
-				assertAppErrorReason(t, err, tt.wantReason)
+				assertAppErrorCode(t, err, tt.wantCode)
 				return
 			}
 

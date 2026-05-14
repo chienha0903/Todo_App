@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -18,12 +19,12 @@ func TestTodoCreaterCreate(t *testing.T) {
 	dueDate := time.Date(2026, 5, 1, 9, 30, 0, 0, time.UTC)
 
 	tests := []struct {
-		name       string
-		input      *input.CreateTodoInput
-		setupMock  func(repo *gatewaymock.MockTodoCommandGateway)
-		wantErr    bool
-		wantReason apperrors.Reason
-		check      func(t *testing.T, got *output.TodoCreater)
+		name      string
+		input     *input.CreateTodoInput
+		setupMock func(repo *gatewaymock.MockTodoCommandGateway)
+		wantErr   bool
+		wantCode  apperrors.ErrorCode
+		check     func(t *testing.T, got *output.TodoCreater)
 	}{
 		{
 			name: "success",
@@ -74,8 +75,8 @@ func TestTodoCreaterCreate(t *testing.T) {
 			setupMock: func(repo *gatewaymock.MockTodoCommandGateway) {
 				repo.EXPECT().CreateTodo(gomock.Any(), gomock.Any()).Times(0)
 			},
-			wantErr:    true,
-			wantReason: apperrors.ReasonInvalidParameter,
+			wantErr:  true,
+			wantCode: apperrors.ErrInvalidParameter,
 		},
 		{
 			name: "invalid input - invalid priority",
@@ -88,8 +89,8 @@ func TestTodoCreaterCreate(t *testing.T) {
 			setupMock: func(repo *gatewaymock.MockTodoCommandGateway) {
 				repo.EXPECT().CreateTodo(gomock.Any(), gomock.Any()).Times(0)
 			},
-			wantErr:    true,
-			wantReason: apperrors.ReasonInvalidParameter,
+			wantErr:  true,
+			wantCode: apperrors.ErrInvalidParameter,
 		},
 		{
 			name: "gateway error",
@@ -102,10 +103,10 @@ func TestTodoCreaterCreate(t *testing.T) {
 			setupMock: func(repo *gatewaymock.MockTodoCommandGateway) {
 				repo.EXPECT().
 					CreateTodo(gomock.Any(), gomock.Any()).
-					Return(apperrors.NewAppError(apperrors.ReasonInternalServerError, "create failed"))
+					Return(fmt.Errorf("create failed"))
 			},
-			wantErr:    true,
-			wantReason: apperrors.ReasonInternalServerError,
+			wantErr:  true,
+			wantCode: apperrors.ErrInternal,
 		},
 	}
 
@@ -124,7 +125,7 @@ func TestTodoCreaterCreate(t *testing.T) {
 				if got != nil {
 					t.Fatalf("Create() output = %#v, want nil", got)
 				}
-				assertAppErrorReason(t, err, tt.wantReason)
+				assertAppErrorCode(t, err, tt.wantCode)
 				return
 			}
 

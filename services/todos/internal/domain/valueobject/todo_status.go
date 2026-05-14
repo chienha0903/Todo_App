@@ -21,7 +21,7 @@ func (s TodoStatus) String() string {
 func NewTodoStatus(value string) (TodoStatus, error) {
 	normalized := strings.ToUpper(strings.TrimSpace(value))
 	if normalized == "" {
-		return "", errors.NewAppError(errors.ReasonInvalidParameter, "Status cannot be empty")
+		return "", errors.NewInvalidParameter( "Status cannot be empty")
 	}
 
 	status := TodoStatus(normalized)
@@ -29,6 +29,6 @@ func NewTodoStatus(value string) (TodoStatus, error) {
 	case TODO_STATUS_PENDING, TODO_STATUS_IN_PROGRESS, TODO_STATUS_COMPLETED:
 		return status, nil
 	default:
-		return "", errors.NewAppError(errors.ReasonInvalidParameter, "Status is invalid")
+		return "", errors.NewInvalidParameter( "Status is invalid")
 	}
 }

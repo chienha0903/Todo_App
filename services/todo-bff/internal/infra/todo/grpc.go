@@ -2,18 +2,14 @@ package todo
 
 import (
 	"context"
-	"errors"
 
 	todopb "github.com/chienha0903/Todo_App/proto/todo"
-	"github.com/chienha0903/Todo_App/services/todo-bff/internal/apperror"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/config"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/domain/gateway"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/todo/input"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/todo/output"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/status"
 )
 
 func NewGRPCConn(cfg *config.Config) (*grpc.ClientConn, func(), error) {
@@ -48,7 +44,7 @@ func (g *grpcGateway) CreateTodo(ctx context.Context, in input.CreateTodo) (*out
 		DueDate:     in.DueDate,
 	})
 	if err != nil {
-		return nil, toAppError(err)
+		return nil, err
 	}
 	return toOutput(resp.GetTodo()), nil
 }
@@ -56,7 +52,7 @@ func (g *grpcGateway) CreateTodo(ctx context.Context, in input.CreateTodo) (*out
 func (g *grpcGateway) GetTodo(ctx context.Context, in input.GetTodo) (*output.Todo, error) {
 	resp, err := g.client.GetTodo(ctx, &todopb.GetTodoRequest{Id: in.ID})
 	if err != nil {
-		return nil, toAppError(err)
+		return nil, err
 	}
 	return toOutput(resp.GetTodo()), nil
 }
@@ -68,7 +64,7 @@ func (g *grpcGateway) ListTodos(ctx context.Context, in input.ListTodos) (*outpu
 		PageSize: int32(in.PageSize),
 	})
 	if err != nil {
-		return nil, toAppError(err)
+		return nil, err
 	}
 	total := int(resp.Total)
 	page := int(resp.Page)
@@ -92,44 +88,16 @@ func (g *grpcGateway) UpdateTodo(ctx context.Context, in input.UpdateTodo) (*out
 		DueDate:     in.DueDate,
 	})
 	if err != nil {
-		return nil, toAppError(err)
+		return nil, err
 	}
 	return toOutput(resp.GetTodo()), nil
 }
 
 func (g *grpcGateway) DeleteTodo(ctx context.Context, in input.DeleteTodo) error {
 	_, err := g.client.DeleteTodo(ctx, &todopb.DeleteTodoRequest{Id: in.ID})
-	if err != nil {
-		return toAppError(err)
-	}
-	return nil
+	return err
 }
 
-func toAppError(err error) error {
-	if errors.Is(err, context.DeadlineExceeded) {
-		return apperror.Timeout()
-	}
-	st, ok := status.FromError(err)
-	if !ok {
-		return apperror.Internal()
-	}
-	switch st.Code() {
-	case codes.NotFound:
-		return apperror.NotFound(st.Message())
-	case codes.InvalidArgument:
-		return apperror.InvalidArgument(st.Message())
-	case codes.Unauthenticated:
-		return apperror.Unauthorized()
-	case codes.PermissionDenied:
-		return apperror.PermissionDenied()
-	case codes.DeadlineExceeded:
-		return apperror.Timeout()
-	case codes.Unavailable:
-		return apperror.Unavailable()
-	default:
-		return apperror.Internal()
-	}
-}
 
 func toOutput(t *todopb.Todo) *output.Todo {
 	if t == nil {

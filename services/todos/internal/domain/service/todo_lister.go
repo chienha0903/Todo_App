@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/gateway"
@@ -32,7 +33,7 @@ func (s *TodoLister) List(ctx context.Context, in *input.ListTodosInput) (*outpu
 
 	todos, total, err := s.qryGW.GetTodos(ctx, entity.UserID(in.UserID), page, pageSize)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("TodoLister.List: %w", err)
 	}
 	return &output.TodoPage{
 		Items:    toOutputSlice(todos),

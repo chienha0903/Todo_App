@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	apperrors "github.com/chienha0903/Todo_App/pkg/errors"
@@ -14,12 +15,12 @@ import (
 
 func TestTodoListerList(t *testing.T) {
 	tests := []struct {
-		name       string
-		input      *input.ListTodosInput
-		setupMock  func(repo *gatewaymock.MockTodoQueryGateway)
-		wantErr    bool
-		wantReason apperrors.Reason
-		check      func(t *testing.T, got *output.TodoPage)
+		name      string
+		input     *input.ListTodosInput
+		setupMock func(repo *gatewaymock.MockTodoQueryGateway)
+		wantErr   bool
+		wantCode  apperrors.ErrorCode
+		check     func(t *testing.T, got *output.TodoPage)
 	}{
 		{
 			name:  "success - returns todos",
@@ -91,10 +92,10 @@ func TestTodoListerList(t *testing.T) {
 			setupMock: func(repo *gatewaymock.MockTodoQueryGateway) {
 				repo.EXPECT().
 					GetTodos(gomock.Any(), entity.UserID(7), int32(1), int32(20)).
-					Return(nil, int64(0), apperrors.NewAppError(apperrors.ReasonInternalServerError, "db error"))
+					Return(nil, int64(0), fmt.Errorf("db error"))
 			},
-			wantErr:    true,
-			wantReason: apperrors.ReasonInternalServerError,
+			wantErr:  true,
+			wantCode: apperrors.ErrInternal,
 		},
 	}
 
@@ -113,7 +114,7 @@ func TestTodoListerList(t *testing.T) {
 				if got != nil {
 					t.Fatalf("List() output = %#v, want nil", got)
 				}
-				assertAppErrorReason(t, err, tt.wantReason)
+				assertAppErrorCode(t, err, tt.wantCode)
 				return
 			}
 

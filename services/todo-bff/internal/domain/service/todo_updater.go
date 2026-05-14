@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/apperror"
@@ -25,7 +26,11 @@ func (s *TodoUpdater) Update(ctx context.Context, in *input.UpdateTodo) (*output
 	if err := validateUpdate(in); err != nil {
 		return nil, err
 	}
-	return s.gw.UpdateTodo(ctx, *in)
+	res, err := s.gw.UpdateTodo(ctx, *in)
+	if err != nil {
+		return nil, fmt.Errorf("TodoUpdater.Update: %w", err)
+	}
+	return res, nil
 }
 
 func validateUpdate(in *input.UpdateTodo) error {

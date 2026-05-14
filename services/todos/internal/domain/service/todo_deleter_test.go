@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	apperrors "github.com/chienha0903/Todo_App/pkg/errors"
@@ -13,11 +14,11 @@ import (
 
 func TestTodoDeleterDelete(t *testing.T) {
 	tests := []struct {
-		name       string
-		input      *input.DeleteTodoInput
-		setupMock  func(repo *gatewaymock.MockTodoCommandGateway)
-		wantErr    bool
-		wantReason apperrors.Reason
+		name      string
+		input     *input.DeleteTodoInput
+		setupMock func(repo *gatewaymock.MockTodoCommandGateway)
+		wantErr   bool
+		wantCode  apperrors.ErrorCode
 	}{
 		{
 			name:  "success",
@@ -34,10 +35,10 @@ func TestTodoDeleterDelete(t *testing.T) {
 			setupMock: func(repo *gatewaymock.MockTodoCommandGateway) {
 				repo.EXPECT().
 					DeleteTodo(gomock.Any(), entity.TodoID(99)).
-					Return(apperrors.NewAppError(apperrors.ReasonNotFound, "todo not found"))
+					Return(apperrors.ErrRecordNotFound) // repo returns sentinel for not found
 			},
-			wantErr:    true,
-			wantReason: apperrors.ReasonNotFound,
+			wantErr:  true,
+			wantCode: apperrors.ErrNotFound,
 		},
 		{
 			name:  "gateway internal error",
@@ -45,10 +46,10 @@ func TestTodoDeleterDelete(t *testing.T) {
 			setupMock: func(repo *gatewaymock.MockTodoCommandGateway) {
 				repo.EXPECT().
 					DeleteTodo(gomock.Any(), entity.TodoID(5)).
-					Return(apperrors.NewAppError(apperrors.ReasonInternalServerError, "delete failed"))
+					Return(fmt.Errorf("delete failed"))
 			},
-			wantErr:    true,
-			wantReason: apperrors.ReasonInternalServerError,
+			wantErr:  true,
+			wantCode: apperrors.ErrInternal,
 		},
 	}
 
@@ -64,7 +65,7 @@ func TestTodoDeleterDelete(t *testing.T) {
 			err := svc.Delete(context.Background(), tt.input)
 
 			if tt.wantErr {
-				assertAppErrorReason(t, err, tt.wantReason)
+				assertAppErrorCode(t, err, tt.wantCode)
 				return
 			}
 

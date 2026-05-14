@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"fmt"
 
+	pkgerrors "github.com/chienha0903/Todo_App/pkg/errors"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/gateway"
 	todousecase "github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo"
@@ -23,7 +25,10 @@ func NewTodoGetter(qryGW gateway.TodoQueryGateway) *TodoGetter {
 func (s *TodoGetter) Get(ctx context.Context, in *input.GetTodoInput) (*output.TodoGetter, error) {
 	todo, err := s.qryGW.GetTodo(ctx, entity.TodoID(in.ID))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("TodoGetter.Get: %w", err)
+	}
+	if todo == nil {
+		return nil, pkgerrors.NewNotFound("todo not found")
 	}
 	out := toOutput(todo)
 	return &out, nil

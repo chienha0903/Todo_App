@@ -10,19 +10,22 @@ import (
 	vo "github.com/chienha0903/Todo_App/services/todos/internal/domain/valueobject"
 )
 
-func assertAppErrorReason(t *testing.T, err error, reason apperrors.Reason) {
+func assertAppErrorCode(t *testing.T, err error, code apperrors.ErrorCode) {
 	t.Helper()
 
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
 
-	var appErr *apperrors.Error
+	var appErr *apperrors.AppError
 	if !stderrors.As(err, &appErr) {
-		t.Fatalf("expected *errors.Error, got %T", err)
+		if code == apperrors.ErrInternal {
+			return // plain technical errors are treated as internal
+		}
+		t.Fatalf("expected *errors.AppError, got %T: %v", err, err)
 	}
-	if appErr.Reason != reason {
-		t.Fatalf("error reason = %q, want %q", appErr.Reason, reason)
+	if appErr.Code != code {
+		t.Fatalf("error code = %q, want %q", appErr.Code, code)
 	}
 }
 

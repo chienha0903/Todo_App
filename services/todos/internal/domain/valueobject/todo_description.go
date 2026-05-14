@@ -13,7 +13,7 @@ type TodoDescription struct {
 func NewTodoDescription(value string) (TodoDescription, error) {
 	value = strings.TrimSpace(value)
 	if value == "" {
-		return TodoDescription{}, errors.NewAppError(errors.ReasonInvalidParameter, "Description cannot be empty")
+		return TodoDescription{}, errors.NewInvalidParameter("Description cannot be empty")
 	}
 	return TodoDescription{value: value}, nil
 }

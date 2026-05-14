@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
@@ -29,7 +30,7 @@ func (s *TodoCreater) Create(ctx context.Context, in *input.CreateTodoInput) (*o
 	}
 
 	if err := s.cmdGW.CreateTodo(ctx, todo); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("TodoCreater.Create: %w", err)
 	}
 
 	out := toOutput(todo)

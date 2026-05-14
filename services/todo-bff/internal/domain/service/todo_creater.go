@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -26,7 +27,11 @@ func (s *TodoCreater) Create(ctx context.Context, in *input.CreateTodo) (*output
 	if err := validateCreate(in); err != nil {
 		return nil, err
 	}
-	return s.gw.CreateTodo(ctx, *in)
+	res, err := s.gw.CreateTodo(ctx, *in)
+	if err != nil {
+		return nil, fmt.Errorf("TodoCreater.Create: %w", err)
+	}
+	return res, nil
 }
 
 func validateCreate(in *input.CreateTodo) error {

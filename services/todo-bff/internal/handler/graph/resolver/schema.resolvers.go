@@ -26,7 +26,7 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.CreateTod
 		DueDate:     derefStr(input.DueDate),
 	})
 	if err != nil {
-		return nil, toGraphQLError(err)
+		return nil, err
 	}
 	return toModel(todo), nil
 }
@@ -50,7 +50,7 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, id string, input mode
 		DueDate:     derefStr(input.DueDate),
 	})
 	if err != nil {
-		return nil, toGraphQLError(err)
+		return nil, err
 	}
 	return toModel(todo), nil
 }
@@ -66,7 +66,7 @@ func (r *mutationResolver) DeleteTodo(ctx context.Context, id string) (bool, err
 	defer cancel()
 
 	if err := r.deleter.Delete(ctx, &ucin.DeleteTodo{ID: todoID}); err != nil {
-		return false, toGraphQLError(err)
+		return false, err
 	}
 	return true, nil
 }
@@ -83,7 +83,7 @@ func (r *queryResolver) Todo(ctx context.Context, id string) (*model.Todo, error
 
 	todo, err := r.getter.Get(ctx, &ucin.GetTodo{ID: todoID})
 	if err != nil {
-		return nil, toGraphQLError(err)
+		return nil, err
 	}
 	return toModel(todo), nil
 }
@@ -107,7 +107,7 @@ func (r *queryResolver) Todos(ctx context.Context, userID int, page *int, pageSi
 		PageSize: ps,
 	})
 	if err != nil {
-		return nil, toGraphQLError(err)
+		return nil, err
 	}
 	return toPageModel(result), nil
 }

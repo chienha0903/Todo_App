@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	apperrors "github.com/chienha0903/Todo_App/pkg/errors"
@@ -15,12 +16,12 @@ import (
 
 func TestTodoUpdaterUpdate(t *testing.T) {
 	tests := []struct {
-		name       string
-		input      *input.UpdateTodoInput
-		setupMock  func(cmdRepo *gatewaymock.MockTodoCommandGateway, qryRepo *gatewaymock.MockTodoQueryGateway)
-		wantErr    bool
-		wantReason apperrors.Reason
-		check      func(t *testing.T, got *output.TodoUpdater)
+		name      string
+		input     *input.UpdateTodoInput
+		setupMock func(cmdRepo *gatewaymock.MockTodoCommandGateway, qryRepo *gatewaymock.MockTodoQueryGateway)
+		wantErr   bool
+		wantCode  apperrors.ErrorCode
+		check     func(t *testing.T, got *output.TodoUpdater)
 	}{
 		{
 			name: "success - update title and priority",
@@ -64,11 +65,11 @@ func TestTodoUpdaterUpdate(t *testing.T) {
 			setupMock: func(cmdRepo *gatewaymock.MockTodoCommandGateway, qryRepo *gatewaymock.MockTodoQueryGateway) {
 				qryRepo.EXPECT().
 					GetTodo(gomock.Any(), entity.TodoID(99)).
-					Return(nil, apperrors.NewAppError(apperrors.ReasonNotFound, "todo not found"))
+					Return(nil, nil) // repo returns nil,nil for not found
 				cmdRepo.EXPECT().UpdateTodo(gomock.Any(), gomock.Any()).Times(0)
 			},
-			wantErr:    true,
-			wantReason: apperrors.ReasonNotFound,
+			wantErr:  true,
+			wantCode: apperrors.ErrNotFound,
 		},
 		{
 			name:  "invalid input - invalid status",
@@ -77,8 +78,8 @@ func TestTodoUpdaterUpdate(t *testing.T) {
 				qryRepo.EXPECT().GetTodo(gomock.Any(), entity.TodoID(5)).Return(newFixtureTodo(), nil)
 				cmdRepo.EXPECT().UpdateTodo(gomock.Any(), gomock.Any()).Times(0)
 			},
-			wantErr:    true,
-			wantReason: apperrors.ReasonInvalidParameter,
+			wantErr:  true,
+			wantCode: apperrors.ErrInvalidParameter,
 		},
 		{
 			name:  "invalid input - invalid priority",
@@ -87,8 +88,8 @@ func TestTodoUpdaterUpdate(t *testing.T) {
 				qryRepo.EXPECT().GetTodo(gomock.Any(), entity.TodoID(5)).Return(newFixtureTodo(), nil)
 				cmdRepo.EXPECT().UpdateTodo(gomock.Any(), gomock.Any()).Times(0)
 			},
-			wantErr:    true,
-			wantReason: apperrors.ReasonInvalidParameter,
+			wantErr:  true,
+			wantCode: apperrors.ErrInvalidParameter,
 		},
 		{
 			name:  "update gateway error",
@@ -97,10 +98,10 @@ func TestTodoUpdaterUpdate(t *testing.T) {
 				qryRepo.EXPECT().GetTodo(gomock.Any(), entity.TodoID(5)).Return(newFixtureTodo(), nil)
 				cmdRepo.EXPECT().
 					UpdateTodo(gomock.Any(), gomock.Any()).
-					Return(apperrors.NewAppError(apperrors.ReasonInternalServerError, "update failed"))
+					Return(fmt.Errorf("update failed"))
 			},
-			wantErr:    true,
-			wantReason: apperrors.ReasonInternalServerError,
+			wantErr:  true,
+			wantCode: apperrors.ErrInternal,
 		},
 	}
 
@@ -120,7 +121,7 @@ func TestTodoUpdaterUpdate(t *testing.T) {
 				if got != nil {
 					t.Fatalf("Update() output = %#v, want nil", got)
 				}
-				assertAppErrorReason(t, err, tt.wantReason)
+				assertAppErrorCode(t, err, tt.wantCode)
 				return
 			}
 

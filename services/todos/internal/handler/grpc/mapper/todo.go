@@ -91,10 +91,7 @@ func parseOptionalDueDate(value string) (*time.Time, error) {
 
 	dueDate, err := time.Parse(time.RFC3339, value)
 	if err != nil {
-		return nil, errors.NewAppError(
-			errors.ReasonInvalidParameter,
-			"Due date must be RFC3339 format",
-		)
+		return nil, errors.NewInvalidParameter("Due date must be RFC3339 format")
 	}
 
 	return &dueDate, nil
