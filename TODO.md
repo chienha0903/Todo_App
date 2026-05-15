@@ -23,11 +23,11 @@
 ## Lịch làm việc
 
 ### Buổi 1 — Thứ 3, 12/05 · BFF hoàn thiện
-- [ ] BFF: thêm logging middleware + panic recovery middleware
-- [ ] Cập nhật `docker-compose.yml` chạy thêm container BFF
-- [ ] Cập nhật README phần run/test cho BFF
+- [x] BFF: thêm logging middleware + panic recovery middleware
+- [x] Cập nhật `docker-compose.yml` chạy thêm container BFF
+- [x] Cập nhật README phần run/test cho BFF
 
-### Buổi 2 — Thứ 6, 15/05 · Test + Database
+### Buổi 2 — Thứ 6, 15/05 · Test + Database [-]
 - [ ] Viết manual test checklist: create → get → list → update → delete → error cases
 - [ ] Lưu sample payload + expected response cho từng API
 - [ ] Viết SQL migration script cho bảng `todos`, thêm index `user_id`, chạy `EXPLAIN`
