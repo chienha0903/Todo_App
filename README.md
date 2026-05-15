@@ -1,6 +1,21 @@
 # Todo App
 
-Project Todo App viết bằng Go, giao tiếp qua gRPC, lưu dữ liệu vào PostgreSQL, có sẵn Docker Compose để chạy local nhanh.
+Project Todo App viết bằng Go, kiến trúc microservice: BFF (GraphQL) → Core Service (gRPC) → PostgreSQL, có sẵn Docker Compose để chạy local nhanh.
+
+## Kiến trúc tổng quan
+
+```
+Client (Postman/Browser)
+  │
+  ▼
+BFF Service (:8080)          ← GraphQL, gqlgen
+  │
+  ▼ gRPC
+Core Service (:50051)        ← gRPC, domain logic
+  │
+  ▼
+PostgreSQL (:5432)
+```
 
 ## Chức năng hiện có
 
@@ -20,35 +35,7 @@ Các rule nghiệp vụ chính:
 
 ---
 
-## Kiến trúc tổng quan
-
-Luồng request:
-
-`gRPC Handler` -> `Mapper` -> `Domain Service` -> `Gateway` -> `PostgreSQL`
-
-Các layer chính:
-
-- **Handler (`internal/handler/grpc`)**  
-  Nhận request gRPC, map input/output, trả về gRPC response.
-
-- **Usecase contracts (`internal/usecase/todo`)**  
-  Chứa interface contract input/output giữa handler và domain service.
-
-- **Domain Service (`internal/domain/service`)**  
-  Chứa logic nghiệp vụ: validate VO, áp quy tắc domain, gọi gateway.
-
-- **Gateway (`internal/domain/gateway`)**  
-  Interface cho command/query persistence.
-
-- **Infra Datastore (`internal/infra/datastore`)**  
-  Triển khai gateway bằng PostgreSQL (`pgxpool`).
-
-- **DI (`internal/di`, Wire)**  
-  Nối dependencies để tạo `*grpc.Server`.
-
----
-
-## Cấu trúc thư mục quan trọng
+## Cấu trúc thư mục
 
 ```text
 .
@@ -56,6 +43,26 @@ Các layer chính:
 ├── proto/
 │   └── todo/todo.proto
 ├── services/
+│   ├── todo-bff/
+│   │   ├── Dockerfile
+│   │   ├── gqlgen.yml
+│   │   ├── cmd/main.go
+│   │   └── internal/
+│   │       ├── config/
+│   │       ├── di/
+│   │       ├── domain/
+│   │       │   ├── gateway/
+│   │       │   └── service/
+│   │       ├── handler/
+│   │       │   ├── graph/
+│   │       │   │   ├── schema.graphql
+│   │       │   │   ├── generated/
+│   │       │   │   ├── model/
+│   │       │   │   └── resolver/
+│   │       │   ├── middleware/
+│   │       │   └── server/
+│   │       ├── infra/todo/
+│   │       └── usecase/todo/
 │   └── todos/
 │       ├── Dockerfile
 │       ├── cmd/main.go
@@ -98,7 +105,7 @@ go install github.com/google/wire/cmd/wire@latest
 
 ## Cách chạy project
 
-## 1) Chạy bằng Docker (khuyến nghị)
+### 1) Chạy bằng Docker (khuyến nghị)
 
 ```bash
 make docker-up
@@ -110,11 +117,14 @@ hoặc:
 docker compose up -d --build
 ```
 
+Lệnh trên sẽ khởi động 3 container: PostgreSQL, Core Service (gRPC), BFF (GraphQL).
+
 Kiểm tra:
 
 ```bash
 make docker-ps
 make docker-logs-todos
+make docker-logs-bff
 ```
 
 Stop:
@@ -125,11 +135,12 @@ make docker-down
 
 Mặc định:
 
+- BFF (GraphQL): `localhost:8080`
 - gRPC server: `localhost:50051`
 - Postgres: `localhost:5432`
 - DB: `todo_db`
 
-## 2) Chạy local không Docker (service todos)
+### 2) Chạy local không Docker
 
 Đảm bảo có PostgreSQL chạy trước.
 
@@ -145,16 +156,21 @@ Tạo file env local:
 cp .env.example .env
 ```
 
-Sau đó chỉnh `DB_DSN` nếu cần, rồi chạy:
+Sau đó chỉnh `DB_DSN` nếu cần, rồi chạy từng service:
 
 ```bash
+# Chạy core service (gRPC)
 make run-todos
+
+# Chạy BFF (GraphQL) — cần core service đang chạy
+make run-bff
 ```
 
 Lưu ý:
 
 - `.env` được ignore bởi git, không commit file này.
 - Với Docker Compose, biến môi trường đã được khai báo trong `docker-compose.yml`.
+- BFF cần core service chạy trước để kết nối gRPC.
 
 ---
 
@@ -172,7 +188,66 @@ Các cột đang dùng:
 
 ---
 
-## API gRPC
+## API
+
+### GraphQL (BFF)
+
+Endpoint: `POST http://localhost:8080/graphql`
+
+Schema tại `services/todo-bff/internal/handler/graph/schema.graphql`.
+
+Query:
+
+```graphql
+# Lấy danh sách todos
+query {
+  todos(userId: 1, page: 1, pageSize: 10) {
+    items { id title description status priority dueDate }
+    total
+    hasNext
+  }
+}
+
+# Lấy 1 todo
+query {
+  todo(id: "1") {
+    id title description status priority
+  }
+}
+```
+
+Mutation:
+
+```graphql
+# Tạo todo
+mutation {
+  createTodo(input: {
+    userId: 1
+    title: "Mua sua"
+    description: "Ra sieu thi"
+    priority: HIGH
+  }) {
+    id title status
+  }
+}
+
+# Cập nhật todo
+mutation {
+  updateTodo(id: "1", input: {
+    title: "Mua sua tuoi"
+    status: COMPLETED
+  }) {
+    id title status updatedAt
+  }
+}
+
+# Xóa todo
+mutation {
+  deleteTodo(id: "1")
+}
+```
+
+### gRPC (Core Service)
 
 Định nghĩa tại `proto/todo/todo.proto`.
 
@@ -188,11 +263,52 @@ Service: `todo.v1.TodoService`
 
 ## Test API
 
-## A) Test bằng Postman (gRPC)
+### A) Test BFF bằng Postman (GraphQL)
 
-1. New -> gRPC Request  
-2. URL: `localhost:50051`  
-3. Chọn method `todo.v1.TodoService/...`  
+1. New → HTTP Request
+2. Method: `POST`, URL: `http://localhost:8080/graphql`
+3. Body → raw → JSON:
+
+```json
+{
+  "query": "query { todos(userId: 1, page: 1, pageSize: 10) { items { id title } total hasNext } }"
+}
+```
+
+### B) Test BFF bằng curl
+
+```bash
+# List todos
+curl -X POST http://localhost:8080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query":"query { todos(userId: 1, page: 1, pageSize: 10) { items { id title } total hasNext } }"}'
+
+# Create todo
+curl -X POST http://localhost:8080/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query":"mutation { createTodo(input: { userId: 1, title: \"Mua sua\", description: \"Ra sieu thi\", priority: HIGH }) { id title status } }"}'
+
+# Health check
+curl http://localhost:8080/health
+```
+
+### C) Test gRPC bằng grpcurl
+
+```bash
+# Liệt kê methods
+grpcurl -plaintext localhost:50051 list todo.v1.TodoService
+
+# Create todo
+grpcurl -plaintext \
+  -d '{"user_id":1,"title":"Mua sua","description":"Ra sieu thi","priority":"HIGH"}' \
+  localhost:50051 todo.v1.TodoService/CreateTodo
+```
+
+### D) Test gRPC bằng Postman
+
+1. New → gRPC Request
+2. URL: `localhost:50051`
+3. Chọn method `todo.v1.TodoService/...`
 4. Nếu reflection không hiện đủ method, rebuild service:
 
 ```bash
@@ -200,32 +316,34 @@ docker compose down
 docker compose up --build
 ```
 
-## B) Test bằng grpcurl
+---
 
-Liệt kê methods:
+## Middleware (BFF)
 
-```bash
-grpcurl -plaintext localhost:50051 list todo.v1.TodoService
-```
+BFF có 2 middleware hoạt động ở tầng HTTP:
 
-Ví dụ create:
+- **Logging middleware**: Log mỗi request với method, path, status, duration, request ID.
+- **Recovery middleware**: Bắt panic, log stack trace, trả 500 thay vì crash server.
 
-```bash
-grpcurl -plaintext \
-  -d '{"user_id":1,"title":"Mua sua","description":"Ra sieu thi","priority":"HIGH"}' \
-  localhost:50051 todo.v1.TodoService/CreateTodo
-```
+Log output ra stdout dạng structured text. Truyền header `X-Request-Id` để trace request.
 
 ---
 
 ## Commands hữu ích
 
 ```bash
-make proto        # regenerate protobuf code
-make wire         # regenerate wire_gen.go
-make fmt          # gofmt
-make vet          # go vet
-make build        # build tất cả app
+make proto              # regenerate protobuf code
+make wire               # regenerate wire_gen.go
+make fmt                # gofmt
+make vet                # go vet
+make build              # build tất cả app
+make run-todos          # chạy core service local
+make run-bff            # chạy BFF local
+make docker-up          # docker compose up
+make docker-down        # docker compose down
+make docker-ps          # xem container status
+make docker-logs-todos  # log core service
+make docker-logs-bff    # log BFF
 ```
 
 ---
@@ -235,3 +353,5 @@ make build        # build tất cả app
 - gRPC reflection đã bật, thuận tiện test bằng Postman/grpcurl.
 - Mapper đang parse/format thời gian dạng RFC3339 string theo proto hiện tại.
 - Nếu thay đổi `todo.proto`, cần chạy lại `make proto`.
+- BFF dùng `gqlgen` để generate GraphQL code. Nếu thay đổi `schema.graphql`, chạy `go generate ./...` trong thư mục BFF.
+- Biến môi trường `TODOS_GRPC_ADDR` trong BFF trỏ tới core service. Trong Docker dùng `todos:50051` (service name), local dùng `localhost:50051`.

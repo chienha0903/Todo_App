@@ -34,5 +34,22 @@ services:
       postgres:
         condition: service_healthy
 
+  todo-bff:
+    build:
+      context: contextPath
+      dockerfile: services/todo-bff/Dockerfile
+    container_name: todo_bff
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      APP_NAME: todo-bff
+      APP_PORT: "8080"
+      APP_ENV: development
+      DB_DSN: "postgres://postgres:postgres@postgres:5432/todo_db?sslmode=disable"
+      GRPC_TODO_ADDR: "todos:50051"
+    depends_on:
+      - todos
+      
 volumes:
   postgres_data:
