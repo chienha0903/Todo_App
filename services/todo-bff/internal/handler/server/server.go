@@ -9,6 +9,7 @@ import (
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/config"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/generated"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/resolver"
+	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/middleware"
 )
 
 func NewHTTPServer(cfg *config.Config, gqlResolver *resolver.Resolver) *nethttp.Server {
@@ -19,9 +20,13 @@ func NewHTTPServer(cfg *config.Config, gqlResolver *resolver.Resolver) *nethttp.
 	mux.HandleFunc("GET /health", healthHandler)
 	mux.Handle("/graphql", srv)
 
+	var h nethttp.Handler = mux
+	h = middleware.LoggingMiddleware(h)
+	h = middleware.RecoveryMiddleware(h)
+
 	return &nethttp.Server{
 		Addr:              ":" + cfg.AppPort,
-		Handler:           mux,
+		Handler:           h,
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 }
