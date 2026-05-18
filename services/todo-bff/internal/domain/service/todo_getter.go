@@ -25,9 +25,11 @@ func (s *TodoGetter) Get(ctx context.Context, in *input.GetTodo) (*output.Todo, 
 	if in.ID <= 0 {
 		return nil, apperror.InvalidArgument("id must be a positive integer")
 	}
+
 	res, err := s.gw.GetTodo(ctx, *in)
 	if err != nil {
 		return nil, fmt.Errorf("TodoGetter.Get: %w", err)
 	}
+
 	return res, nil
 }

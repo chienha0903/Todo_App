@@ -47,6 +47,7 @@ func (g *grpcGateway) CreateTodo(ctx context.Context, in input.CreateTodo) (*out
 	if err != nil {
 		return nil, err
 	}
+
 	return toOutput(resp.GetTodo()), nil
 }
 
@@ -55,6 +56,7 @@ func (g *grpcGateway) GetTodo(ctx context.Context, in input.GetTodo) (*output.To
 	if err != nil {
 		return nil, err
 	}
+
 	return toOutput(resp.GetTodo()), nil
 }
 
@@ -67,9 +69,11 @@ func (g *grpcGateway) ListTodos(ctx context.Context, in input.ListTodos) (*outpu
 	if err != nil {
 		return nil, err
 	}
+
 	total := int(resp.Total)
 	page := int(resp.Page)
 	pSize := int(resp.PageSize)
+
 	return &output.TodoPage{
 		Items:    toOutputs(resp.GetTodos()),
 		Total:    total,
@@ -91,6 +95,7 @@ func (g *grpcGateway) UpdateTodo(ctx context.Context, in input.UpdateTodo) (*out
 	if err != nil {
 		return nil, err
 	}
+
 	return toOutput(resp.GetTodo()), nil
 }
 

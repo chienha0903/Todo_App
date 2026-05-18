@@ -24,8 +24,10 @@ func (s *TodoDeleter) Delete(ctx context.Context, in *input.DeleteTodo) error {
 	if in.ID <= 0 {
 		return apperror.InvalidArgument("id must be a positive integer")
 	}
+
 	if err := s.gw.DeleteTodo(ctx, *in); err != nil {
 		return fmt.Errorf("TodoDeleter.Delete: %w", err)
 	}
+
 	return nil
 }

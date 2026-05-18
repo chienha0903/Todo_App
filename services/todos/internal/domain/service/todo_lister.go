@@ -35,6 +35,7 @@ func (s *TodoLister) List(ctx context.Context, in *input.ListTodosInput) (*outpu
 	if err != nil {
 		return nil, fmt.Errorf("TodoLister.List: %w", err)
 	}
+
 	return &output.TodoPage{
 		Items:    toOutputSlice(todos),
 		Total:    int32(total),

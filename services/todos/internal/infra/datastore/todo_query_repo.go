@@ -21,6 +21,7 @@ func NewTodoQueryRepo(db *gorm.DB) *todoQueryRepo {
 
 func (r *todoQueryRepo) GetTodo(ctx context.Context, id entity.TodoID) (*entity.Todo, error) {
 	var m model.Todo
+	
 	result := r.db.WithContext(ctx).First(&m, int64(id))
 	if result.Error != nil {
 		if stderrors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -28,15 +29,18 @@ func (r *todoQueryRepo) GetTodo(ctx context.Context, id entity.TodoID) (*entity.
 		}
 		return nil, fmt.Errorf("db get todo: %w", result.Error)
 	}
+
 	t, err := mapper.ToEntity(&m)
 	if err != nil {
 		return nil, fmt.Errorf("db get todo mapper: %w", err)
 	}
+
 	return t, nil
 }
 
 func (r *todoQueryRepo) GetTodos(ctx context.Context, userID entity.UserID, page, pageSize int32) ([]*entity.Todo, int64, error) {
 	var total int64
+
 	if err := r.db.WithContext(ctx).Model(&model.Todo{}).
 		Where("user_id = ?", int64(userID)).
 		Count(&total).Error; err != nil {
@@ -63,6 +67,6 @@ func (r *todoQueryRepo) GetTodos(ctx context.Context, userID entity.UserID, page
 		}
 		todos = append(todos, t)
 	}
+	
 	return todos, total, nil
 }
-

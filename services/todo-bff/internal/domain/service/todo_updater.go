@@ -26,10 +26,12 @@ func (s *TodoUpdater) Update(ctx context.Context, in *input.UpdateTodo) (*output
 	if err := validateUpdate(in); err != nil {
 		return nil, err
 	}
+
 	res, err := s.gw.UpdateTodo(ctx, *in)
 	if err != nil {
 		return nil, fmt.Errorf("TodoUpdater.Update: %w", err)
 	}
+
 	return res, nil
 }
 
@@ -37,9 +39,11 @@ func validateUpdate(in *input.UpdateTodo) error {
 	if in.ID <= 0 {
 		return apperror.InvalidArgument("id must be a positive integer")
 	}
+
 	if !hasUpdateField(in) {
 		return apperror.InvalidArgument("at least one field is required")
 	}
+	
 	return validateOptionalRFC3339(in.DueDate)
 }
 

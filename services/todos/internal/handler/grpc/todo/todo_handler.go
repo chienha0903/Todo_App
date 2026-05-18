@@ -41,10 +41,12 @@ func (h *TodoHandler) CreateTodo(
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
+
 	out, err := h.creater.Create(ctx, in)
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
+
 	return &todopb.CreateTodoResponse{Todo: mapper.ToProtoTodo(out)}, nil
 }
 
@@ -56,6 +58,7 @@ func (h *TodoHandler) GetTodo(
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
+
 	return &todopb.GetTodoResponse{Todo: mapper.ToProtoTodo(out)}, nil
 }
 
@@ -67,6 +70,7 @@ func (h *TodoHandler) ListTodos(
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
+
 	return &todopb.ListTodosResponse{
 		Todos:    mapper.ToProtoTodos(page.Items),
 		Total:    page.Total,
@@ -83,10 +87,12 @@ func (h *TodoHandler) UpdateTodo(
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
+
 	out, err := h.updater.Update(ctx, in)
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
+
 	return &todopb.UpdateTodoResponse{Todo: mapper.ToProtoTodo(out)}, nil
 }
 

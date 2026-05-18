@@ -27,9 +27,11 @@ func (s *TodoGetter) Get(ctx context.Context, in *input.GetTodoInput) (*output.T
 	if err != nil {
 		return nil, fmt.Errorf("TodoGetter.Get: %w", err)
 	}
+
 	if todo == nil {
 		return nil, pkgerrors.NewNotFound("todo not found")
 	}
+
 	out := toOutput(todo)
 	return &out, nil
 }

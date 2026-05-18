@@ -25,9 +25,11 @@ func (s *TodoLister) List(ctx context.Context, in *input.ListTodos) (*output.Tod
 	if in.UserID <= 0 {
 		return nil, apperror.InvalidArgument("userId must be a positive integer")
 	}
+
 	res, err := s.gw.ListTodos(ctx, *in)
 	if err != nil {
 		return nil, fmt.Errorf("TodoLister.List: %w", err)
 	}
+
 	return res, nil
 }
