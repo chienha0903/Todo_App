@@ -53,11 +53,11 @@ func TestTodoCreaterCreate(t *testing.T) {
 				if got.Description != "Go to market" {
 					t.Fatalf("description = %q, want %q", got.Description, "Go to market")
 				}
-				if got.Priority != string(vo.TODO_PRIORITY_HIGH) {
-					t.Fatalf("priority = %q, want %q", got.Priority, vo.TODO_PRIORITY_HIGH)
+				if got.Priority != string(vo.TodoPriorityHigh) {
+					t.Fatalf("priority = %q, want %q", got.Priority, vo.TodoPriorityHigh)
 				}
-				if got.Status != string(vo.TODO_STATUS_PENDING) {
-					t.Fatalf("status = %q, want %q", got.Status, vo.TODO_STATUS_PENDING)
+				if got.Status != string(vo.TodoStatusPending) {
+					t.Fatalf("status = %q, want %q", got.Status, vo.TodoStatusPending)
 				}
 				if got.DueDate == nil || !got.DueDate.Equal(dueDate) {
 					t.Fatalf("due_date = %v, want %v", got.DueDate, dueDate)

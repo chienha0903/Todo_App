@@ -2,6 +2,7 @@ package todo
 
 import (
 	"context"
+	"fmt"
 
 	todopb "github.com/chienha0903/Todo_App/proto/todo"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/config"
@@ -18,7 +19,7 @@ func NewGRPCConn(cfg *config.Config) (*grpc.ClientConn, func(), error) {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("grpc dial %s: %w", cfg.TodosGRPCAddr, err)
 	}
 	return conn, func() { _ = conn.Close() }, nil
 }
@@ -97,7 +98,6 @@ func (g *grpcGateway) DeleteTodo(ctx context.Context, in input.DeleteTodo) error
 	_, err := g.client.DeleteTodo(ctx, &todopb.DeleteTodoRequest{Id: in.ID})
 	return err
 }
-
 
 func toOutput(t *todopb.Todo) *output.Todo {
 	if t == nil {

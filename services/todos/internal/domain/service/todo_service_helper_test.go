@@ -39,7 +39,7 @@ func newFixtureTodo() *entity.Todo {
 		UserID:      entity.UserID(7),
 		Title:       title,
 		Description: desc,
-		Status:      vo.TODO_STATUS_PENDING,
+		Status:      vo.TodoStatusPending,
 		Priority:    priority,
 		CreatedAt:   now,
 		UpdatedAt:   now,

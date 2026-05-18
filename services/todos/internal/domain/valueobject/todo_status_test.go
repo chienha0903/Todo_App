@@ -12,22 +12,22 @@ func TestNewTodoStatus(t *testing.T) {
 		{
 			name:      "pending",
 			value:     "PENDING",
-			wantValue: TODO_STATUS_PENDING,
+			wantValue: TodoStatusPending,
 		},
 		{
 			name:      "in progress",
 			value:     "IN_PROGRESS",
-			wantValue: TODO_STATUS_IN_PROGRESS,
+			wantValue: TodoStatusInProgress,
 		},
 		{
 			name:      "completed",
 			value:     "COMPLETED",
-			wantValue: TODO_STATUS_COMPLETED,
+			wantValue: TodoStatusCompleted,
 		},
 		{
 			name:      "normalizes lowercase and spaces",
 			value:     "  completed  ",
-			wantValue: TODO_STATUS_COMPLETED,
+			wantValue: TodoStatusCompleted,
 		},
 		{
 			name:    "empty status",

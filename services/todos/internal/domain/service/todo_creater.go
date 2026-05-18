@@ -62,7 +62,7 @@ func newTodoFromCreateInput(in *input.CreateTodoInput, now time.Time) (*entity.T
 		UserID:      entity.UserID(in.UserID),
 		Title:       title,
 		Description: description,
-		Status:      vo.TODO_STATUS_PENDING,
+		Status:      vo.TodoStatusPending,
 		Priority:    priority,
 		DueDate:     dueDate,
 		CreatedAt:   now,

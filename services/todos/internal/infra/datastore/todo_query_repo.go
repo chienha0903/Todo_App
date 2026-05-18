@@ -2,10 +2,9 @@ package datastore
 
 import (
 	"context"
-	"fmt"
 	stderrors "errors"
+	"fmt"
 
-	pkgerrors "github.com/chienha0903/Todo_App/pkg/errors"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore/mapper"
 	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore/model"
@@ -67,10 +66,3 @@ func (r *todoQueryRepo) GetTodos(ctx context.Context, userID entity.UserID, page
 	return todos, total, nil
 }
 
-// mapQueryRepoError kept for any future use; direct callers now use fmt.Errorf inline.
-func mapQueryRepoError(err error) error {
-	if stderrors.Is(err, gorm.ErrRecordNotFound) {
-		return pkgerrors.ErrRecordNotFound
-	}
-	return err
-}

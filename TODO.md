@@ -30,7 +30,7 @@
 ### Buổi 2 — Thứ 6, 15/05 · Test + Database [-]
 - [x] Viết manual test checklist: create → get → list → update → delete → error cases
 - [x] Lưu sample payload + expected response cho từng API
-- [ ] Viết SQL migration script cho bảng `todos`, thêm index `user_id`, chạy `EXPLAIN`
+- [x] Viết SQL migration script cho bảng `todos`, thêm index `user_id`, chạy `EXPLAIN`
 
 ### Buổi 3 — Thứ 3, 19/05 · DB sâu + Error/Context
 - [ ] Thêm transaction vào 1 use case cụ thể trong project

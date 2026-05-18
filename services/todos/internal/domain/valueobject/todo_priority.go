@@ -9,9 +9,9 @@ import (
 type TodoPriority string
 
 const (
-	TODO_PRIORITY_LOW    TodoPriority = "LOW"
-	TODO_PRIORITY_MEDIUM TodoPriority = "MEDIUM"
-	TODO_PRIORITY_HIGH   TodoPriority = "HIGH"
+	TodoPriorityLow    TodoPriority = "LOW"
+	TodoPriorityMedium TodoPriority = "MEDIUM"
+	TodoPriorityHigh   TodoPriority = "HIGH"
 )
 
 func (p TodoPriority) String() string {
@@ -21,14 +21,14 @@ func (p TodoPriority) String() string {
 func NewTodoPriority(value string) (TodoPriority, error) {
 	value = strings.ToUpper(strings.TrimSpace(value))
 	if value == "" {
-		return "", errors.NewInvalidParameter( "Priority cannot be empty")
+		return "", errors.NewInvalidParameter("Priority cannot be empty")
 	}
 
 	priority := TodoPriority(value)
 	switch priority {
-	case TODO_PRIORITY_LOW, TODO_PRIORITY_MEDIUM, TODO_PRIORITY_HIGH:
+	case TodoPriorityLow, TodoPriorityMedium, TodoPriorityHigh:
 		return priority, nil
 	default:
-		return "", errors.NewInvalidParameter( "Priority is invalid")
+		return "", errors.NewInvalidParameter("Priority is invalid")
 	}
 }

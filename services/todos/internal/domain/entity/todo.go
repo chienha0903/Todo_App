@@ -27,7 +27,7 @@ func IsOverdue(t *Todo, now time.Time) bool {
 	if t == nil || t.DueDate == nil {
 		return false
 	}
-	if t.Status == vo.TODO_STATUS_COMPLETED {
+	if t.Status == vo.TodoStatusCompleted {
 		return false
 	}
 	return now.After(t.DueDate.Value())

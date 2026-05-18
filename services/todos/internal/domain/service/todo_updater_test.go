@@ -38,8 +38,8 @@ func TestTodoUpdaterUpdate(t *testing.T) {
 				if got.Title != "Read book" {
 					t.Fatalf("title = %q, want %q", got.Title, "Read book")
 				}
-				if got.Priority != string(vo.TODO_PRIORITY_HIGH) {
-					t.Fatalf("priority = %q, want %q", got.Priority, vo.TODO_PRIORITY_HIGH)
+				if got.Priority != string(vo.TodoPriorityHigh) {
+					t.Fatalf("priority = %q, want %q", got.Priority, vo.TodoPriorityHigh)
 				}
 			},
 		},
@@ -54,8 +54,8 @@ func TestTodoUpdaterUpdate(t *testing.T) {
 				cmdRepo.EXPECT().UpdateTodo(gomock.Any(), gomock.Any()).Return(nil)
 			},
 			check: func(t *testing.T, got *output.TodoUpdater) {
-				if got.Status != string(vo.TODO_STATUS_COMPLETED) {
-					t.Fatalf("status = %q, want %q", got.Status, vo.TODO_STATUS_COMPLETED)
+				if got.Status != string(vo.TodoStatusCompleted) {
+					t.Fatalf("status = %q, want %q", got.Status, vo.TodoStatusCompleted)
 				}
 			},
 		},

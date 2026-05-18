@@ -12,22 +12,22 @@ func TestNewTodoPriority(t *testing.T) {
 		{
 			name:      "low",
 			value:     "LOW",
-			wantValue: TODO_PRIORITY_LOW,
+			wantValue: TodoPriorityLow,
 		},
 		{
 			name:      "medium",
 			value:     "MEDIUM",
-			wantValue: TODO_PRIORITY_MEDIUM,
+			wantValue: TodoPriorityMedium,
 		},
 		{
 			name:      "high",
 			value:     "HIGH",
-			wantValue: TODO_PRIORITY_HIGH,
+			wantValue: TodoPriorityHigh,
 		},
 		{
 			name:      "normalizes lowercase and spaces",
 			value:     "  high  ",
-			wantValue: TODO_PRIORITY_HIGH,
+			wantValue: TodoPriorityHigh,
 		},
 		{
 			name:    "empty priority",
