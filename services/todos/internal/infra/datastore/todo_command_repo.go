@@ -22,7 +22,7 @@ func NewTodoCommandRepo(db *gorm.DB) *todoCommandRepo {
 func (r *todoCommandRepo) CreateTodo(ctx context.Context, t *entity.Todo) error {
 	m := mapper.ToModel(t)
 
-	result := r.db.WithContext(ctx).Create(m)
+	result := extractDB(ctx, r.db).WithContext(ctx).Create(m)
 	if result.Error != nil {
 		return fmt.Errorf("db create todo: %w", result.Error)
 	}
@@ -34,7 +34,7 @@ func (r *todoCommandRepo) CreateTodo(ctx context.Context, t *entity.Todo) error 
 func (r *todoCommandRepo) UpdateTodo(ctx context.Context, t *entity.Todo) error {
 	m := mapper.ToModel(t)
 
-	result := r.db.WithContext(ctx).Save(m)
+	result := extractDB(ctx, r.db).WithContext(ctx).Save(m)
 	if result.Error != nil {
 		return fmt.Errorf("db update todo: %w", result.Error)
 	}
@@ -43,7 +43,7 @@ func (r *todoCommandRepo) UpdateTodo(ctx context.Context, t *entity.Todo) error 
 }
 
 func (r *todoCommandRepo) DeleteTodo(ctx context.Context, id entity.TodoID) error {
-	result := r.db.WithContext(ctx).Delete(&model.Todo{}, int64(id))
+	result := extractDB(ctx, r.db).WithContext(ctx).Delete(&model.Todo{}, int64(id))
 	if result.Error != nil {
 		return fmt.Errorf("db delete todo: %w", result.Error)
 	}

@@ -18,3 +18,7 @@ type TodoQueryGateway interface {
 	GetTodo(ctx context.Context, id entity.TodoID) (*entity.Todo, error)
 	GetTodos(ctx context.Context, userID entity.UserID, page, pageSize int32) ([]*entity.Todo, int64, error)
 }
+
+type TransactionGateway interface {
+	WithinTransaction(ctx context.Context, fn func(ctx context.Context) error) error
+}

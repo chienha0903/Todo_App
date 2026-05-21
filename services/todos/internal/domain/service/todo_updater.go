@@ -13,6 +13,7 @@ import (
 	todousecase "github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo"
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/input"
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/output"
+
 )
 
 var _ todousecase.TodoUpdater = (*TodoUpdater)(nil)
@@ -20,42 +21,51 @@ var _ todousecase.TodoUpdater = (*TodoUpdater)(nil)
 type TodoUpdater struct {
 	cmdGW gateway.TodoCommandGateway
 	qryGW gateway.TodoQueryGateway
+	transactor gateway.TransactionGateway
 }
 
 func NewTodoUpdater(
 	cmdGW gateway.TodoCommandGateway,
 	qryGW gateway.TodoQueryGateway,
+	transactor gateway.TransactionGateway,
 ) *TodoUpdater {
-	return &TodoUpdater{cmdGW: cmdGW, qryGW: qryGW}
+	return &TodoUpdater{cmdGW: cmdGW, qryGW: qryGW, transactor: transactor}
 }
 
 func (s *TodoUpdater) Update(
 	ctx context.Context,
 	in *input.UpdateTodoInput,
 ) (*output.TodoUpdater, error) {
-	todo, err := s.qryGW.GetTodo(ctx, entity.TodoID(in.ID))
-	if err != nil {
-		return nil, fmt.Errorf("TodoUpdater.Update: %w", err)
-	}
-	if todo == nil {
-		return nil, pkgerrors.NewNotFound("todo not found")
-	}
+	var result *output.TodoUpdater
 
-	if err := applyTodoUpdates(todo, in); err != nil {
-		return nil, err
-	}
-
-	todo.UpdatedAt = time.Now()
-
-	if err := s.cmdGW.UpdateTodo(ctx, todo); err != nil {
-		if stderrors.Is(err, pkgerrors.ErrRecordNotFound) {
-			return nil, pkgerrors.NewNotFound("todo not found")
+	err := s.transactor.WithinTransaction(ctx, func(ctx context.Context) error {
+		todo, err := s.qryGW.GetTodo(ctx, entity.TodoID(in.ID))
+		if err != nil {
+			return fmt.Errorf("TodoUpdater.Update: %w", err)
 		}
-		return nil, fmt.Errorf("TodoUpdater.Update: %w", err)
-	}
+		if todo == nil {
+			return pkgerrors.NewNotFound("todo not found")
+		}
 
-	out := toOutput(todo)
-	return &out, nil
+		if err := applyTodoUpdates(todo, in); err != nil {
+			return err
+		}
+
+		todo.UpdatedAt = time.Now()
+
+		if err := s.cmdGW.UpdateTodo(ctx, todo); err != nil {
+			if stderrors.Is(err, pkgerrors.ErrRecordNotFound) {
+				return pkgerrors.NewNotFound("todo not found")
+			}
+			return fmt.Errorf("TodoUpdater.Update: %w", err)
+		}
+
+		out := toOutput(todo)
+		result = &out
+		return nil
+	})
+
+	return result, err
 }
 
 func applyTodoUpdates(todo *entity.Todo, in *input.UpdateTodoInput) error {

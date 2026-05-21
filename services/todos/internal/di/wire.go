@@ -21,6 +21,7 @@ func InitializeApp(cfg *config.Config) (*grpc.Server, func(), error) {
 		datastore.NewTodoCommandGateway,
 		datastore.NewTodoQueryRepo,
 		datastore.NewTodoQueryGateway,
+		datastore.NewGormTransactor,
 
 		// domain service
 		service.NewTodoCreater,
