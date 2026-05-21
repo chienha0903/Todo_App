@@ -1,9 +1,12 @@
-APP_TODOS = todos
-APP_BFF   = bff
-BIN_DIR   = bin
+APP_TODOS      = todos
+APP_BFF        = bff
+BIN_DIR        = bin
+DB_DSN        ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable
+MIGRATIONS_DIR = services/todos/internal/infra/datastore/migrations
 
 .PHONY: run-todos run-bff build build-todos build-bff proto mock wire generate tidy fmt vet \
-        docker-up docker-down docker-logs
+        docker-up docker-down docker-logs \
+        migrate-up migrate-down migrate-version migrate-force migrate-new
 
 ## Chạy gRPC todos service
 run-todos:
@@ -57,6 +60,23 @@ fmt:
 
 vet:
 	go vet ./...
+
+## Migration (cần: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest)
+migrate-up:
+	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN)" up
+
+migrate-down:
+	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN)" down 1
+
+migrate-version:
+	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN)" version
+
+migrate-force:
+	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN)" force $(version)
+
+## Dùng: make migrate-new name=add_tags_table
+migrate-new:
+	migrate create -ext sql -dir $(MIGRATIONS_DIR) -seq $(name)
 
 ## Docker
 docker-up:
