@@ -9,6 +9,7 @@ import (
 	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore/mapper"
 	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore/model"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type todoQueryRepo struct {
@@ -22,7 +23,7 @@ func NewTodoQueryRepo(db *gorm.DB) *todoQueryRepo {
 func (r *todoQueryRepo) GetTodo(ctx context.Context, id entity.TodoID) (*entity.Todo, error) {
 	var m model.Todo
 	
-	result := r.db.WithContext(ctx).First(&m, int64(id))
+	result := extractDB(ctx, r.db).WithContext(ctx).Clauses(clause.Locking{Strength: "UPDATE"}).First(&m, int64(id))
 	if result.Error != nil {
 		if stderrors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil // service layer sẽ tạo NewNotFound
