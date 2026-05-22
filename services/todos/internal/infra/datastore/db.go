@@ -5,7 +5,9 @@ import (
 
 	"github.com/chienha0903/Todo_App/services/todos/internal/config"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/gateway"
-	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore/model"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -24,11 +26,23 @@ func NewDB(cfg *config.Config) (*gorm.DB, func(), error) {
 		return nil, nil, fmt.Errorf("datastore: ping db: %w", err)
 	}
 
-	if err := db.AutoMigrate(&model.Todo{}); err != nil {
-		return nil, nil, fmt.Errorf("datastore: auto migrate: %w", err)
-	}
-
 	return db, func() { _ = sqlDB.Close() }, nil
+}
+
+func RunMigrations(databaseURL string) error {
+	m, err := migrate.New(
+		"file://services/todos/migrations",
+		databaseURL,
+	)
+	if err != nil {
+		return err
+	}
+	defer m.Close()
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return err
+	}
+	return nil
 }
 
 func NewTodoCommandGateway(repo *todoCommandRepo) gateway.TodoCommandGateway {

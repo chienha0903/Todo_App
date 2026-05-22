@@ -11,6 +11,7 @@ import (
 
 	"github.com/chienha0903/Todo_App/services/todos/internal/config"
 	"github.com/chienha0903/Todo_App/services/todos/internal/di"
+	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore"
 )
 
 func main() {
@@ -26,6 +27,10 @@ func run() error {
 	cfg, err := config.Load()
 	if err != nil {
 		return fmt.Errorf("load config: %w", err)
+	}
+
+	if err := datastore.RunMigrations(cfg.DBDSN); err != nil {
+		return fmt.Errorf("run migrations: %w", err)
 	}
 
 	srv, cleanup, err := di.InitializeApp(cfg)
