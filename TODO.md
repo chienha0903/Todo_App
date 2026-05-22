@@ -33,8 +33,8 @@
 - [x] Viết SQL migration script cho bảng `todos`, thêm index `user_id`, chạy `EXPLAIN`
 
 ### Buổi 3 — Thứ 3, 19/05 · DB sâu + Error/Context
-- [ ] Thêm transaction vào 1 use case cụ thể trong project
-- [ ] Kiểm tra và fix các chỗ chưa tận dụng context cancel/timeout
+- [x] Thêm transaction vào 1 use case cụ thể trong project
+- [x] Kiểm tra và fix các chỗ chưa tận dụng context cancel/timeout
 - [ ] Viết guideline phân biệt lỗi trả ra client vs chỉ log nội bộ
 
 ### Buổi 4 — Thứ 6, 22/05 · Async + Wrap up

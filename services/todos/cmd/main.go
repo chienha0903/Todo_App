@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/chienha0903/Todo_App/services/todos/internal/config"
 	"github.com/chienha0903/Todo_App/services/todos/internal/di"
@@ -36,13 +39,29 @@ func run() error {
 		return fmt.Errorf("listen grpc server: %w", err)
 	}
 
-	logGRPCServerStarted(cfg)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
-	if err := srv.Serve(lis); err != nil {
-		return fmt.Errorf("serve grpc server: %w", err)
+	errCh := make(chan error, 1)
+	go func() {
+		logGRPCServerStarted(cfg)
+		if err := srv.Serve(lis); err != nil {
+			errCh <- fmt.Errorf("serve grpc server: %w", err)
+			return
+		}
+		errCh <- nil
+	}()
+
+	select {
+	case <-ctx.Done():
+		stop()
+		slog.Info("server stopping", "component", "grpc_server", "event", "server_stopping")
+		srv.GracefulStop()
+		slog.Info("server stopped", "component", "grpc_server", "event", "server_stopped")
+		return nil
+	case err := <-errCh:
+		return err
 	}
-
-	return nil
 }
 
 func logGRPCServerStarted(cfg *config.Config) {
