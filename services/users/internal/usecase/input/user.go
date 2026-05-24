@@ -3,7 +3,7 @@ package input
 type CreateUserInput struct {
 	Email        string
 	Username     string
-	PasswordHash string
+	Password string
 	Role         string
 }
 
@@ -20,7 +20,7 @@ type UpdateUserInput struct {
 	ID           int64
 	Email        string
 	Username     string
-	PasswordHash string
+	Password string
 	Role         string
 }
 

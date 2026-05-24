@@ -7,12 +7,12 @@ import (
 
 func toOutput(u *entity.User) output.User {
 	return output.User{
-		ID:           int64(u.UserID),
-		Email:        u.Email.Value(),
-		Username:     u.Username.Value(),
-		PasswordHash: u.PasswordHash.Value(),
-		Role:         u.Role.Value(),
-		CreatedAt:    u.CreatedAt.Unix(),
-		UpdatedAt:    u.UpdatedAt.Unix(),
+		ID:        int64(u.UserID),
+		Email:     u.Email.Value(),
+		Username:  u.Username.Value(),
+		Password:  u.Password.Value(),
+		Role:      u.Role.Value(),
+		CreatedAt: u.CreatedAt.Unix(),
+		UpdatedAt: u.UpdatedAt.Unix(),
 	}
 }

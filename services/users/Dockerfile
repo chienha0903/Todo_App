@@ -11,15 +11,15 @@ RUN go mod download
 COPY . .
 
 # Build binary
-RUN go build -o /bin/todos ./services/todos/cmd/main.go
+RUN go build -o /bin/users ./services/users/cmd/main.go
 
 # --- Runtime stage ---
 FROM alpine:3.19
 
 RUN apk --no-cache add ca-certificates tzdata
 
-COPY --from=builder /bin/todos /bin/todos
+COPY --from=builder /bin/users /bin/users
 
 EXPOSE 50051
 
-ENTRYPOINT ["/bin/todos"]
+ENTRYPOINT ["/bin/users"]

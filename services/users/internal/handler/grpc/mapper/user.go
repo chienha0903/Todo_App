@@ -10,10 +10,10 @@ import (
 
 func ToCreateUserInput(req *userpb.CreateUserRequest) *input.CreateUserInput {
 	return &input.CreateUserInput{
-		Email:        req.Email,
-		Username:     req.Username,
-		PasswordHash: req.PasswordHash,
-		Role:         req.Role,
+		Email:    req.Email,
+		Username: req.Username,
+		Password: req.Password,
+		Role:     req.Role,
 	}
 }
 
@@ -23,11 +23,11 @@ func ToGetUserInput(req *userpb.GetUserRequest) *input.GetUserInput {
 
 func ToUpdateUserInput(req *userpb.UpdateUserRequest) *input.UpdateUserInput {
 	return &input.UpdateUserInput{
-		ID:           req.Id,
-		Email:        req.Email,
-		Username:     req.Username,
-		PasswordHash: req.PasswordHash,
-		Role:         req.Role,
+		ID:       req.Id,
+		Email:    req.Email,
+		Username: req.Username,
+		Password: req.Password,
+		Role:     req.Role,
 	}
 }
 
@@ -40,7 +40,7 @@ func ToProtoUser(u *output.User) *userpb.User {
 		Id:           u.ID,
 		Email:        u.Email,
 		Username:     u.Username,
-		PasswordHash: u.PasswordHash,
+		Password: u.Password,
 		Role:         u.Role,
 		CreatedAt:    time.Unix(u.CreatedAt, 0).UTC().Format(time.RFC3339),
 		UpdatedAt:    time.Unix(u.UpdatedAt, 0).UTC().Format(time.RFC3339),

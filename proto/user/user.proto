@@ -14,7 +14,7 @@ service Userservice {
 message CreateUserRequest {
     string email = 1;
     string username = 2;
-    string password_hash = 3;
+    string password = 3;
     string role = 4;
 }
 
@@ -34,7 +34,7 @@ message UpdateUserRequest {
     int64 id = 1;
     string email = 2;
     string username = 3;
-    string password_hash = 4;
+    string password = 4;
     string role = 5;
 }
 

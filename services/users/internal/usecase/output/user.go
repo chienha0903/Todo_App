@@ -4,7 +4,7 @@ type User struct {
 	ID           int64
 	Email        string
 	Username     string
-	PasswordHash string
+	Password string
 	Role         string
 	CreatedAt    int64
 	UpdatedAt    int64
