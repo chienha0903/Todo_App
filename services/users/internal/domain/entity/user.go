@@ -12,7 +12,7 @@ type User struct {
 	UserID       UserID      `json:"user_id"`
 	Username     vo.Username `json:"username"`
 	Email        vo.Email    `json:"email"`
-	PasswordHash vo.Password `json:"password_hash"`
+	PasswordHash vo.PasswordHash `json:"password_hash"`
 	Role         vo.UserRole `json:"role"`
 	CreatedAt    time.Time   `json:"created_at"`
 	UpdatedAt    time.Time   `json:"updated_at"`

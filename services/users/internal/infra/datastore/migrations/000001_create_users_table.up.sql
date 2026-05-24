@@ -1,5 +1,3 @@
--- 0000002_create_user_table.up.sql
-
 CREATE TABLE IF NOT EXISTS users (
     id              BIGSERIAL    PRIMARY KEY,
     username        VARCHAR(50)  NOT NULL UNIQUE,

@@ -12,6 +12,7 @@ func ToModel(u *entity.User) *model.User {
 		Username:     u.Username.Value(),
 		Email:        u.Email.Value(),
 		PasswordHash: u.PasswordHash.Value(),
+		Role:         u.Role.Value(),
 		CreatedAt:    u.CreatedAt,
 		UpdatedAt:    u.UpdatedAt,
 	}
@@ -33,14 +34,18 @@ func ToEntity(m *model.User) (*entity.User, error) {
 		return nil, err
 	}
 
-	u := &entity.User{
+	role, err := vo.NewUserRole(m.Role)
+	if err != nil {
+		return nil, err
+	}
+
+	return &entity.User{
 		UserID:       entity.UserID(m.UserID),
 		Username:     username,
 		Email:        email,
 		PasswordHash: passwordHash,
+		Role:         role,
 		CreatedAt:    m.CreatedAt,
 		UpdatedAt:    m.UpdatedAt,
-	}
-
-	return u, nil
+	}, nil
 }

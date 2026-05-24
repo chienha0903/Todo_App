@@ -3,8 +3,8 @@ package datastore
 import (
 	"fmt"
 
-	"github.com/chienha0903/Todo_App/services/todos/internal/config"
-	"github.com/chienha0903/Todo_App/services/todos/internal/domain/gateway"
+	"github.com/chienha0903/Todo_App/services/users/internal/config"
+	"github.com/chienha0903/Todo_App/services/users/internal/domain/gateway"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -31,7 +31,7 @@ func NewDB(cfg *config.Config) (*gorm.DB, func(), error) {
 
 func RunMigrations(databaseURL string) error {
 	m, err := migrate.New(
-		"file://services/todos/migrations",
+		"file://services/users/internal/infra/datastore/migrations",
 		databaseURL,
 	)
 	if err != nil {
@@ -45,10 +45,10 @@ func RunMigrations(databaseURL string) error {
 	return nil
 }
 
-func NewTodoCommandGateway(repo *todoCommandRepo) gateway.TodoCommandGateway {
+func NewUserCommandGateway(repo *userCommandRepo) gateway.UserCommandGateway {
 	return repo
 }
 
-func NewTodoQueryGateway(repo *todoQueryRepo) gateway.TodoQueryGateway {
+func NewUserQueryGateway(repo *userQueryRepo) gateway.UserQueryGateway {
 	return repo
 }

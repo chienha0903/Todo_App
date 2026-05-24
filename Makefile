@@ -1,26 +1,36 @@
 APP_TODOS      = todos
+APP_USERS      = users
 APP_BFF        = bff
 BIN_DIR        = bin
 DB_DSN        ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable
 MIGRATIONS_DIR = services/todos/internal/infra/datastore/migrations
+MIGRATIONS_DIR_USERS = services/users/internal/infra/datastore/migrations
 
-.PHONY: run-todos run-bff build build-todos build-bff proto mock wire generate tidy fmt vet \
+.PHONY: run-todos run-users run-bff build build-todos build-users build-bff proto mock wire generate tidy fmt vet \
         docker-up docker-down docker-logs \
-        migrate-up migrate-down migrate-version migrate-force migrate-new
+        migrate-todos-up migrate-todos-down migrate-todos-version migrate-todos-force migrate-todos-new \
+        migrate-users-up migrate-users-down migrate-users-version migrate-users-new
 
 ## Chạy gRPC todos service
 run-todos:
 	go run ./services/todos/cmd/main.go
+
+## Chạy gRPC users service
+run-users:
+	go run ./services/users/cmd/main.go
 
 ## Chạy BFF HTTP server
 run-bff:
 	go run ./services/todo-bff/cmd/main.go
 
 ## Build tất cả
-build: build-todos build-bff
+build: build-todos build-users build-bff
 
 build-todos:
 	go build -o $(BIN_DIR)/$(APP_TODOS) ./services/todos/cmd/main.go
+
+build-users:
+	go build -o $(BIN_DIR)/$(APP_USERS) ./services/users/cmd/main.go
 
 build-bff:
 	go build -o $(BIN_DIR)/$(APP_BFF) ./services/todo-bff/cmd/main.go
@@ -47,6 +57,7 @@ mock:
 ## Cần: go install github.com/google/wire/cmd/wire@latest
 wire:
 	wire gen ./services/todos/internal/di/
+	wire gen ./services/users/internal/di/
 	wire gen ./services/todo-bff/internal/di/
 
 ## Re-generate GraphQL code (phải chạy từ services/todo-bff/)
@@ -62,22 +73,36 @@ fmt:
 vet:
 	go vet ./...
 
-## Migration (cần: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest)
-migrate-up:
+## Migration todos (cần: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest)
+migrate-todos-up:
 	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN)" up
 
-migrate-down:
+migrate-todos-down:
 	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN)" down 1
 
-migrate-version:
+migrate-todos-version:
 	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN)" version
 
-migrate-force:
+migrate-todos-force:
 	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN)" force $(version)
 
-## Dùng: make migrate-new name=add_tags_table
-migrate-new:
+## Dùng: make migrate-todos-new name=add_tags_table
+migrate-todos-new:
 	migrate create -ext sql -dir $(MIGRATIONS_DIR) -seq $(name)
+
+## Migration cho users service
+migrate-users-up:
+	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_DSN)" up
+
+migrate-users-down:
+	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_DSN)" down 1
+
+migrate-users-version:
+	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_DSN)" version
+
+## Dùng: make migrate-users-new name=add_something
+migrate-users-new:
+	migrate create -ext sql -dir $(MIGRATIONS_DIR_USERS) -seq $(name)
 
 ## Docker
 docker-up:
