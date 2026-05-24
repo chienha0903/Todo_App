@@ -1,0 +1,29 @@
+package input
+
+type CreateUserInput struct {
+	Email        string
+	Username     string
+	PasswordHash string
+	Role         string
+}
+
+type GetUserInput struct {
+	ID int64
+}
+
+type ListUsersInput struct {
+	Page     int32
+	PageSize int32
+}
+
+type UpdateUserInput struct {
+	ID           int64
+	Email        string
+	Username     string
+	PasswordHash string
+	Role         string
+}
+
+type DeleteUserInput struct {
+	ID int64
+}

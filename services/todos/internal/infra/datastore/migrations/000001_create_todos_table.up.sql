@@ -1,4 +1,4 @@
-BEGIN;
+-- 0000001_create_todos_table.up.sql
 
 CREATE TABLE IF NOT EXISTS todos (
     id          BIGSERIAL    PRIMARY KEY,
