@@ -16,6 +16,8 @@ type UserCommandGateway interface {
 
 type UserQueryGateway interface {
 	GetUser(ctx context.Context, id entity.UserID) (*entity.User, error)
+	GetUserByEmail(ctx context.Context, email string) (*entity.User, error)
+	GetUsers(ctx context.Context, page, pageSize int32) ([]*entity.User, int64, error)
 }
 
 type TransactionGateway interface {

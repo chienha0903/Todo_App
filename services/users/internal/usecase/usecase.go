@@ -22,3 +22,7 @@ type UserUpdater interface {
 type UserDeleter interface {
 	Delete(ctx context.Context, in *input.DeleteUserInput) (*output.UserDeleterOutput, error)
 }
+
+type UserLister interface {
+	List(ctx context.Context, in *input.ListUsersInput) (*output.UserPage, error)
+}

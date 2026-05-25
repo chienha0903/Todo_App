@@ -24,6 +24,7 @@ func NewUserGetter(qryGW gateway.UserQueryGateway) *UserGetter {
 
 func (s *UserGetter) Get(ctx context.Context, in *input.GetUserInput) (*output.UserGetterOutput, error) {
 	user, err := s.qryGW.GetUser(ctx, entity.UserID(in.ID))
+	
 	if err != nil {
 		return nil, fmt.Errorf("UserGetter.Get: %w", err)
 	}

@@ -11,7 +11,7 @@ func toOutput(u *entity.User) output.User {
 		Email:     u.Email.Value(),
 		Username:  u.Username.Value(),
 		Password:  u.Password.Value(),
-		Role:      u.Role.Value(),
+		Role:      u.Role.String(),
 		CreatedAt: u.CreatedAt.Unix(),
 		UpdatedAt: u.UpdatedAt.Unix(),
 	}

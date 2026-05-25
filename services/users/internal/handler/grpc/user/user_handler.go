@@ -12,6 +12,7 @@ type UserHandler struct {
 	userpb.UnimplementedUserserviceServer
 	creater usecase.UserCreater
 	getter  usecase.UserGetter
+	lister  usecase.UserLister
 	updater usecase.UserUpdater
 	deleter usecase.UserDeleter
 }
@@ -19,12 +20,14 @@ type UserHandler struct {
 func NewUserHandler(
 	creater usecase.UserCreater,
 	getter usecase.UserGetter,
+	lister usecase.UserLister,
 	updater usecase.UserUpdater,
 	deleter usecase.UserDeleter,
 ) *UserHandler {
 	return &UserHandler{
 		creater: creater,
 		getter:  getter,
+		lister:  lister,
 		updater: updater,
 		deleter: deleter,
 	}
@@ -52,6 +55,23 @@ func (h *UserHandler) GetUser(
 	}
 
 	return &userpb.GetUserResponse{User: mapper.ToProtoUser(out)}, nil
+}
+
+func (h *UserHandler) ListUsers(
+	ctx context.Context,
+	req *userpb.ListUsersRequest,
+) (*userpb.ListUsersResponse, error) {
+	page, err := h.lister.List(ctx, mapper.ToListUsersInput(req))
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+
+	return &userpb.ListUsersResponse{
+		Users:    mapper.ToProtoUsers(page.Items),
+		Total:    page.Total,
+		Page:     page.Page,
+		PageSize: page.PageSize,
+	}, nil
 }
 
 func (h *UserHandler) UpdateUser(

@@ -35,14 +35,28 @@ func ToDeleteUserInput(req *userpb.DeleteUserRequest) *input.DeleteUserInput {
 	return &input.DeleteUserInput{ID: req.Id}
 }
 
+func ToListUsersInput(req *userpb.ListUsersRequest) *input.ListUsersInput {
+	return &input.ListUsersInput{
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	}
+}
+
+func ToProtoUsers(users []output.User) []*userpb.User {
+	items := make([]*userpb.User, 0, len(users))
+	for i := range users {
+		items = append(items, ToProtoUser(&users[i]))
+	}
+	return items
+}
+
 func ToProtoUser(u *output.User) *userpb.User {
 	return &userpb.User{
-		Id:           u.ID,
-		Email:        u.Email,
-		Username:     u.Username,
-		Password: u.Password,
-		Role:         u.Role,
-		CreatedAt:    time.Unix(u.CreatedAt, 0).UTC().Format(time.RFC3339),
-		UpdatedAt:    time.Unix(u.UpdatedAt, 0).UTC().Format(time.RFC3339),
+		Id:        u.ID,
+		Email:     u.Email,
+		Username:  u.Username,
+		Role:      u.Role,
+		CreatedAt: time.Unix(u.CreatedAt, 0).UTC().Format(time.RFC3339),
+		UpdatedAt: time.Unix(u.UpdatedAt, 0).UTC().Format(time.RFC3339),
 	}
 }

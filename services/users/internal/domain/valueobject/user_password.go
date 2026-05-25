@@ -3,7 +3,7 @@ package valueobject
 import (
 	"strings"
 
-	"github.com/chienha0903/Todo_App/pkg/errors"
+	pkgerrors "github.com/chienha0903/Todo_App/pkg/errors"
 )
 
 type Password struct {
@@ -13,7 +13,7 @@ type Password struct {
 func NewPassword(value string) (Password, error) {
 	value = strings.TrimSpace(value)
 	if len(value) < 8 {
-		return Password{}, errors.New("password must be at least 8 characters long")
+		return Password{}, pkgerrors.NewInvalidParameter("password must be at least 8 characters long")
 	}
 	return Password{value: value}, nil
 }

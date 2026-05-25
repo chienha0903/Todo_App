@@ -12,7 +12,7 @@ func ToModel(u *entity.User) *model.User {
 		Username: u.Username.Value(),
 		Email:    u.Email.Value(),
 		Password: u.Password.Value(),
-		Role:     u.Role.Value(),
+		Role:     u.Role.String(),
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 	}

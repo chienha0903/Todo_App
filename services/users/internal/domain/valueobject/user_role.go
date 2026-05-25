@@ -6,19 +6,28 @@ import (
 	"github.com/chienha0903/Todo_App/pkg/errors"
 )
 
-type UserRole struct {
-	value string
+type UserRole string
+
+const (
+	UserRoleUser  UserRole = "USER"
+	UserRoleAdmin UserRole = "ADMIN"
+)
+
+func (r UserRole) String() string {
+	return string(r)
 }
 
 func NewUserRole(value string) (UserRole, error) {
-	value = strings.TrimSpace(value)
+	value = strings.ToUpper(strings.TrimSpace(value))
 	if value == "" {
-		return UserRole{}, errors.NewInvalidParameter("User role cannot be empty")
+		return "", errors.NewInvalidParameter("role cannot be empty")
 	}
-	// You can add more complex role validation here if needed
-	return UserRole{value: value}, nil
-}
 
-func (r UserRole) Value() string {
-	return r.value
+	role := UserRole(value)
+	switch role {
+	case UserRoleUser, UserRoleAdmin:
+		return role, nil
+	default:
+		return "", errors.NewInvalidParameter("role must be USER or ADMIN")
+	}
 }

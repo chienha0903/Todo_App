@@ -25,11 +25,13 @@ func NewUserDeleter(cmdGW gateway.UserCommandGateway) *UserDeleter {
 
 func (s *UserDeleter) Delete(ctx context.Context, in *input.DeleteUserInput) (*output.UserDeleterOutput, error) {
 	err := s.cmdGW.DeleteUser(ctx, entity.UserID(in.ID))
+
 	if err != nil {
 		if stderrors.Is(err, pkgerrors.ErrRecordNotFound) {
 			return nil, pkgerrors.NewNotFound("user not found")
 		}
 		return nil, fmt.Errorf("UserDeleter.Delete: %w", err)
 	}
+	
 	return &output.UserDeleterOutput{ID: in.ID}, nil
 }
