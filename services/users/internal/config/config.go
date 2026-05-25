@@ -7,10 +7,11 @@ import (
 )
 
 type Config struct {
-	AppName string
-	AppPort string
-	AppEnv  string
-	DBDSN   string
+	AppName   string
+	AppPort   string
+	AppEnv    string
+	DBDSN     string
+	JWTSecret string
 }
 
 func Load() (*Config, error) {
@@ -22,6 +23,7 @@ func Load() (*Config, error) {
 		AppPort: getenv("APP_PORT", "50052"),
 		AppEnv:  getenv("APP_ENV", "development"),
 		DBDSN:   getenv("DB_DSN", "postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable"),
+		JWTSecret: getenv("JWT_SECRET", "chien-apvn"),
 	}
 	return cfg, nil
 }

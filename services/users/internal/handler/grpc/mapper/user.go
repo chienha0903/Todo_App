@@ -60,3 +60,10 @@ func ToProtoUser(u *output.User) *userpb.User {
 		UpdatedAt: time.Unix(u.UpdatedAt, 0).UTC().Format(time.RFC3339),
 	}
 }
+
+func ToUserLoginInput(req *userpb.LoginRequest) *input.UserLoginInput {
+	return &input.UserLoginInput{
+		Email:    req.Email,
+		Password: req.Password,
+	}
+}

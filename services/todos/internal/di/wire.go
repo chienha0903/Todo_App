@@ -9,6 +9,7 @@ import (
 	todohandler "github.com/chienha0903/Todo_App/services/todos/internal/handler/grpc/todo"
 	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore"
 	todousecase "github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo"
+	"github.com/chienha0903/Todo_App/services/todos/internal/domain/gateway"
 	"github.com/google/wire"
 	"google.golang.org/grpc"
 )
@@ -22,6 +23,7 @@ func InitializeApp(cfg *config.Config) (*grpc.Server, func(), error) {
 		datastore.NewTodoQueryRepo,
 		datastore.NewTodoQueryGateway,
 		datastore.NewGormTransactor,
+		wire.Bind(new(gateway.TransactionGateway), new(*datastore.GormTransactor)),
 
 		// domain service
 		service.NewTodoCreater,

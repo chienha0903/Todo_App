@@ -32,7 +32,8 @@ func InitializeApp(cfg *config.Config) (*grpc.Server, func(), error) {
 	gormTransactor := datastore.NewGormTransactor(db)
 	userUpdater := service.NewUserUpdater(userCommandGateway, userQueryGateway, gormTransactor)
 	userDeleter := service.NewUserDeleter(userCommandGateway)
-	userHandler := user.NewUserHandler(userCreater, userGetter, userLister, userUpdater, userDeleter)
+	userAuthenticator := service.NewUserAuthenticator(userQueryGateway, cfg)
+	userHandler := user.NewUserHandler(userCreater, userGetter, userLister, userUpdater, userDeleter, userAuthenticator)
 	server := grpc2.NewGRPCServer(userHandler)
 	return server, func() {
 		cleanup()

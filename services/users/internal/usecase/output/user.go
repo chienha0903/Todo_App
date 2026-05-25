@@ -26,3 +26,7 @@ type UserUpdaterOutput = User
 type UserDeleterOutput struct {
 	ID int64
 }
+
+type UserLoginOutput struct {
+	AccessToken string
+}

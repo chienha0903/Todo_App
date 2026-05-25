@@ -26,3 +26,7 @@ type UserDeleter interface {
 type UserLister interface {
 	List(ctx context.Context, in *input.ListUsersInput) (*output.UserPage, error)
 }
+
+type UserAuthenticator interface {
+	Login(ctx context.Context, in *input.UserLoginInput) (*output.UserLoginOutput, error)
+}

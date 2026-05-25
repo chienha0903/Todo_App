@@ -15,6 +15,7 @@ type UserHandler struct {
 	lister  usecase.UserLister
 	updater usecase.UserUpdater
 	deleter usecase.UserDeleter
+	authenticator usecase.UserAuthenticator
 }
 
 func NewUserHandler(
@@ -23,6 +24,7 @@ func NewUserHandler(
 	lister usecase.UserLister,
 	updater usecase.UserUpdater,
 	deleter usecase.UserDeleter,
+	authenticator usecase.UserAuthenticator,
 ) *UserHandler {
 	return &UserHandler{
 		creater: creater,
@@ -30,6 +32,7 @@ func NewUserHandler(
 		lister:  lister,
 		updater: updater,
 		deleter: deleter,
+		authenticator: authenticator,
 	}
 }
 
@@ -95,4 +98,19 @@ func (h *UserHandler) DeleteUser(
 	}
 
 	return &userpb.DeleteUserResponse{}, nil
+}
+
+func (h *UserHandler) Login(
+	ctx context.Context,
+	req *userpb.LoginRequest,
+) (*userpb.LoginResponse, error){
+	out, err := h.authenticator.Login(ctx, mapper.ToUserLoginInput(req))
+
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+
+	return &userpb.LoginResponse{
+		AccessToken: out.AccessToken,
+	}, nil
 }

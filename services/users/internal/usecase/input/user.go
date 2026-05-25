@@ -27,3 +27,8 @@ type UpdateUserInput struct {
 type DeleteUserInput struct {
 	ID int64
 }
+
+type UserLoginInput struct {
+	Email    string
+	Password string
+}
