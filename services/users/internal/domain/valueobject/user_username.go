@@ -12,9 +12,11 @@ type Username struct {
 
 func NewUsername(value string) (Username, error) {
 	value = strings.TrimSpace(value)
+
 	if value == "" {
 		return Username{}, errors.NewInvalidParameter("Username cannot be empty")
 	}
+
 	return Username{value: value}, nil
 }
 

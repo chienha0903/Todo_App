@@ -19,6 +19,7 @@ func (r UserRole) String() string {
 
 func NewUserRole(value string) (UserRole, error) {
 	value = strings.ToUpper(strings.TrimSpace(value))
+
 	if value == "" {
 		return "", errors.NewInvalidParameter("role cannot be empty")
 	}

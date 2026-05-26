@@ -10,7 +10,6 @@ func toOutput(u *entity.User) output.User {
 		ID:        int64(u.UserID),
 		Email:     u.Email.Value(),
 		Username:  u.Username.Value(),
-		Password:  u.Password.Value(),
 		Role:      u.Role.String(),
 		CreatedAt: u.CreatedAt.Unix(),
 		UpdatedAt: u.UpdatedAt.Unix(),
