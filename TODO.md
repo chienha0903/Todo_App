@@ -43,15 +43,15 @@
 - [ ] Rà soát dependency direction, fix các chỗ còn coupling ngược
 
 ### Buổi 5 — Thứ 3, 26/05 · User Service — Foundation
-- [ ] Định nghĩa `user.proto`: CreateUser, GetUser, UpdateUser, DeleteUser
-- [ ] Domain entity User + Value Objects (email, username, password hash, role)
-- [ ] Input/Output DTOs + 3 lớp mapper (gRPC ↔ DTO, Entity ↔ DB Model, Entity ↔ Output)
-- [ ] Command/Query repository + SQL migration script cho bảng `users`
+- [x] Định nghĩa `user.proto`: CreateUser, GetUser, UpdateUser, DeleteUser
+- [x] Domain entity User + Value Objects (email, username, password hash, role)
+- [x] Input/Output DTOs + 3 lớp mapper (gRPC ↔ DTO, Entity ↔ DB Model, Entity ↔ Output)
+- [x] Command/Query repository + SQL migration script cho bảng `users`
 
 ### Buổi 6 — Thứ 6, 29/05 · User Service — Hoàn thiện
-- [ ] Domain service: UserCreater, UserGetter, UserUpdater, UserDeleter
-- [ ] gRPC handler implement đủ 4 RPC + error mapping
-- [ ] Wire DI: kết nối toàn bộ dependency chain cho User service
+- [x] Domain service: UserCreater, UserGetter, UserUpdater, UserDeleter
+- [x] gRPC handler implement đủ 4 RPC + error mapping
+- [x] Wire DI: kết nối toàn bộ dependency chain cho User service
 - [ ] Unit test với mockgen + table-driven test
 - [ ] BFF: thêm HTTP endpoint cho User + cập nhật README
 

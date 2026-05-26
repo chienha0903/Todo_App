@@ -12,9 +12,15 @@ type Password struct {
 
 func NewPassword(value string) (Password, error) {
 	value = strings.TrimSpace(value)
+
+	if value == "" {
+		return Password{}, pkgerrors.NewInvalidParameter("password cannot be empty")
+	}
+
 	if len(value) < 8 {
 		return Password{}, pkgerrors.NewInvalidParameter("password must be at least 8 characters long")
 	}
+
 	return Password{value: value}, nil
 }
 

@@ -15,12 +15,15 @@ type Email struct {
 
 func NewEmail(value string) (Email, error) {
 	value = strings.TrimSpace(strings.ToLower(value))
+
 	if value == "" {
 		return Email{}, errors.NewInvalidParameter("email cannot be empty")
 	}
+
 	if !emailRegex.MatchString(value) {
 		return Email{}, errors.NewInvalidParameter("invalid email format")
 	}
+
 	return Email{value: value}, nil
 }
 
