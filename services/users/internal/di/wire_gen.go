@@ -33,7 +33,8 @@ func InitializeApp(cfg *config.Config) (*grpc.Server, func(), error) {
 	userUpdater := service.NewUserUpdater(userCommandGateway, userQueryGateway, gormTransactor)
 	userDeleter := service.NewUserDeleter(userCommandGateway)
 	userAuthenticator := service.NewUserAuthenticator(userQueryGateway, cfg)
-	userHandler := user.NewUserHandler(userCreater, userGetter, userLister, userUpdater, userDeleter, userAuthenticator)
+	userRefresher := service.NewUserRefresher(cfg)
+	userHandler := user.NewUserHandler(userCreater, userGetter, userLister, userUpdater, userDeleter, userAuthenticator, userRefresher)
 	server := grpc2.NewGRPCServer(userHandler)
 	return server, func() {
 		cleanup()

@@ -14,7 +14,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const accessTokenTTL = 15 * time.Minute
+const (
+	accessTokenTTL  = 15 * time.Minute
+	refreshTokenTTL = 7 * 24 * time.Hour
+)
 
 type UserAuthenticator struct {
 	qryGW     gateway.UserQueryGateway
@@ -42,12 +45,18 @@ func (s *UserAuthenticator) Login(ctx context.Context, in *input.UserLoginInput)
 		return nil, errors.New("invalid email or password")
 	}
 
-	token, err := userjwt.Generate(int64(user.UserID), user.Role.String(), s.jwtSecret, accessTokenTTL)
+	accessToken, err := userjwt.Generate(int64(user.UserID), user.Role.String(), s.jwtSecret, accessTokenTTL)
 	if err != nil {
-		return nil, fmt.Errorf("UserAuthenticator.Login generate token: %w", err)
+		return nil, fmt.Errorf("UserAuthenticator.Login generate access token: %w", err)
+	}
+
+	refreshToken, err := userjwt.Generate(int64(user.UserID), user.Role.String(), s.jwtSecret, refreshTokenTTL)
+	if err != nil {
+		return nil, fmt.Errorf("UserAuthenticator.Login generate refresh token: %w", err)
 	}
 
 	return &output.UserLoginOutput{
-		AccessToken: token,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}, nil
 }

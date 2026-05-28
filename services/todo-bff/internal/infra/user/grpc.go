@@ -7,7 +7,7 @@ import (
 	userpb "github.com/chienha0903/Todo_App/proto/user"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/config"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/domain/gateway"
-	"github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/user/input"
+	userinput "github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/user/input"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/user/output"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -40,18 +40,34 @@ func NewGRPCGateway(client userpb.UserserviceClient) gateway.UserGateway {
 	return &grpcGateway{client: client}
 }
 
-func (g *grpcGateway) Login(ctx context.Context, email, password string) (string, error) {
+func (g *grpcGateway) Login(ctx context.Context, email, password string) (*gateway.AuthTokens, error) {
 	resp, err := g.client.Login(ctx, &userpb.LoginRequest{
 		Email:    email,
 		Password: password,
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return resp.GetAccessToken(), nil
+	return &gateway.AuthTokens{
+		AccessToken:  resp.GetAccessToken(),
+		RefreshToken: resp.GetRefreshToken(),
+	}, nil
 }
 
-func (g *grpcGateway) GetUser(ctx context.Context, in *input.GetUser) (*output.User, error) {
+func (g *grpcGateway) RefreshToken(ctx context.Context, in *userinput.RefreshToken) (*gateway.AuthTokens, error) {
+	resp, err := g.client.RefreshToken(ctx, &userpb.RefreshTokenRequest{
+		RefreshToken: in.RefreshToken,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &gateway.AuthTokens{
+		AccessToken:  resp.GetAccessToken(),
+		RefreshToken: resp.GetRefreshToken(),
+	}, nil
+}
+
+func (g *grpcGateway) GetUser(ctx context.Context, in *userinput.GetUser) (*output.User, error) {
 	resp, err := g.client.GetUser(ctx, &userpb.GetUserRequest{Id: in.ID})
 	if err != nil {
 		return nil, err
@@ -59,7 +75,7 @@ func (g *grpcGateway) GetUser(ctx context.Context, in *input.GetUser) (*output.U
 	return toOutput(resp.GetUser()), nil
 }
 
-func (g *grpcGateway) ListUsers(ctx context.Context, in *input.ListUsers) (*output.UserPage, error) {
+func (g *grpcGateway) ListUsers(ctx context.Context, in *userinput.ListUsers) (*output.UserPage, error) {
 	resp, err := g.client.ListUsers(ctx, &userpb.ListUsersRequest{
 		Page:     in.Page,
 		PageSize: in.PageSize,
@@ -75,7 +91,7 @@ func (g *grpcGateway) ListUsers(ctx context.Context, in *input.ListUsers) (*outp
 	}, nil
 }
 
-func (g *grpcGateway) UpdateUser(ctx context.Context, in *input.UpdateUser) (*output.User, error) {
+func (g *grpcGateway) UpdateUser(ctx context.Context, in *userinput.UpdateUser) (*output.User, error) {
 	resp, err := g.client.UpdateUser(ctx, &userpb.UpdateUserRequest{
 		Id:       in.ID,
 		Email:    in.Email,
@@ -89,7 +105,7 @@ func (g *grpcGateway) UpdateUser(ctx context.Context, in *input.UpdateUser) (*ou
 	return toOutput(resp.GetUser()), nil
 }
 
-func (g *grpcGateway) DeleteUser(ctx context.Context, in *input.DeleteUser) error {
+func (g *grpcGateway) DeleteUser(ctx context.Context, in *userinput.DeleteUser) error {
 	_, err := g.client.DeleteUser(ctx, &userpb.DeleteUserRequest{Id: in.ID})
 	return err
 }

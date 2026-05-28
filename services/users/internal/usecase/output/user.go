@@ -28,5 +28,11 @@ type UserDeleterOutput struct {
 }
 
 type UserLoginOutput struct {
-	AccessToken string
+	AccessToken  string
+	RefreshToken string
+}
+
+type UserRefreshTokenOutput struct {
+	AccessToken  string
+	RefreshToken string
 }

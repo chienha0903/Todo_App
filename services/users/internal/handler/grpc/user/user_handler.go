@@ -10,12 +10,13 @@ import (
 
 type UserHandler struct {
 	userpb.UnimplementedUserserviceServer
-	creater usecase.UserCreater
-	getter  usecase.UserGetter
-	lister  usecase.UserLister
-	updater usecase.UserUpdater
-	deleter usecase.UserDeleter
+	creater       usecase.UserCreater
+	getter        usecase.UserGetter
+	lister        usecase.UserLister
+	updater       usecase.UserUpdater
+	deleter       usecase.UserDeleter
 	authenticator usecase.UserAuthenticator
+	refresher     usecase.UserRefresher
 }
 
 func NewUserHandler(
@@ -25,14 +26,16 @@ func NewUserHandler(
 	updater usecase.UserUpdater,
 	deleter usecase.UserDeleter,
 	authenticator usecase.UserAuthenticator,
+	refresher usecase.UserRefresher,
 ) *UserHandler {
 	return &UserHandler{
-		creater: creater,
-		getter:  getter,
-		lister:  lister,
-		updater: updater,
-		deleter: deleter,
+		creater:       creater,
+		getter:        getter,
+		lister:        lister,
+		updater:       updater,
+		deleter:       deleter,
 		authenticator: authenticator,
+		refresher:     refresher,
 	}
 }
 
@@ -103,14 +106,29 @@ func (h *UserHandler) DeleteUser(
 func (h *UserHandler) Login(
 	ctx context.Context,
 	req *userpb.LoginRequest,
-) (*userpb.LoginResponse, error){
+) (*userpb.LoginResponse, error) {
 	out, err := h.authenticator.Login(ctx, mapper.ToUserLoginInput(req))
-
 	if err != nil {
 		return nil, toGRPCError(err)
 	}
 
 	return &userpb.LoginResponse{
-		AccessToken: out.AccessToken,
+		AccessToken:  out.AccessToken,
+		RefreshToken: out.RefreshToken,
+	}, nil
+}
+
+func (h *UserHandler) RefreshToken(
+	ctx context.Context,
+	req *userpb.RefreshTokenRequest,
+) (*userpb.RefreshTokenResponse, error) {
+	out, err := h.refresher.Refresh(ctx, mapper.ToRefreshTokenInput(req))
+	if err != nil {
+		return nil, toGRPCError(err)
+	}
+
+	return &userpb.RefreshTokenResponse{
+		AccessToken:  out.AccessToken,
+		RefreshToken: out.RefreshToken,
 	}, nil
 }

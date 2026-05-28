@@ -13,11 +13,30 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
 
-	token, err := r.userGateway.Login(ctx, input.Email, input.Password)
+	tokens, err := r.userGateway.Login(ctx, input.Email, input.Password)
 	if err != nil {
 		return nil, err
 	}
-	return &model.AuthPayload{AccessToken: token}, nil
+	return &model.AuthPayload{
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+	}, nil
+}
+
+func (r *mutationResolver) RefreshToken(ctx context.Context, input model.RefreshTokenInput) (*model.AuthPayload, error) {
+	ctx, cancel := context.WithTimeout(ctx, r.timeout)
+	defer cancel()
+
+	tokens, err := r.userGateway.RefreshToken(ctx, &ucin.RefreshToken{
+		RefreshToken: input.RefreshToken,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &model.AuthPayload{
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+	}, nil
 }
 
 func (r *queryResolver) GetUser(ctx context.Context, id string) (*model.User, error) {
@@ -113,7 +132,7 @@ func requireAdmin(ctx context.Context) error {
 		return apperror.Unauthorized()
 	}
 	role, _ := middleware.GetRole(ctx)
-	if role != "admin" {
+	if role != "ADMIN" {
 		return apperror.PermissionDenied()
 	}
 	return nil

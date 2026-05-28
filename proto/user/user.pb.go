@@ -753,6 +753,118 @@ func (x *LoginResponse) GetRefreshTokenExpires() int64 {
 	return 0
 }
 
+type RefreshTokenRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RefreshToken  string                 `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RefreshTokenRequest) Reset() {
+	*x = RefreshTokenRequest{}
+	mi := &file_proto_user_user_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RefreshTokenRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RefreshTokenRequest) ProtoMessage() {}
+
+func (x *RefreshTokenRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_user_user_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RefreshTokenRequest.ProtoReflect.Descriptor instead.
+func (*RefreshTokenRequest) Descriptor() ([]byte, []int) {
+	return file_proto_user_user_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *RefreshTokenRequest) GetRefreshToken() string {
+	if x != nil {
+		return x.RefreshToken
+	}
+	return ""
+}
+
+type RefreshTokenResponse struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	AccessToken         string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	RefreshToken        string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
+	AccessTokenExpires  int64                  `protobuf:"varint,3,opt,name=access_token_expires,json=accessTokenExpires,proto3" json:"access_token_expires,omitempty"`
+	RefreshTokenExpires int64                  `protobuf:"varint,4,opt,name=refresh_token_expires,json=refreshTokenExpires,proto3" json:"refresh_token_expires,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *RefreshTokenResponse) Reset() {
+	*x = RefreshTokenResponse{}
+	mi := &file_proto_user_user_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RefreshTokenResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RefreshTokenResponse) ProtoMessage() {}
+
+func (x *RefreshTokenResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_user_user_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RefreshTokenResponse.ProtoReflect.Descriptor instead.
+func (*RefreshTokenResponse) Descriptor() ([]byte, []int) {
+	return file_proto_user_user_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *RefreshTokenResponse) GetAccessToken() string {
+	if x != nil {
+		return x.AccessToken
+	}
+	return ""
+}
+
+func (x *RefreshTokenResponse) GetRefreshToken() string {
+	if x != nil {
+		return x.RefreshToken
+	}
+	return ""
+}
+
+func (x *RefreshTokenResponse) GetAccessTokenExpires() int64 {
+	if x != nil {
+		return x.AccessTokenExpires
+	}
+	return 0
+}
+
+func (x *RefreshTokenResponse) GetRefreshTokenExpires() int64 {
+	if x != nil {
+		return x.RefreshTokenExpires
+	}
+	return 0
+}
+
 var File_proto_user_user_proto protoreflect.FileDescriptor
 
 const file_proto_user_user_proto_rawDesc = "" +
@@ -805,7 +917,14 @@ const file_proto_user_user_proto_rawDesc = "" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x120\n" +
 	"\x14access_token_expires\x18\x03 \x01(\x03R\x12accessTokenExpires\x122\n" +
-	"\x15refresh_token_expires\x18\x04 \x01(\x03R\x13refreshTokenExpires2\x9c\x03\n" +
+	"\x15refresh_token_expires\x18\x04 \x01(\x03R\x13refreshTokenExpires\":\n" +
+	"\x13RefreshTokenRequest\x12#\n" +
+	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"\xc4\x01\n" +
+	"\x14RefreshTokenResponse\x12!\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
+	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x120\n" +
+	"\x14access_token_expires\x18\x03 \x01(\x03R\x12accessTokenExpires\x122\n" +
+	"\x15refresh_token_expires\x18\x04 \x01(\x03R\x13refreshTokenExpires2\xe9\x03\n" +
 	"\vUserservice\x12E\n" +
 	"\n" +
 	"CreateUser\x12\x1a.user.v1.CreateUserRequest\x1a\x1b.user.v1.CreateUserResponse\x12<\n" +
@@ -815,7 +934,8 @@ const file_proto_user_user_proto_rawDesc = "" +
 	"UpdateUser\x12\x1a.user.v1.UpdateUserRequest\x1a\x1b.user.v1.UpdateUserResponse\x12E\n" +
 	"\n" +
 	"DeleteUser\x12\x1a.user.v1.DeleteUserRequest\x1a\x1b.user.v1.DeleteUserResponse\x126\n" +
-	"\x05Login\x12\x15.user.v1.LoginRequest\x1a\x16.user.v1.LoginResponseB/Z-github/chienha0903/Todo_App/proto/user;userpbb\x06proto3"
+	"\x05Login\x12\x15.user.v1.LoginRequest\x1a\x16.user.v1.LoginResponse\x12K\n" +
+	"\fRefreshToken\x12\x1c.user.v1.RefreshTokenRequest\x1a\x1d.user.v1.RefreshTokenResponseB/Z-github/chienha0903/Todo_App/proto/user;userpbb\x06proto3"
 
 var (
 	file_proto_user_user_proto_rawDescOnce sync.Once
@@ -829,21 +949,23 @@ func file_proto_user_user_proto_rawDescGZIP() []byte {
 	return file_proto_user_user_proto_rawDescData
 }
 
-var file_proto_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_proto_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_proto_user_user_proto_goTypes = []any{
-	(*CreateUserRequest)(nil),  // 0: user.v1.CreateUserRequest
-	(*CreateUserResponse)(nil), // 1: user.v1.CreateUserResponse
-	(*GetUserRequest)(nil),     // 2: user.v1.GetUserRequest
-	(*GetUserResponse)(nil),    // 3: user.v1.GetUserResponse
-	(*ListUsersRequest)(nil),   // 4: user.v1.ListUsersRequest
-	(*ListUsersResponse)(nil),  // 5: user.v1.ListUsersResponse
-	(*UpdateUserRequest)(nil),  // 6: user.v1.UpdateUserRequest
-	(*UpdateUserResponse)(nil), // 7: user.v1.UpdateUserResponse
-	(*DeleteUserRequest)(nil),  // 8: user.v1.DeleteUserRequest
-	(*DeleteUserResponse)(nil), // 9: user.v1.DeleteUserResponse
-	(*User)(nil),               // 10: user.v1.User
-	(*LoginRequest)(nil),       // 11: user.v1.LoginRequest
-	(*LoginResponse)(nil),      // 12: user.v1.LoginResponse
+	(*CreateUserRequest)(nil),    // 0: user.v1.CreateUserRequest
+	(*CreateUserResponse)(nil),   // 1: user.v1.CreateUserResponse
+	(*GetUserRequest)(nil),       // 2: user.v1.GetUserRequest
+	(*GetUserResponse)(nil),      // 3: user.v1.GetUserResponse
+	(*ListUsersRequest)(nil),     // 4: user.v1.ListUsersRequest
+	(*ListUsersResponse)(nil),    // 5: user.v1.ListUsersResponse
+	(*UpdateUserRequest)(nil),    // 6: user.v1.UpdateUserRequest
+	(*UpdateUserResponse)(nil),   // 7: user.v1.UpdateUserResponse
+	(*DeleteUserRequest)(nil),    // 8: user.v1.DeleteUserRequest
+	(*DeleteUserResponse)(nil),   // 9: user.v1.DeleteUserResponse
+	(*User)(nil),                 // 10: user.v1.User
+	(*LoginRequest)(nil),         // 11: user.v1.LoginRequest
+	(*LoginResponse)(nil),        // 12: user.v1.LoginResponse
+	(*RefreshTokenRequest)(nil),  // 13: user.v1.RefreshTokenRequest
+	(*RefreshTokenResponse)(nil), // 14: user.v1.RefreshTokenResponse
 }
 var file_proto_user_user_proto_depIdxs = []int32{
 	10, // 0: user.v1.CreateUserResponse.user:type_name -> user.v1.User
@@ -856,14 +978,16 @@ var file_proto_user_user_proto_depIdxs = []int32{
 	6,  // 7: user.v1.Userservice.UpdateUser:input_type -> user.v1.UpdateUserRequest
 	8,  // 8: user.v1.Userservice.DeleteUser:input_type -> user.v1.DeleteUserRequest
 	11, // 9: user.v1.Userservice.Login:input_type -> user.v1.LoginRequest
-	1,  // 10: user.v1.Userservice.CreateUser:output_type -> user.v1.CreateUserResponse
-	3,  // 11: user.v1.Userservice.GetUser:output_type -> user.v1.GetUserResponse
-	5,  // 12: user.v1.Userservice.ListUsers:output_type -> user.v1.ListUsersResponse
-	7,  // 13: user.v1.Userservice.UpdateUser:output_type -> user.v1.UpdateUserResponse
-	9,  // 14: user.v1.Userservice.DeleteUser:output_type -> user.v1.DeleteUserResponse
-	12, // 15: user.v1.Userservice.Login:output_type -> user.v1.LoginResponse
-	10, // [10:16] is the sub-list for method output_type
-	4,  // [4:10] is the sub-list for method input_type
+	13, // 10: user.v1.Userservice.RefreshToken:input_type -> user.v1.RefreshTokenRequest
+	1,  // 11: user.v1.Userservice.CreateUser:output_type -> user.v1.CreateUserResponse
+	3,  // 12: user.v1.Userservice.GetUser:output_type -> user.v1.GetUserResponse
+	5,  // 13: user.v1.Userservice.ListUsers:output_type -> user.v1.ListUsersResponse
+	7,  // 14: user.v1.Userservice.UpdateUser:output_type -> user.v1.UpdateUserResponse
+	9,  // 15: user.v1.Userservice.DeleteUser:output_type -> user.v1.DeleteUserResponse
+	12, // 16: user.v1.Userservice.Login:output_type -> user.v1.LoginResponse
+	14, // 17: user.v1.Userservice.RefreshToken:output_type -> user.v1.RefreshTokenResponse
+	11, // [11:18] is the sub-list for method output_type
+	4,  // [4:11] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
 	4,  // [4:4] is the sub-list for extension extendee
 	0,  // [0:4] is the sub-list for field type_name
@@ -880,7 +1004,7 @@ func file_proto_user_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_user_user_proto_rawDesc), len(file_proto_user_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

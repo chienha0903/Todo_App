@@ -15,12 +15,17 @@ type UserPage {
 }
 
 type AuthPayload {
-  accessToken: String!
+  accessToken:  String!
+  refreshToken: String!
 }
 
 input LoginInput {
   email:    String!
   password: String!
+}
+
+input RefreshTokenInput {
+  refreshToken: String!
 }
 
 input UpdateUserInput {

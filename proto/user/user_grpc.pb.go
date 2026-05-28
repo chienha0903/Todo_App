@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Userservice_CreateUser_FullMethodName = "/user.v1.Userservice/CreateUser"
-	Userservice_GetUser_FullMethodName    = "/user.v1.Userservice/GetUser"
-	Userservice_ListUsers_FullMethodName  = "/user.v1.Userservice/ListUsers"
-	Userservice_UpdateUser_FullMethodName = "/user.v1.Userservice/UpdateUser"
-	Userservice_DeleteUser_FullMethodName = "/user.v1.Userservice/DeleteUser"
-	Userservice_Login_FullMethodName      = "/user.v1.Userservice/Login"
+	Userservice_CreateUser_FullMethodName   = "/user.v1.Userservice/CreateUser"
+	Userservice_GetUser_FullMethodName      = "/user.v1.Userservice/GetUser"
+	Userservice_ListUsers_FullMethodName    = "/user.v1.Userservice/ListUsers"
+	Userservice_UpdateUser_FullMethodName   = "/user.v1.Userservice/UpdateUser"
+	Userservice_DeleteUser_FullMethodName   = "/user.v1.Userservice/DeleteUser"
+	Userservice_Login_FullMethodName        = "/user.v1.Userservice/Login"
+	Userservice_RefreshToken_FullMethodName = "/user.v1.Userservice/RefreshToken"
 )
 
 // UserserviceClient is the client API for Userservice service.
@@ -37,6 +38,7 @@ type UserserviceClient interface {
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error)
 }
 
 type userserviceClient struct {
@@ -107,6 +109,16 @@ func (c *userserviceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
+func (c *userserviceClient) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...grpc.CallOption) (*RefreshTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RefreshTokenResponse)
+	err := c.cc.Invoke(ctx, Userservice_RefreshToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserserviceServer is the server API for Userservice service.
 // All implementations must embed UnimplementedUserserviceServer
 // for forward compatibility.
@@ -117,6 +129,7 @@ type UserserviceServer interface {
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
+	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
 	mustEmbedUnimplementedUserserviceServer()
 }
 
@@ -144,6 +157,9 @@ func (UnimplementedUserserviceServer) DeleteUser(context.Context, *DeleteUserReq
 }
 func (UnimplementedUserserviceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Login not implemented")
+}
+func (UnimplementedUserserviceServer) RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RefreshToken not implemented")
 }
 func (UnimplementedUserserviceServer) mustEmbedUnimplementedUserserviceServer() {}
 func (UnimplementedUserserviceServer) testEmbeddedByValue()                     {}
@@ -274,6 +290,24 @@ func _Userservice_Login_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Userservice_RefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RefreshTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserserviceServer).RefreshToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Userservice_RefreshToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserserviceServer).RefreshToken(ctx, req.(*RefreshTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Userservice_ServiceDesc is the grpc.ServiceDesc for Userservice service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +338,10 @@ var Userservice_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Login",
 			Handler:    _Userservice_Login_Handler,
+		},
+		{
+			MethodName: "RefreshToken",
+			Handler:    _Userservice_RefreshToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

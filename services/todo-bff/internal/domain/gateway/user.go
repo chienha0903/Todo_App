@@ -7,8 +7,14 @@ import (
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/user/output"
 )
 
+type AuthTokens struct {
+	AccessToken  string
+	RefreshToken string
+}
+
 type UserGateway interface {
-	Login(ctx context.Context, email, password string) (string, error)
+	Login(ctx context.Context, email, password string) (*AuthTokens, error)
+	RefreshToken(ctx context.Context, in *input.RefreshToken) (*AuthTokens, error)
 	GetUser(ctx context.Context, in *input.GetUser) (*output.User, error)
 	ListUsers(ctx context.Context, in *input.ListUsers) (*output.UserPage, error)
 	UpdateUser(ctx context.Context, in *input.UpdateUser) (*output.User, error)

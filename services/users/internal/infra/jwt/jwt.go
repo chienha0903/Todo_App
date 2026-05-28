@@ -12,6 +12,23 @@ type Claims struct {
 	gojwt.RegisteredClaims
 }
 
+func Parse(tokenStr, secret string) (*Claims, error) {
+	token, err := gojwt.ParseWithClaims(tokenStr, &Claims{}, func(t *gojwt.Token) (any, error) {
+		if _, ok := t.Method.(*gojwt.SigningMethodHMAC); !ok {
+			return nil, gojwt.ErrSignatureInvalid
+		}
+		return []byte(secret), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	claims, ok := token.Claims.(*Claims)
+	if !ok || !token.Valid {
+		return nil, gojwt.ErrTokenInvalidClaims
+	}
+	return claims, nil
+}
+
 func Generate(userID int64, role, secret string, ttl time.Duration) (string, error) {
 	claims := Claims{
 		UserID: userID,

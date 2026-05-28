@@ -20,3 +20,7 @@ type UpdateUser struct {
 type DeleteUser struct {
 	ID int64
 }
+
+type RefreshToken struct {
+	RefreshToken string
+}

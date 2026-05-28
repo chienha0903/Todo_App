@@ -37,16 +37,18 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	AuthPayload struct {
-		AccessToken func(childComplexity int) int
+		AccessToken  func(childComplexity int) int
+		RefreshToken func(childComplexity int) int
 	}
 
 	Mutation struct {
-		CreateTodo func(childComplexity int, input model.CreateTodoInput) int
-		DeleteTodo func(childComplexity int, id string) int
-		DeleteUser func(childComplexity int, id string) int
-		Login      func(childComplexity int, input model.LoginInput) int
-		UpdateTodo func(childComplexity int, id string, input model.UpdateTodoInput) int
-		UpdateUser func(childComplexity int, id string, input model.UpdateUserInput) int
+		CreateTodo   func(childComplexity int, input model.CreateTodoInput) int
+		DeleteTodo   func(childComplexity int, id string) int
+		DeleteUser   func(childComplexity int, id string) int
+		Login        func(childComplexity int, input model.LoginInput) int
+		RefreshToken func(childComplexity int, input model.RefreshTokenInput) int
+		UpdateTodo   func(childComplexity int, id string, input model.UpdateTodoInput) int
+		UpdateUser   func(childComplexity int, id string, input model.UpdateUserInput) int
 	}
 
 	Query struct {
@@ -98,6 +100,7 @@ type MutationResolver interface {
 	UpdateTodo(ctx context.Context, id string, input model.UpdateTodoInput) (*model.Todo, error)
 	DeleteTodo(ctx context.Context, id string) (bool, error)
 	Login(ctx context.Context, input model.LoginInput) (*model.AuthPayload, error)
+	RefreshToken(ctx context.Context, input model.RefreshTokenInput) (*model.AuthPayload, error)
 	UpdateUser(ctx context.Context, id string, input model.UpdateUserInput) (*model.User, error)
 	DeleteUser(ctx context.Context, id string) (bool, error)
 }
@@ -128,6 +131,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.AuthPayload.AccessToken(childComplexity), true
+	case "AuthPayload.refreshToken":
+		if e.ComplexityRoot.AuthPayload.RefreshToken == nil {
+			break
+		}
+
+		return e.ComplexityRoot.AuthPayload.RefreshToken(childComplexity), true
 
 	case "Mutation.createTodo":
 		if e.ComplexityRoot.Mutation.CreateTodo == nil {
@@ -173,6 +182,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Mutation.Login(childComplexity, args["input"].(model.LoginInput)), true
+	case "Mutation.refreshToken":
+		if e.ComplexityRoot.Mutation.RefreshToken == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_refreshToken_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.RefreshToken(childComplexity, args["input"].(model.RefreshTokenInput)), true
 	case "Mutation.updateTodo":
 		if e.ComplexityRoot.Mutation.UpdateTodo == nil {
 			break
@@ -401,6 +421,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateTodoInput,
 		ec.unmarshalInputDeleteTodoInput,
 		ec.unmarshalInputLoginInput,
+		ec.unmarshalInputRefreshTokenInput,
 		ec.unmarshalInputUpdateTodoInput,
 		ec.unmarshalInputUpdateUserInput,
 	)
@@ -490,6 +511,7 @@ type Mutation {
   updateTodo(id: ID!, input: UpdateTodoInput!): Todo!
   deleteTodo(id: ID!): Boolean!
   login(input: LoginInput!): AuthPayload!
+  refreshToken(input: RefreshTokenInput!): AuthPayload!
   updateUser(id: ID!, input: UpdateUserInput!): User!
   deleteUser(id: ID!): Boolean!
 }
@@ -563,12 +585,17 @@ type UserPage {
 }
 
 type AuthPayload {
-  accessToken: String!
+  accessToken:  String!
+  refreshToken: String!
 }
 
 input LoginInput {
   email:    String!
   password: String!
+}
+
+input RefreshTokenInput {
+  refreshToken: String!
 }
 
 input UpdateUserInput {
@@ -589,6 +616,8 @@ func (ec *executionContext) childFields_AuthPayload(ctx context.Context, field g
 	switch field.Name {
 	case "accessToken":
 		return ec.fieldContext_AuthPayload_accessToken(ctx, field)
+	case "refreshToken":
+		return ec.fieldContext_AuthPayload_refreshToken(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type AuthPayload", field.Name)
 }
@@ -837,6 +866,20 @@ func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawAr
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_refreshToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (model.RefreshTokenInput, error) {
+			return ec.unmarshalNRefreshTokenInput2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐRefreshTokenInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_updateTodo_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -1062,6 +1105,29 @@ func (ec *executionContext) fieldContext_AuthPayload_accessToken(_ context.Conte
 	return graphql.NewScalarFieldContext("AuthPayload", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
+func (ec *executionContext) _AuthPayload_refreshToken(ctx context.Context, field graphql.CollectedField, obj *model.AuthPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_AuthPayload_refreshToken(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.RefreshToken, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_AuthPayload_refreshToken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AuthPayload", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1232,6 +1298,50 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_login_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_refreshToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_refreshToken(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().RefreshToken(ctx, fc.Args["input"].(model.RefreshTokenInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *model.AuthPayload) graphql.Marshaler {
+			return ec.marshalNAuthPayload2ᚖgithubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐAuthPayload(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_refreshToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_AuthPayload(ctx, field)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_refreshToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3332,6 +3442,36 @@ func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj an
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRefreshTokenInput(ctx context.Context, obj any) (model.RefreshTokenInput, error) {
+	var it model.RefreshTokenInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"refreshToken"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "refreshToken":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshToken"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshToken = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateTodoInput(ctx context.Context, obj any) (model.UpdateTodoInput, error) {
 	var it model.UpdateTodoInput
 	if obj == nil {
@@ -3465,6 +3605,11 @@ func (ec *executionContext) _AuthPayload(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "refreshToken":
+			out.Values[i] = ec._AuthPayload_refreshToken(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3531,6 +3676,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "login":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_login(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "refreshToken":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_refreshToken(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -4361,6 +4513,11 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 
 func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v any) (model.LoginInput, error) {
 	res, err := ec.unmarshalInputLoginInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNRefreshTokenInput2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐRefreshTokenInput(ctx context.Context, v any) (model.RefreshTokenInput, error) {
+	res, err := ec.unmarshalInputRefreshTokenInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

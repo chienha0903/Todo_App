@@ -32,3 +32,7 @@ type UserLoginInput struct {
 	Email    string
 	Password string
 }
+
+type UserRefreshTokenInput struct {
+	RefreshToken string
+}

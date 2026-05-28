@@ -38,6 +38,8 @@ func InitializeApp(cfg *config.Config) (*grpc.Server, func(), error) {
 		wire.Bind(new(usecase.UserLister), new(*service.UserLister)),
 		service.NewUserAuthenticator,
 		wire.Bind(new(usecase.UserAuthenticator), new(*service.UserAuthenticator)),
+		service.NewUserRefresher,
+		wire.Bind(new(usecase.UserRefresher), new(*service.UserRefresher)),
 		// handler
 		userhandler.NewUserHandler,
 		grpchandler.NewGRPCServer,

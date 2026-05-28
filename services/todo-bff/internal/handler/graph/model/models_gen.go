@@ -10,7 +10,8 @@ import (
 )
 
 type AuthPayload struct {
-	AccessToken string `json:"accessToken"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
 }
 
 type CreateTodoInput struct {
@@ -34,6 +35,10 @@ type Mutation struct {
 }
 
 type Query struct {
+}
+
+type RefreshTokenInput struct {
+	RefreshToken string `json:"refreshToken"`
 }
 
 type Todo struct {

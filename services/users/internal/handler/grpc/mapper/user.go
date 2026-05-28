@@ -67,3 +67,7 @@ func ToUserLoginInput(req *userpb.LoginRequest) *input.UserLoginInput {
 		Password: req.Password,
 	}
 }
+
+func ToRefreshTokenInput(req *userpb.RefreshTokenRequest) *input.UserRefreshTokenInput {
+	return &input.UserRefreshTokenInput{RefreshToken: req.RefreshToken}
+}

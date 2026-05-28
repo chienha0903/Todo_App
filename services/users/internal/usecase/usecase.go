@@ -30,3 +30,7 @@ type UserLister interface {
 type UserAuthenticator interface {
 	Login(ctx context.Context, in *input.UserLoginInput) (*output.UserLoginOutput, error)
 }
+
+type UserRefresher interface {
+	Refresh(ctx context.Context, in *input.UserRefreshTokenInput) (*output.UserRefreshTokenOutput, error)
+}
