@@ -1,13 +1,12 @@
 package output
 
 type User struct {
-	ID           int64
-	Email        string
-	Username     string
-	Password string
-	Role         string
-	CreatedAt    int64
-	UpdatedAt    int64
+	ID        int64
+	Email     string
+	Username  string
+	Role      string
+	CreatedAt int64
+	UpdatedAt int64
 }
 
 type UserGetterOutput = User

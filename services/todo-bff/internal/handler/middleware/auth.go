@@ -55,10 +55,11 @@ func GetRole(ctx context.Context) (string, bool) {
 	return role, ok
 }
 
-func RequireAuth(ctx context.Context) (int64, error) {
+func RequireAuth(ctx context.Context) error {
 	userID, ok := GetUserID(ctx)
 	if !ok || userID == 0 {
-		return 0, apperror.Unauthorized()
+		return apperror.Unauthorized()
 	}
-	return userID, nil
+	
+	return nil
 }

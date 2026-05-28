@@ -82,7 +82,11 @@ func applyUserUpdates(user *entity.User, in *input.UpdateUserInput) error {
 	}
 
 	if in.Password != "" {
-		user.Password, err = vo.NewPassword(in.Password)
+		raw, err := vo.NewPassword(in.Password)
+		if err != nil {
+			return err
+		}
+		user.Password, err = hashPassword(raw)
 		if err != nil {
 			return err
 		}

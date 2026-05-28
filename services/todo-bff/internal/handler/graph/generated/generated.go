@@ -33,6 +33,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	Auth func(ctx context.Context, obj any, next graphql.Resolver) (res any, err error)
 }
 
 type ComplexityRoot struct {
@@ -499,24 +500,25 @@ func newExecutionContext(
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema.graphql", Input: `type Query {
+	{Name: "../schema.graphql", Input: `scalar Time
+
+directive @auth on FIELD_DEFINITION | OBJECT
+
+type Query
+type Mutation
+`, BuiltIn: false},
+	{Name: "../todo.graphql", Input: `extend type Query {
   todo(id: ID!): Todo
   todos(userId: Int!, page: Int, pageSize: Int): TodoPage!
-  getUser(id: ID!): User
-  listUsers(page: Int, pageSize: Int): UserPage!
 }
 
-type Mutation {
+extend type Mutation {
   createTodo(input: CreateTodoInput!): Todo!
   updateTodo(id: ID!, input: UpdateTodoInput!): Todo!
   deleteTodo(id: ID!): Boolean!
-  login(input: LoginInput!): AuthPayload!
-  refreshToken(input: RefreshTokenInput!): AuthPayload!
-  updateUser(id: ID!, input: UpdateUserInput!): User!
-  deleteUser(id: ID!): Boolean!
 }
-`, BuiltIn: false},
-	{Name: "../todo.graphql", Input: `enum TodoStatus {
+
+enum TodoStatus {
   PENDING
   IN_PROGRESS
   COMPLETED
@@ -568,7 +570,19 @@ input DeleteTodoInput {
   id: ID!
 }
 `, BuiltIn: false},
-	{Name: "../user.graphql", Input: `type User {
+	{Name: "../user.graphql", Input: `extend type Query {
+  getUser(id: ID!): User
+  listUsers(page: Int, pageSize: Int): UserPage!
+}
+
+extend type Mutation {
+  login(input: LoginInput!): AuthPayload!
+  refreshToken(input: RefreshTokenInput!): AuthPayload!
+  updateUser(id: ID!, input: UpdateUserInput!): User!
+  deleteUser(id: ID!): Boolean!
+}
+
+type User {
   id:        ID!
   email:     String!
   username:  String!

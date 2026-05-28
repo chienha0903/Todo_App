@@ -1,6 +1,7 @@
 package resolver
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/config"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/domain/gateway"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/model"
+	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/middleware"
 	todousecase "github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/todo"
 	todooutput "github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/todo/output"
 	useroutput "github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/user/output"
@@ -49,6 +51,7 @@ func parseID(id string) (int64, error) {
 	if err != nil || parsed <= 0 {
 		return 0, apperror.InvalidArgument("id must be a positive integer")
 	}
+	
 	return parsed, nil
 }
 
@@ -56,6 +59,7 @@ func derefStr(s *string) string {
 	if s == nil {
 		return ""
 	}
+
 	return *s
 }
 
@@ -63,6 +67,7 @@ func derefPriority(p *model.TodoPriority) string {
 	if p == nil {
 		return ""
 	}
+
 	return string(*p)
 }
 
@@ -70,6 +75,7 @@ func derefStatus(s *model.TodoStatus) string {
 	if s == nil {
 		return ""
 	}
+
 	return string(*s)
 }
 
@@ -77,6 +83,7 @@ func toModel(t *todooutput.Todo) *model.Todo {
 	if t == nil {
 		return nil
 	}
+
 	m := &model.Todo{
 		ID:          fmt.Sprintf("%d", t.ID),
 		UserID:      int(t.UserID),
@@ -91,14 +98,17 @@ func toModel(t *todooutput.Todo) *model.Todo {
 		dd := t.DueDate
 		m.DueDate = &dd
 	}
+
 	return m
 }
 
 func toModels(todos []*todooutput.Todo) []*model.Todo {
 	items := make([]*model.Todo, 0, len(todos))
+
 	for _, t := range todos {
 		items = append(items, toModel(t))
 	}
+
 	return items
 }
 
@@ -116,6 +126,7 @@ func toUserModel(u *useroutput.User) *model.User {
 	if u == nil {
 		return nil
 	}
+
 	return &model.User{
 		ID:        fmt.Sprintf("%d", u.ID),
 		Email:     u.Email,
@@ -126,11 +137,26 @@ func toUserModel(u *useroutput.User) *model.User {
 	}
 }
 
+func requireAdmin(ctx context.Context) error {
+	if err := middleware.RequireAuth(ctx); err != nil {
+		return apperror.Unauthorized()
+	}
+
+	role, _ := middleware.GetRole(ctx)
+	if role != "ADMIN" {
+		return apperror.PermissionDenied()
+	}
+
+	return nil
+}
+
 func toUserPageModel(p *useroutput.UserPage) *model.UserPage {
 	items := make([]*model.User, 0, len(p.Items))
+
 	for _, u := range p.Items {
 		items = append(items, toUserModel(u))
 	}
+
 	return &model.UserPage{
 		Items:    items,
 		Total:    int(p.Total),

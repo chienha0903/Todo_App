@@ -1,3 +1,14 @@
+extend type Query {
+  todo(id: ID!): Todo
+  todos(userId: Int!, page: Int, pageSize: Int): TodoPage!
+}
+
+extend type Mutation {
+  createTodo(input: CreateTodoInput!): Todo!
+  updateTodo(id: ID!, input: UpdateTodoInput!): Todo!
+  deleteTodo(id: ID!): Boolean!
+}
+
 enum TodoStatus {
   PENDING
   IN_PROGRESS

@@ -1,16 +1,6 @@
-type Query {
-  todo(id: ID!): Todo
-  todos(userId: Int!, page: Int, pageSize: Int): TodoPage!
-  getUser(id: ID!): User
-  listUsers(page: Int, pageSize: Int): UserPage!
-}
+scalar Time
 
-type Mutation {
-  createTodo(input: CreateTodoInput!): Todo!
-  updateTodo(id: ID!, input: UpdateTodoInput!): Todo!
-  deleteTodo(id: ID!): Boolean!
-  login(input: LoginInput!): AuthPayload!
-  refreshToken(input: RefreshTokenInput!): AuthPayload!
-  updateUser(id: ID!, input: UpdateUserInput!): User!
-  deleteUser(id: ID!): Boolean!
-}
+directive @auth on FIELD_DEFINITION | OBJECT
+
+type Query
+type Mutation

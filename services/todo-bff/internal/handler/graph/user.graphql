@@ -1,3 +1,15 @@
+extend type Query {
+  getUser(id: ID!): User
+  listUsers(page: Int, pageSize: Int): UserPage!
+}
+
+extend type Mutation {
+  login(input: LoginInput!): AuthPayload!
+  refreshToken(input: RefreshTokenInput!): AuthPayload!
+  updateUser(id: ID!, input: UpdateUserInput!): User!
+  deleteUser(id: ID!): Boolean!
+}
+
 type User {
   id:        ID!
   email:     String!
