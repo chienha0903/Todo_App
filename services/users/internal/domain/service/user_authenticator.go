@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/chienha0903/Todo_App/services/users/internal/config"
+	"github.com/chienha0903/Todo_App/services/users/internal/domain/entity"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/gateway"
 	userjwt "github.com/chienha0903/Todo_App/services/users/internal/infra/jwt"
 	"github.com/chienha0903/Todo_App/services/users/internal/usecase/input"
@@ -21,13 +22,15 @@ const (
 
 type UserAuthenticator struct {
 	qryGW     gateway.UserQueryGateway
+	tokenCmdGW gateway.RefreshTokenCommandGateway
 	jwtSecret string
 }
 
-func NewUserAuthenticator(qryGW gateway.UserQueryGateway, cfg *config.Config) *UserAuthenticator {
+func NewUserAuthenticator(qryGW gateway.UserQueryGateway, tokenCmdGW gateway.RefreshTokenCommandGateway, cfg *config.Config) *UserAuthenticator {
 	return &UserAuthenticator{
-		qryGW:     qryGW,
-		jwtSecret: cfg.JWTSecret,
+		qryGW:      qryGW,
+		tokenCmdGW: tokenCmdGW,
+		jwtSecret:  cfg.JWTSecret,
 	}
 }
 
@@ -53,6 +56,14 @@ func (s *UserAuthenticator) Login(ctx context.Context, in *input.UserLoginInput)
 	refreshToken, err := userjwt.Generate(int64(user.UserID), user.Role.String(), s.jwtSecret, refreshTokenTTL)
 	if err != nil {
 		return nil, fmt.Errorf("UserAuthenticator.Login generate refresh token: %w", err)
+	}
+
+	if err := s.tokenCmdGW.StoreRefreshToken(ctx, &entity.RefreshToken{
+		UserID:    int64(user.UserID),
+		TokenHash: hashToken(refreshToken),
+		ExpiresAt: time.Now().Add(refreshTokenTTL),
+	}); err != nil {
+		return nil, fmt.Errorf("UserAuthenticator.Login store refresh token: %w", err)
 	}
 
 	return &output.UserLoginOutput{

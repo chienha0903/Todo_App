@@ -14,7 +14,10 @@ func NewGRPCServer(h *userhandler.UserHandler) *grpc.Server {
 			UnaryLoggingInterceptor,
 		),
 	)
+	
 	userpb.RegisterUserserviceServer(srv, h)
+
 	reflection.Register(srv)
+
 	return srv
 }
