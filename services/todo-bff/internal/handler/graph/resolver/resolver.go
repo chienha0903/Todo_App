@@ -7,18 +7,21 @@ import (
 
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/apperror"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/config"
+	"github.com/chienha0903/Todo_App/services/todo-bff/internal/domain/gateway"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/model"
 	todousecase "github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/todo"
-	"github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/todo/output"
+	todooutput "github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/todo/output"
+	useroutput "github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/user/output"
 )
 
 type Resolver struct {
-	creater todousecase.TodoCreater
-	getter  todousecase.TodoGetter
-	lister  todousecase.TodoLister
-	updater todousecase.TodoUpdater
-	deleter todousecase.TodoDeleter
-	timeout time.Duration
+	creater     todousecase.TodoCreater
+	getter      todousecase.TodoGetter
+	lister      todousecase.TodoLister
+	updater     todousecase.TodoUpdater
+	deleter     todousecase.TodoDeleter
+	userGateway gateway.UserGateway
+	timeout     time.Duration
 }
 
 func NewResolver(
@@ -28,14 +31,16 @@ func NewResolver(
 	lister todousecase.TodoLister,
 	updater todousecase.TodoUpdater,
 	deleter todousecase.TodoDeleter,
+	userGateway gateway.UserGateway,
 ) *Resolver {
 	return &Resolver{
-		creater: creater,
-		getter:  getter,
-		lister:  lister,
-		updater: updater,
-		deleter: deleter,
-		timeout: cfg.RequestTimeout,
+		creater:     creater,
+		getter:      getter,
+		lister:      lister,
+		updater:     updater,
+		deleter:     deleter,
+		userGateway: userGateway,
+		timeout:     cfg.RequestTimeout,
 	}
 }
 
@@ -68,7 +73,7 @@ func derefStatus(s *model.TodoStatus) string {
 	return string(*s)
 }
 
-func toModel(t *output.Todo) *model.Todo {
+func toModel(t *todooutput.Todo) *model.Todo {
 	if t == nil {
 		return nil
 	}
@@ -89,7 +94,7 @@ func toModel(t *output.Todo) *model.Todo {
 	return m
 }
 
-func toModels(todos []*output.Todo) []*model.Todo {
+func toModels(todos []*todooutput.Todo) []*model.Todo {
 	items := make([]*model.Todo, 0, len(todos))
 	for _, t := range todos {
 		items = append(items, toModel(t))
@@ -97,12 +102,39 @@ func toModels(todos []*output.Todo) []*model.Todo {
 	return items
 }
 
-func toPageModel(p *output.TodoPage) *model.TodoPage {
+func toPageModel(p *todooutput.TodoPage) *model.TodoPage {
 	return &model.TodoPage{
 		Items:    toModels(p.Items),
 		Total:    p.Total,
 		Page:     p.Page,
 		PageSize: p.PageSize,
 		HasNext:  p.HasNext,
+	}
+}
+
+func toUserModel(u *useroutput.User) *model.User {
+	if u == nil {
+		return nil
+	}
+	return &model.User{
+		ID:        fmt.Sprintf("%d", u.ID),
+		Email:     u.Email,
+		Username:  u.Username,
+		Role:      u.Role,
+		CreatedAt: u.CreatedAt,
+		UpdatedAt: u.UpdatedAt,
+	}
+}
+
+func toUserPageModel(p *useroutput.UserPage) *model.UserPage {
+	items := make([]*model.User, 0, len(p.Items))
+	for _, u := range p.Items {
+		items = append(items, toUserModel(u))
+	}
+	return &model.UserPage{
+		Items:    items,
+		Total:    int(p.Total),
+		Page:     int(p.Page),
+		PageSize: int(p.PageSize),
 	}
 }

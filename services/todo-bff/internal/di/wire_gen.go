@@ -11,6 +11,7 @@ import (
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/domain/service"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/resolver"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/infra/todo"
+	"github.com/chienha0903/Todo_App/services/todo-bff/internal/infra/user"
 )
 
 // Injectors from wire.go:
@@ -27,8 +28,16 @@ func InitializeApp(cfg *config.Config) (*resolver.Resolver, func(), error) {
 	todoLister := service.NewTodoLister(todoGateway)
 	todoUpdater := service.NewTodoUpdater(todoGateway)
 	todoDeleter := service.NewTodoDeleter(todoGateway)
-	resolverResolver := resolver.NewResolver(cfg, todoCreater, todoGetter, todoLister, todoUpdater, todoDeleter)
+	userClientConn, cleanup2, err := user.NewGRPCConn(cfg)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	userserviceClient := user.NewUserServiceClient(userClientConn)
+	userGateway := user.NewGRPCGateway(userserviceClient)
+	resolverResolver := resolver.NewResolver(cfg, todoCreater, todoGetter, todoLister, todoUpdater, todoDeleter, userGateway)
 	return resolverResolver, func() {
+		cleanup2()
 		cleanup()
 	}, nil
 }

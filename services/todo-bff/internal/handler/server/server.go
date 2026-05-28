@@ -21,6 +21,8 @@ func NewHTTPServer(cfg *config.Config, gqlResolver *resolver.Resolver) *nethttp.
 	mux.Handle("/graphql", srv)
 
 	var h nethttp.Handler = mux
+
+	h = middleware.AuthMiddleware(cfg.JWTSecret)(h)
 	h = middleware.LoggingMiddleware(h)
 	h = middleware.RecoveryMiddleware(h)
 

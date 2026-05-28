@@ -13,6 +13,8 @@ type Config struct {
 	AppPort        string
 	AppEnv         string
 	TodosGRPCAddr  string
+	UsersGRPCAddr  string
+	JWTSecret      string
 	RequestTimeout time.Duration
 }
 
@@ -30,6 +32,8 @@ func Load() (*Config, error) {
 		AppPort:        getenv("BFF_PORT", getenv("APP_PORT", "8080")),
 		AppEnv:         getenv("APP_ENV", "development"),
 		TodosGRPCAddr:  getenv("TODOS_GRPC_ADDR", "localhost:50051"),
+		UsersGRPCAddr:  getenv("USERS_GRPC_ADDR", "localhost:50052"),
+		JWTSecret:     getenv("JWT_SECRET", "chien-apvn"),
 		RequestTimeout: requestTimeout,
 	}, nil
 }

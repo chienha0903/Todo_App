@@ -1,62 +1,15 @@
-enum TodoStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-}
-
-enum TodoPriority {
-  LOW
-  MEDIUM
-  HIGH
-}
-
-type Todo {
-  id:          ID!
-  userId:      Int!
-  title:       String!
-  description: String!
-  status:      TodoStatus!
-  priority:    TodoPriority!
-  dueDate:     String
-  createdAt:   String!
-  updatedAt:   String!
-}
-
-type TodoPage {
-  items:    [Todo!]!
-  total:    Int!
-  page:     Int!
-  pageSize: Int!
-  hasNext:  Boolean!
-}
-
 type Query {
   todo(id: ID!): Todo
   todos(userId: Int!, page: Int, pageSize: Int): TodoPage!
+  getUser(id: ID!): User
+  listUsers(page: Int, pageSize: Int): UserPage!
 }
 
 type Mutation {
   createTodo(input: CreateTodoInput!): Todo!
   updateTodo(id: ID!, input: UpdateTodoInput!): Todo!
   deleteTodo(id: ID!): Boolean!
-}
-
-input CreateTodoInput {
-  userId:      Int!
-  title:       String!
-  description: String!
-  priority:    TodoPriority!
-  dueDate:     String
-}
-
-input UpdateTodoInput {
-  title:       String
-  description: String
-  priority:    TodoPriority
-  status:      TodoStatus
-  dueDate:     String
-}
-
-input DeleteTodoInput {
-  id: ID!
+  login(input: LoginInput!): AuthPayload!
+  updateUser(id: ID!, input: UpdateUserInput!): User!
+  deleteUser(id: ID!): Boolean!
 }

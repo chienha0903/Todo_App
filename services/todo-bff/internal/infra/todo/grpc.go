@@ -13,19 +13,23 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func NewGRPCConn(cfg *config.Config) (*grpc.ClientConn, func(), error) {
+type ClientConn grpc.ClientConn
+
+func NewGRPCConn(cfg *config.Config) (*ClientConn, func(), error) {
 	conn, err := grpc.NewClient(
 		cfg.TodosGRPCAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
+
 	if err != nil {
 		return nil, nil, fmt.Errorf("grpc dial %s: %w", cfg.TodosGRPCAddr, err)
 	}
-	return conn, func() { _ = conn.Close() }, nil
+
+	return (*ClientConn)(conn), func() { _ = conn.Close() }, nil
 }
 
-func NewTodoServiceClient(conn *grpc.ClientConn) todopb.TodoServiceClient {
-	return todopb.NewTodoServiceClient(conn)
+func NewTodoServiceClient(conn *ClientConn) todopb.TodoServiceClient {
+	return todopb.NewTodoServiceClient((*grpc.ClientConn)(conn))
 }
 
 type grpcGateway struct {
@@ -44,6 +48,7 @@ func (g *grpcGateway) CreateTodo(ctx context.Context, in input.CreateTodo) (*out
 		Priority:    in.Priority,
 		DueDate:     in.DueDate,
 	})
+
 	if err != nil {
 		return nil, err
 	}
@@ -53,6 +58,7 @@ func (g *grpcGateway) CreateTodo(ctx context.Context, in input.CreateTodo) (*out
 
 func (g *grpcGateway) GetTodo(ctx context.Context, in input.GetTodo) (*output.Todo, error) {
 	resp, err := g.client.GetTodo(ctx, &todopb.GetTodoRequest{Id: in.ID})
+
 	if err != nil {
 		return nil, err
 	}
@@ -66,6 +72,7 @@ func (g *grpcGateway) ListTodos(ctx context.Context, in input.ListTodos) (*outpu
 		Page:     int32(in.Page),
 		PageSize: int32(in.PageSize),
 	})
+
 	if err != nil {
 		return nil, err
 	}
@@ -92,6 +99,7 @@ func (g *grpcGateway) UpdateTodo(ctx context.Context, in input.UpdateTodo) (*out
 		Status:      in.Status,
 		DueDate:     in.DueDate,
 	})
+
 	if err != nil {
 		return nil, err
 	}
@@ -123,8 +131,10 @@ func toOutput(t *todopb.Todo) *output.Todo {
 
 func toOutputs(todos []*todopb.Todo) []*output.Todo {
 	items := make([]*output.Todo, 0, len(todos))
+
 	for _, t := range todos {
 		items = append(items, toOutput(t))
 	}
+
 	return items
 }

@@ -1,0 +1,31 @@
+type User {
+  id:        ID!
+  email:     String!
+  username:  String!
+  role:      String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type UserPage {
+  items:    [User!]!
+  total:    Int!
+  page:     Int!
+  pageSize: Int!
+}
+
+type AuthPayload {
+  accessToken: String!
+}
+
+input LoginInput {
+  email:    String!
+  password: String!
+}
+
+input UpdateUserInput {
+  email:    String
+  username: String
+  password: String
+  role:     String
+}

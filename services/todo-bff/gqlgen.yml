@@ -1,5 +1,7 @@
 schema:
   - internal/handler/graph/schema.graphql
+  - internal/handler/graph/todo.graphql
+  - internal/handler/graph/user.graphql
 
 exec:
   filename: internal/handler/graph/generated/generated.go

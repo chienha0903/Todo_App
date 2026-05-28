@@ -9,6 +9,10 @@ import (
 	"strconv"
 )
 
+type AuthPayload struct {
+	AccessToken string `json:"accessToken"`
+}
+
 type CreateTodoInput struct {
 	UserID      int          `json:"userId"`
 	Title       string       `json:"title"`
@@ -19,6 +23,11 @@ type CreateTodoInput struct {
 
 type DeleteTodoInput struct {
 	ID string `json:"id"`
+}
+
+type LoginInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type Mutation struct {
@@ -53,6 +62,29 @@ type UpdateTodoInput struct {
 	Priority    *TodoPriority `json:"priority,omitempty"`
 	Status      *TodoStatus   `json:"status,omitempty"`
 	DueDate     *string       `json:"dueDate,omitempty"`
+}
+
+type UpdateUserInput struct {
+	Email    *string `json:"email,omitempty"`
+	Username *string `json:"username,omitempty"`
+	Password *string `json:"password,omitempty"`
+	Role     *string `json:"role,omitempty"`
+}
+
+type User struct {
+	ID        string `json:"id"`
+	Email     string `json:"email"`
+	Username  string `json:"username"`
+	Role      string `json:"role"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
+}
+
+type UserPage struct {
+	Items    []*User `json:"items"`
+	Total    int     `json:"total"`
+	Page     int     `json:"page"`
+	PageSize int     `json:"pageSize"`
 }
 
 type TodoPriority string
