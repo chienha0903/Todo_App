@@ -14,7 +14,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const accessTokenTTL = 24 * time.Hour
+const accessTokenTTL = 15 * time.Minute
 
 type UserAuthenticator struct {
 	qryGW     gateway.UserQueryGateway
