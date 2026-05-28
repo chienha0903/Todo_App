@@ -43,13 +43,14 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateTodo   func(childComplexity int, input model.CreateTodoInput) int
-		DeleteTodo   func(childComplexity int, id string) int
-		DeleteUser   func(childComplexity int, id string) int
-		Login        func(childComplexity int, input model.LoginInput) int
-		RefreshToken func(childComplexity int, input model.RefreshTokenInput) int
-		UpdateTodo   func(childComplexity int, id string, input model.UpdateTodoInput) int
-		UpdateUser   func(childComplexity int, id string, input model.UpdateUserInput) int
+		ChangePassword func(childComplexity int, input model.ChangePasswordInput) int
+		CreateTodo     func(childComplexity int, input model.CreateTodoInput) int
+		DeleteTodo     func(childComplexity int, id string) int
+		DeleteUser     func(childComplexity int, id string) int
+		Login          func(childComplexity int, input model.LoginInput) int
+		RefreshToken   func(childComplexity int, input model.RefreshTokenInput) int
+		UpdateTodo     func(childComplexity int, id string, input model.UpdateTodoInput) int
+		UpdateUser     func(childComplexity int, id string, input model.UpdateUserInput) int
 	}
 
 	Query struct {
@@ -102,6 +103,7 @@ type MutationResolver interface {
 	DeleteTodo(ctx context.Context, id string) (bool, error)
 	Login(ctx context.Context, input model.LoginInput) (*model.AuthPayload, error)
 	RefreshToken(ctx context.Context, input model.RefreshTokenInput) (*model.AuthPayload, error)
+	ChangePassword(ctx context.Context, input model.ChangePasswordInput) (bool, error)
 	UpdateUser(ctx context.Context, id string, input model.UpdateUserInput) (*model.User, error)
 	DeleteUser(ctx context.Context, id string) (bool, error)
 }
@@ -139,6 +141,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.ComplexityRoot.AuthPayload.RefreshToken(childComplexity), true
 
+	case "Mutation.changePassword":
+		if e.ComplexityRoot.Mutation.ChangePassword == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_changePassword_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.ComplexityRoot.Mutation.ChangePassword(childComplexity, args["input"].(model.ChangePasswordInput)), true
 	case "Mutation.createTodo":
 		if e.ComplexityRoot.Mutation.CreateTodo == nil {
 			break
@@ -419,6 +432,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := newExecutionContext(opCtx, e, make(chan graphql.DeferredResult))
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputChangePasswordInput,
 		ec.unmarshalInputCreateTodoInput,
 		ec.unmarshalInputDeleteTodoInput,
 		ec.unmarshalInputLoginInput,
@@ -578,6 +592,7 @@ input DeleteTodoInput {
 extend type Mutation {
   login(input: LoginInput!): AuthPayload!
   refreshToken(input: RefreshTokenInput!): AuthPayload!
+  changePassword(input: ChangePasswordInput!): Boolean!
   updateUser(id: ID!, input: UpdateUserInput!): User!
   deleteUser(id: ID!): Boolean!
 }
@@ -617,6 +632,11 @@ input UpdateUserInput {
   username: String
   password: String
   role:     String
+}
+
+input ChangePasswordInput {
+  currentPassword: String!
+  newPassword:     String!
 }
 `, BuiltIn: false},
 }
@@ -823,6 +843,20 @@ func (ec *executionContext) childFields___Type(ctx context.Context, field graphq
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_changePassword_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input",
+		func(ctx context.Context, v any) (model.ChangePasswordInput, error) {
+			return ec.unmarshalNChangePasswordInput2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐChangePasswordInput(ctx, v)
+		})
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -1356,6 +1390,50 @@ func (ec *executionContext) fieldContext_Mutation_refreshToken(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_refreshToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_changePassword(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Mutation_changePassword(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.Resolvers.Mutation().ChangePassword(ctx, fc.Args["input"].(model.ChangePasswordInput))
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
+			return ec.marshalNBoolean2bool(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Mutation_changePassword(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_changePassword_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3331,6 +3409,43 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputChangePasswordInput(ctx context.Context, obj any) (model.ChangePasswordInput, error) {
+	var it model.ChangePasswordInput
+	if obj == nil {
+		return it, nil
+	}
+
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"currentPassword", "newPassword"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "currentPassword":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("currentPassword"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CurrentPassword = data
+		case "newPassword":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("newPassword"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NewPassword = data
+		}
+	}
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateTodoInput(ctx context.Context, obj any) (model.CreateTodoInput, error) {
 	var it model.CreateTodoInput
 	if obj == nil {
@@ -3697,6 +3812,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "refreshToken":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_refreshToken(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "changePassword":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_changePassword(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -4486,6 +4608,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNChangePasswordInput2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐChangePasswordInput(ctx context.Context, v any) (model.ChangePasswordInput, error) {
+	res, err := ec.unmarshalInputChangePasswordInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNCreateTodoInput2githubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐCreateTodoInput(ctx context.Context, v any) (model.CreateTodoInput, error) {

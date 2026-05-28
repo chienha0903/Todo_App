@@ -14,6 +14,11 @@ type AuthPayload struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
+type ChangePasswordInput struct {
+	CurrentPassword string `json:"currentPassword"`
+	NewPassword     string `json:"newPassword"`
+}
+
 type CreateTodoInput struct {
 	UserID      int          `json:"userId"`
 	Title       string       `json:"title"`

@@ -12,6 +12,7 @@ service Userservice {
     rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
     rpc Login(LoginRequest) returns (LoginResponse);
     rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+    rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
 }
 
 message CreateUserRequest {
@@ -95,3 +96,11 @@ message RefreshTokenResponse {
     int64 access_token_expires = 3;
     int64 refresh_token_expires = 4;
 }
+
+message ChangePasswordRequest {
+    int64  user_id          = 1;
+    string current_password = 2;
+    string new_password     = 3;
+}
+
+message ChangePasswordResponse {}

@@ -24,3 +24,9 @@ type DeleteUser struct {
 type RefreshToken struct {
 	RefreshToken string
 }
+
+type ChangePassword struct {
+	UserID          int64
+	CurrentPassword string
+	NewPassword     string
+}

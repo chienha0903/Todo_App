@@ -10,13 +10,14 @@ import (
 
 type UserHandler struct {
 	userpb.UnimplementedUserserviceServer
-	creater       usecase.UserCreater
-	getter        usecase.UserGetter
-	lister        usecase.UserLister
-	updater       usecase.UserUpdater
-	deleter       usecase.UserDeleter
-	authenticator usecase.UserAuthenticator
-	refresher     usecase.UserRefresher
+	creater         usecase.UserCreater
+	getter          usecase.UserGetter
+	lister          usecase.UserLister
+	updater         usecase.UserUpdater
+	deleter         usecase.UserDeleter
+	authenticator   usecase.UserAuthenticator
+	refresher       usecase.UserRefresher
+	passwordChanger usecase.UserPasswordChanger
 }
 
 func NewUserHandler(
@@ -27,15 +28,17 @@ func NewUserHandler(
 	deleter usecase.UserDeleter,
 	authenticator usecase.UserAuthenticator,
 	refresher usecase.UserRefresher,
+	passwordChanger usecase.UserPasswordChanger,
 ) *UserHandler {
 	return &UserHandler{
-		creater:       creater,
-		getter:        getter,
-		lister:        lister,
-		updater:       updater,
-		deleter:       deleter,
-		authenticator: authenticator,
-		refresher:     refresher,
+		creater:         creater,
+		getter:          getter,
+		lister:          lister,
+		updater:         updater,
+		deleter:         deleter,
+		authenticator:   authenticator,
+		refresher:       refresher,
+		passwordChanger: passwordChanger,
 	}
 }
 
@@ -116,6 +119,16 @@ func (h *UserHandler) Login(
 		AccessToken:  out.AccessToken,
 		RefreshToken: out.RefreshToken,
 	}, nil
+}
+
+func (h *UserHandler) ChangePassword(
+	ctx context.Context,
+	req *userpb.ChangePasswordRequest,
+) (*userpb.ChangePasswordResponse, error) {
+	if err := h.passwordChanger.ChangePassword(ctx, mapper.ToChangePasswordInput(req)); err != nil {
+		return nil, toGRPCError(err)
+	}
+	return &userpb.ChangePasswordResponse{}, nil
 }
 
 func (h *UserHandler) RefreshToken(

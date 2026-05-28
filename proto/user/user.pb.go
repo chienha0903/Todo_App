@@ -865,6 +865,102 @@ func (x *RefreshTokenResponse) GetRefreshTokenExpires() int64 {
 	return 0
 }
 
+type ChangePasswordRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	UserId          int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	CurrentPassword string                 `protobuf:"bytes,2,opt,name=current_password,json=currentPassword,proto3" json:"current_password,omitempty"`
+	NewPassword     string                 `protobuf:"bytes,3,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ChangePasswordRequest) Reset() {
+	*x = ChangePasswordRequest{}
+	mi := &file_proto_user_user_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangePasswordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangePasswordRequest) ProtoMessage() {}
+
+func (x *ChangePasswordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_user_user_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangePasswordRequest.ProtoReflect.Descriptor instead.
+func (*ChangePasswordRequest) Descriptor() ([]byte, []int) {
+	return file_proto_user_user_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ChangePasswordRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *ChangePasswordRequest) GetCurrentPassword() string {
+	if x != nil {
+		return x.CurrentPassword
+	}
+	return ""
+}
+
+func (x *ChangePasswordRequest) GetNewPassword() string {
+	if x != nil {
+		return x.NewPassword
+	}
+	return ""
+}
+
+type ChangePasswordResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangePasswordResponse) Reset() {
+	*x = ChangePasswordResponse{}
+	mi := &file_proto_user_user_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangePasswordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangePasswordResponse) ProtoMessage() {}
+
+func (x *ChangePasswordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_user_user_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangePasswordResponse.ProtoReflect.Descriptor instead.
+func (*ChangePasswordResponse) Descriptor() ([]byte, []int) {
+	return file_proto_user_user_proto_rawDescGZIP(), []int{16}
+}
+
 var File_proto_user_user_proto protoreflect.FileDescriptor
 
 const file_proto_user_user_proto_rawDesc = "" +
@@ -924,7 +1020,12 @@ const file_proto_user_user_proto_rawDesc = "" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x120\n" +
 	"\x14access_token_expires\x18\x03 \x01(\x03R\x12accessTokenExpires\x122\n" +
-	"\x15refresh_token_expires\x18\x04 \x01(\x03R\x13refreshTokenExpires2\xe9\x03\n" +
+	"\x15refresh_token_expires\x18\x04 \x01(\x03R\x13refreshTokenExpires\"~\n" +
+	"\x15ChangePasswordRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12)\n" +
+	"\x10current_password\x18\x02 \x01(\tR\x0fcurrentPassword\x12!\n" +
+	"\fnew_password\x18\x03 \x01(\tR\vnewPassword\"\x18\n" +
+	"\x16ChangePasswordResponse2\xbc\x04\n" +
 	"\vUserservice\x12E\n" +
 	"\n" +
 	"CreateUser\x12\x1a.user.v1.CreateUserRequest\x1a\x1b.user.v1.CreateUserResponse\x12<\n" +
@@ -935,7 +1036,8 @@ const file_proto_user_user_proto_rawDesc = "" +
 	"\n" +
 	"DeleteUser\x12\x1a.user.v1.DeleteUserRequest\x1a\x1b.user.v1.DeleteUserResponse\x126\n" +
 	"\x05Login\x12\x15.user.v1.LoginRequest\x1a\x16.user.v1.LoginResponse\x12K\n" +
-	"\fRefreshToken\x12\x1c.user.v1.RefreshTokenRequest\x1a\x1d.user.v1.RefreshTokenResponseB/Z-github/chienha0903/Todo_App/proto/user;userpbb\x06proto3"
+	"\fRefreshToken\x12\x1c.user.v1.RefreshTokenRequest\x1a\x1d.user.v1.RefreshTokenResponse\x12Q\n" +
+	"\x0eChangePassword\x12\x1e.user.v1.ChangePasswordRequest\x1a\x1f.user.v1.ChangePasswordResponseB/Z-github/chienha0903/Todo_App/proto/user;userpbb\x06proto3"
 
 var (
 	file_proto_user_user_proto_rawDescOnce sync.Once
@@ -949,23 +1051,25 @@ func file_proto_user_user_proto_rawDescGZIP() []byte {
 	return file_proto_user_user_proto_rawDescData
 }
 
-var file_proto_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_proto_user_user_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_proto_user_user_proto_goTypes = []any{
-	(*CreateUserRequest)(nil),    // 0: user.v1.CreateUserRequest
-	(*CreateUserResponse)(nil),   // 1: user.v1.CreateUserResponse
-	(*GetUserRequest)(nil),       // 2: user.v1.GetUserRequest
-	(*GetUserResponse)(nil),      // 3: user.v1.GetUserResponse
-	(*ListUsersRequest)(nil),     // 4: user.v1.ListUsersRequest
-	(*ListUsersResponse)(nil),    // 5: user.v1.ListUsersResponse
-	(*UpdateUserRequest)(nil),    // 6: user.v1.UpdateUserRequest
-	(*UpdateUserResponse)(nil),   // 7: user.v1.UpdateUserResponse
-	(*DeleteUserRequest)(nil),    // 8: user.v1.DeleteUserRequest
-	(*DeleteUserResponse)(nil),   // 9: user.v1.DeleteUserResponse
-	(*User)(nil),                 // 10: user.v1.User
-	(*LoginRequest)(nil),         // 11: user.v1.LoginRequest
-	(*LoginResponse)(nil),        // 12: user.v1.LoginResponse
-	(*RefreshTokenRequest)(nil),  // 13: user.v1.RefreshTokenRequest
-	(*RefreshTokenResponse)(nil), // 14: user.v1.RefreshTokenResponse
+	(*CreateUserRequest)(nil),      // 0: user.v1.CreateUserRequest
+	(*CreateUserResponse)(nil),     // 1: user.v1.CreateUserResponse
+	(*GetUserRequest)(nil),         // 2: user.v1.GetUserRequest
+	(*GetUserResponse)(nil),        // 3: user.v1.GetUserResponse
+	(*ListUsersRequest)(nil),       // 4: user.v1.ListUsersRequest
+	(*ListUsersResponse)(nil),      // 5: user.v1.ListUsersResponse
+	(*UpdateUserRequest)(nil),      // 6: user.v1.UpdateUserRequest
+	(*UpdateUserResponse)(nil),     // 7: user.v1.UpdateUserResponse
+	(*DeleteUserRequest)(nil),      // 8: user.v1.DeleteUserRequest
+	(*DeleteUserResponse)(nil),     // 9: user.v1.DeleteUserResponse
+	(*User)(nil),                   // 10: user.v1.User
+	(*LoginRequest)(nil),           // 11: user.v1.LoginRequest
+	(*LoginResponse)(nil),          // 12: user.v1.LoginResponse
+	(*RefreshTokenRequest)(nil),    // 13: user.v1.RefreshTokenRequest
+	(*RefreshTokenResponse)(nil),   // 14: user.v1.RefreshTokenResponse
+	(*ChangePasswordRequest)(nil),  // 15: user.v1.ChangePasswordRequest
+	(*ChangePasswordResponse)(nil), // 16: user.v1.ChangePasswordResponse
 }
 var file_proto_user_user_proto_depIdxs = []int32{
 	10, // 0: user.v1.CreateUserResponse.user:type_name -> user.v1.User
@@ -979,15 +1083,17 @@ var file_proto_user_user_proto_depIdxs = []int32{
 	8,  // 8: user.v1.Userservice.DeleteUser:input_type -> user.v1.DeleteUserRequest
 	11, // 9: user.v1.Userservice.Login:input_type -> user.v1.LoginRequest
 	13, // 10: user.v1.Userservice.RefreshToken:input_type -> user.v1.RefreshTokenRequest
-	1,  // 11: user.v1.Userservice.CreateUser:output_type -> user.v1.CreateUserResponse
-	3,  // 12: user.v1.Userservice.GetUser:output_type -> user.v1.GetUserResponse
-	5,  // 13: user.v1.Userservice.ListUsers:output_type -> user.v1.ListUsersResponse
-	7,  // 14: user.v1.Userservice.UpdateUser:output_type -> user.v1.UpdateUserResponse
-	9,  // 15: user.v1.Userservice.DeleteUser:output_type -> user.v1.DeleteUserResponse
-	12, // 16: user.v1.Userservice.Login:output_type -> user.v1.LoginResponse
-	14, // 17: user.v1.Userservice.RefreshToken:output_type -> user.v1.RefreshTokenResponse
-	11, // [11:18] is the sub-list for method output_type
-	4,  // [4:11] is the sub-list for method input_type
+	15, // 11: user.v1.Userservice.ChangePassword:input_type -> user.v1.ChangePasswordRequest
+	1,  // 12: user.v1.Userservice.CreateUser:output_type -> user.v1.CreateUserResponse
+	3,  // 13: user.v1.Userservice.GetUser:output_type -> user.v1.GetUserResponse
+	5,  // 14: user.v1.Userservice.ListUsers:output_type -> user.v1.ListUsersResponse
+	7,  // 15: user.v1.Userservice.UpdateUser:output_type -> user.v1.UpdateUserResponse
+	9,  // 16: user.v1.Userservice.DeleteUser:output_type -> user.v1.DeleteUserResponse
+	12, // 17: user.v1.Userservice.Login:output_type -> user.v1.LoginResponse
+	14, // 18: user.v1.Userservice.RefreshToken:output_type -> user.v1.RefreshTokenResponse
+	16, // 19: user.v1.Userservice.ChangePassword:output_type -> user.v1.ChangePasswordResponse
+	12, // [12:20] is the sub-list for method output_type
+	4,  // [4:12] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
 	4,  // [4:4] is the sub-list for extension extendee
 	0,  // [0:4] is the sub-list for field type_name
@@ -1004,7 +1110,7 @@ func file_proto_user_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_user_user_proto_rawDesc), len(file_proto_user_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

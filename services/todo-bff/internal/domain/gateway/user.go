@@ -15,6 +15,7 @@ type AuthTokens struct {
 type UserGateway interface {
 	Login(ctx context.Context, email, password string) (*AuthTokens, error)
 	RefreshToken(ctx context.Context, in *input.RefreshToken) (*AuthTokens, error)
+	ChangePassword(ctx context.Context, in *input.ChangePassword) error
 	GetUser(ctx context.Context, in *input.GetUser) (*output.User, error)
 	ListUsers(ctx context.Context, in *input.ListUsers) (*output.UserPage, error)
 	UpdateUser(ctx context.Context, in *input.UpdateUser) (*output.User, error)

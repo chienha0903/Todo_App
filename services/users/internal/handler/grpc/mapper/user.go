@@ -71,3 +71,11 @@ func ToUserLoginInput(req *userpb.LoginRequest) *input.UserLoginInput {
 func ToRefreshTokenInput(req *userpb.RefreshTokenRequest) *input.UserRefreshTokenInput {
 	return &input.UserRefreshTokenInput{RefreshToken: req.RefreshToken}
 }
+
+func ToChangePasswordInput(req *userpb.ChangePasswordRequest) *input.ChangePasswordInput {
+	return &input.ChangePasswordInput{
+		UserID:          req.UserId,
+		CurrentPassword: req.CurrentPassword,
+		NewPassword:     req.NewPassword,
+	}
+}

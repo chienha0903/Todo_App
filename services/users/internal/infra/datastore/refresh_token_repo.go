@@ -35,8 +35,9 @@ func (r *RefreshTokenRepo) StoreRefreshToken(ctx context.Context, token *entity.
 		ExpiresAt: token.ExpiresAt,
 	}
 
-	if err := extractDB(ctx, r.db).WithContext(ctx).Create(m).Error; err != nil {
-		return fmt.Errorf("db store refresh token: %w", err)
+	result := extractDB(ctx, r.db).WithContext(ctx).Create(m)
+	if result.Error != nil {
+		return fmt.Errorf("db store refresh token: %w", result.Error)
 	}
 
 	token.ID = m.ID
@@ -56,20 +57,32 @@ func (r *RefreshTokenRepo) MarkUsed(ctx context.Context, tokenHash string, usedA
 	return nil
 }
 
+func (r *RefreshTokenRepo) DeleteByUserID(ctx context.Context, userID int64) error {
+	result := extractDB(ctx, r.db).WithContext(ctx).
+		Where("user_id = ?", userID).
+		Delete(&model.RefreshToken{})
+
+	if result.Error != nil {
+		return fmt.Errorf("db delete refresh tokens by user: %w", result.Error)
+	}
+
+	return nil
+}
+
 func (r *RefreshTokenRepo) FindByTokenHash(ctx context.Context, tokenHash string) (*entity.RefreshToken, error) {
 	var m model.RefreshToken
 
-	err := extractDB(ctx, r.db).WithContext(ctx).
+	result := extractDB(ctx, r.db).WithContext(ctx).
 		Where("token_hash = ?", tokenHash).
-		First(&m).Error
+		First(&m)
 
-	if err != nil {
-		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+	if result.Error != nil {
+		if stderrors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("db find refresh token: %w", err)
+		return nil, fmt.Errorf("db find refresh token: %w", result.Error)
 	}
-	
+
 	return &entity.RefreshToken{
 		ID:        m.ID,
 		UserID:    m.UserID,

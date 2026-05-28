@@ -36,3 +36,9 @@ type UserLoginInput struct {
 type UserRefreshTokenInput struct {
 	RefreshToken string
 }
+
+type ChangePasswordInput struct {
+	UserID          int64
+	CurrentPassword string
+	NewPassword     string
+}

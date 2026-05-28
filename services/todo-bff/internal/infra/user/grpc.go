@@ -69,6 +69,15 @@ func (g *grpcGateway) RefreshToken(ctx context.Context, in *userinput.RefreshTok
 	}, nil
 }
 
+func (g *grpcGateway) ChangePassword(ctx context.Context, in *userinput.ChangePassword) error {
+	_, err := g.client.ChangePassword(ctx, &userpb.ChangePasswordRequest{
+		UserId:          in.UserID,
+		CurrentPassword: in.CurrentPassword,
+		NewPassword:     in.NewPassword,
+	})
+	return err
+}
+
 func (g *grpcGateway) GetUser(ctx context.Context, in *userinput.GetUser) (*output.User, error) {
 	resp, err := g.client.GetUser(ctx, &userpb.GetUserRequest{Id: in.ID})
 	if err != nil {

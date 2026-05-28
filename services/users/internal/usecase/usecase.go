@@ -34,3 +34,7 @@ type UserAuthenticator interface {
 type UserRefresher interface {
 	Refresh(ctx context.Context, in *input.UserRefreshTokenInput) (*output.UserRefreshTokenOutput, error)
 }
+
+type UserPasswordChanger interface {
+	ChangePassword(ctx context.Context, in *input.ChangePasswordInput) error
+}

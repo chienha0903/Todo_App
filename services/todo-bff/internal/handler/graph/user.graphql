@@ -6,6 +6,7 @@ extend type Query {
 extend type Mutation {
   login(input: LoginInput!): AuthPayload!
   refreshToken(input: RefreshTokenInput!): AuthPayload!
+  changePassword(input: ChangePasswordInput!): Boolean!
   updateUser(id: ID!, input: UpdateUserInput!): User!
   deleteUser(id: ID!): Boolean!
 }
@@ -45,4 +46,9 @@ input UpdateUserInput {
   username: String
   password: String
   role:     String
+}
+
+input ChangePasswordInput {
+  currentPassword: String!
+  newPassword:     String!
 }

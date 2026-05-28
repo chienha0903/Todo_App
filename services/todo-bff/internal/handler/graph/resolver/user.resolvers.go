@@ -9,8 +9,8 @@ import (
 	"context"
 
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/model"
-	ucin "github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/user/input"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/middleware"
+	ucin "github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/user/input"
 )
 
 // Login is the resolver for the login field.
@@ -36,7 +36,7 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, input model.Refresh
 	tokens, err := r.userGateway.RefreshToken(ctx, &ucin.RefreshToken{
 		RefreshToken: input.RefreshToken,
 	})
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -45,6 +45,26 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, input model.Refresh
 		AccessToken:  tokens.AccessToken,
 		RefreshToken: tokens.RefreshToken,
 	}, nil
+}
+
+// ChangePassword is the resolver for the changePassword field.
+func (r *mutationResolver) ChangePassword(ctx context.Context, input model.ChangePasswordInput) (bool, error) {
+	if err := middleware.RequireAuth(ctx); err != nil {
+		return false, err
+	}
+	userID, _ := middleware.GetUserID(ctx)
+
+	ctx, cancel := context.WithTimeout(ctx, r.timeout)
+	defer cancel()
+
+	if err := r.userGateway.ChangePassword(ctx, &ucin.ChangePassword{
+		UserID:          userID,
+		CurrentPassword: input.CurrentPassword,
+		NewPassword:     input.NewPassword,
+	}); err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // UpdateUser is the resolver for the updateUser field.
