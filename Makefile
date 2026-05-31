@@ -2,14 +2,19 @@ APP_TODOS      = todos
 APP_USERS      = users
 APP_BFF        = bff
 BIN_DIR        = bin
+IMAGE_PREFIX  ?= ghcr.io/chienha0903
+VERSION       ?= dev
 # DB_DSN        ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable
 DB_DSN_TODOS  ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable&x-migrations-table=schema_migrations_todos
 DB_DSN_USERS  ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable&x-migrations-table=schema_migrations_users
 MIGRATIONS_DIR = services/todos/internal/infra/datastore/migrations
 MIGRATIONS_DIR_USERS = services/users/internal/infra/datastore/migrations
 
-.PHONY: run-todos run-users run-bff build build-todos build-users build-bff proto mock wire generate tidy fmt vet \
-        docker-up docker-down docker-logs \
+.PHONY: run-todos run-users run-bff \
+        build build-todos build-users build-bff build-worker build-consumer \
+        proto mock wire generate \
+        tidy fmt fmt-check vet test ci \
+        docker-up docker-down docker-logs docker-build \
         migrate-todos-up migrate-todos-down migrate-todos-version migrate-todos-force migrate-todos-new \
         migrate-users-up migrate-users-down migrate-users-version migrate-users-force migrate-users-new
 
@@ -25,8 +30,8 @@ run-users:
 run-bff:
 	go run ./services/todo-bff/cmd/main.go
 
-## Build tất cả
-build: build-todos build-users build-bff
+## Build tất cả binary (bao gồm worker và consumer)
+build: build-todos build-users build-bff build-worker build-consumer
 
 build-todos:
 	go build -o $(BIN_DIR)/$(APP_TODOS) ./services/todos/cmd/main.go
@@ -36,6 +41,12 @@ build-users:
 
 build-bff:
 	go build -o $(BIN_DIR)/$(APP_BFF) ./services/todo-bff/cmd/main.go
+
+build-worker:
+	go build -o $(BIN_DIR)/users-worker ./services/users/cmd/worker/main.go
+
+build-consumer:
+	go build -o $(BIN_DIR)/todos-consumer ./services/todos/cmd/consumer/main.go
 
 ## Generate protobuf Go code
 ## Cần: brew install protobuf
@@ -72,8 +83,26 @@ tidy:
 fmt:
 	gofmt -w .
 
+## Kiểm tra format code – dùng cho CI (không sửa file, chỉ báo lỗi)
+fmt-check:
+	@if [ -n "$$(gofmt -l .)" ]; then \
+		echo "Các file sau chưa được format đúng chuẩn gofmt:"; \
+		gofmt -l .; \
+		echo ""; \
+		echo "Chạy 'make fmt' để sửa tự động."; \
+		exit 1; \
+	fi
+	@echo "gofmt: OK"
+
 vet:
 	go vet ./...
+
+## Chạy toàn bộ unit tests
+test:
+	go test ./...
+
+## Chạy toàn bộ CI checks: format → vet → test → build
+ci: fmt-check vet test build
 
 ## Migration todos (cần: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest)
 migrate-todos-up:
@@ -124,3 +153,12 @@ docker-logs-todos:
 
 docker-ps:
 	docker compose ps
+
+## Build tất cả Docker images local (không push lên registry)
+## Dùng: make docker-build VERSION=v1.0.0
+docker-build:
+	docker build -f services/todos/Dockerfile          -t $(IMAGE_PREFIX)/todos:$(VERSION) .
+	docker build -f services/users/Dockerfile          -t $(IMAGE_PREFIX)/users:$(VERSION) .
+	docker build -f services/todo-bff/Dockerfile       -t $(IMAGE_PREFIX)/todo-bff:$(VERSION) .
+	docker build -f services/users/Dockerfile.worker   -t $(IMAGE_PREFIX)/users-worker:$(VERSION) .
+	docker build -f services/todos/Dockerfile.consumer -t $(IMAGE_PREFIX)/todos-consumer:$(VERSION) .
