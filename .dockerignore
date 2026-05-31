@@ -1,0 +1,25 @@
+# Git history – không cần trong image, làm tăng build context
+.git
+.gitignore
+
+# CI/CD config – không liên quan đến runtime
+.github
+
+# Local build output – sẽ được build lại bên trong Docker
+bin/
+
+# Test artifacts
+coverage.out
+*.test
+
+# Environment files – không bao giờ bake secrets vào image
+.env
+.env.example
+
+# Documentation
+docs/
+*.md
+*.html
+
+# Temporary files
+tmp/

@@ -4,12 +4,12 @@ package di
 
 import (
 	"github.com/chienha0903/Todo_App/services/todos/internal/config"
+	"github.com/chienha0903/Todo_App/services/todos/internal/domain/gateway"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/service"
 	grpchandler "github.com/chienha0903/Todo_App/services/todos/internal/handler/grpc"
 	todohandler "github.com/chienha0903/Todo_App/services/todos/internal/handler/grpc/todo"
 	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore"
 	todousecase "github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo"
-	"github.com/chienha0903/Todo_App/services/todos/internal/domain/gateway"
 	"github.com/google/wire"
 	"google.golang.org/grpc"
 )

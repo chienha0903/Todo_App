@@ -73,10 +73,10 @@ func (c *UserDeleteConsumer) Start(ctx context.Context) error {
 
 func (c *UserDeleteConsumer) handleMessage(ctx context.Context, msg amqp.Delivery) {
 	parsed, err := parseUserDeleteRequested(msg.Body)
-	
+
 	if err != nil {
 		slog.Error("parse message failed", "error", err, "message_id", msg.MessageId)
-		_ = msg.Nack(false, false) 
+		_ = msg.Nack(false, false)
 		return
 	}
 

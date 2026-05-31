@@ -33,7 +33,7 @@ func Load() (*Config, error) {
 		AppEnv:         getenv("APP_ENV", "development"),
 		TodosGRPCAddr:  getenv("TODOS_GRPC_ADDR", "localhost:50051"),
 		UsersGRPCAddr:  getenv("USERS_GRPC_ADDR", "localhost:50052"),
-		JWTSecret:     getenv("JWT_SECRET", "chien-apvn"),
+		JWTSecret:      getenv("JWT_SECRET", "chien-apvn"),
 		RequestTimeout: requestTimeout,
 	}, nil
 }

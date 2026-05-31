@@ -1,2 +1,9 @@
 .env
 
+# Compiled binaries
+bin/
+
+# Test artifacts
+coverage.out
+*.test
+

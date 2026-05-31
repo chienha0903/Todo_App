@@ -64,6 +64,6 @@ func validateOptionalRFC3339(value string) error {
 	if _, err := time.Parse(time.RFC3339, value); err != nil {
 		return apperror.InvalidArgument("due_date must be RFC3339 format")
 	}
-	
+
 	return nil
 }

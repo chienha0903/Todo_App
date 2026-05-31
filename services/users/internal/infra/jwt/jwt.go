@@ -21,10 +21,9 @@ func Generate(userID int64, role, secret string, ttl time.Duration) (string, err
 			IssuedAt:  gojwt.NewNumericDate(time.Now()),
 		},
 	}
-	
+
 	return gojwt.NewWithClaims(gojwt.SigningMethodHS256, claims).SignedString([]byte(secret))
 }
-
 
 func Parse(tokenStr, secret string) (*Claims, error) {
 	token, err := gojwt.ParseWithClaims(tokenStr, &Claims{}, func(t *gojwt.Token) (any, error) {
@@ -33,7 +32,7 @@ func Parse(tokenStr, secret string) (*Claims, error) {
 		}
 		return []byte(secret), nil
 	})
-	
+
 	if err != nil {
 		return nil, err
 	}

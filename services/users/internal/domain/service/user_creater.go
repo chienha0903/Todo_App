@@ -27,7 +27,7 @@ func NewUserCreater(cmdGW gateway.UserCommandGateway) *UserCreater {
 
 func (s *UserCreater) Create(ctx context.Context, in *input.CreateUserInput) (*output.UserCreaterOutput, error) {
 	user, err := newUserFromCreateInput(in, time.Now())
-	
+
 	if err != nil {
 		return nil, err
 	}

@@ -110,11 +110,17 @@ func TestTodoUpdaterUpdate(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			cmdRepo := gatewaymock.NewMockTodoCommandGateway(ctrl)
 			qryRepo := gatewaymock.NewMockTodoQueryGateway(ctrl)
+			txGW := gatewaymock.NewMockTransactionGateway(ctrl)
+			txGW.EXPECT().
+				WithinTransaction(gomock.Any(), gomock.Any()).
+				DoAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+					return fn(ctx)
+				})
 			if tt.setupMock != nil {
 				tt.setupMock(cmdRepo, qryRepo)
 			}
 
-			svc := NewTodoUpdater(cmdRepo, qryRepo)
+			svc := NewTodoUpdater(cmdRepo, qryRepo, txGW)
 			got, err := svc.Update(context.Background(), tt.input)
 
 			if tt.wantErr {

@@ -58,7 +58,7 @@ func (g *grpcGateway) RefreshToken(ctx context.Context, in *userinput.RefreshTok
 	resp, err := g.client.RefreshToken(ctx, &userpb.RefreshTokenRequest{
 		RefreshToken: in.RefreshToken,
 	})
-	
+
 	if err != nil {
 		return nil, err
 	}

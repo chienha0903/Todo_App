@@ -69,7 +69,7 @@ func (r *userQueryRepo) GetUsers(ctx context.Context, page, pageSize int32) ([]*
 }
 
 func (r *userQueryRepo) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {
-	var m model.User;
+	var m model.User
 
 	result := extractDB(ctx, r.db).WithContext(ctx).First(&m, "email = ?", email)
 	if result.Error != nil {
@@ -78,6 +78,6 @@ func (r *userQueryRepo) GetUserByEmail(ctx context.Context, email string) (*enti
 		}
 		return nil, fmt.Errorf("db get user by email: %w", result.Error)
 	}
-	
+
 	return maper.ToEntity(&m)
 }

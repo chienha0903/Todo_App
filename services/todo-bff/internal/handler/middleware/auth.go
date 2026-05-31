@@ -60,6 +60,6 @@ func RequireAuth(ctx context.Context) error {
 	if !ok || userID == 0 {
 		return apperror.Unauthorized()
 	}
-	
+
 	return nil
 }

@@ -30,7 +30,7 @@ func NewOutboxQueryGateway(repo *outboxRepo) gateway.OutboxQueryGateway {
 
 func (r *outboxRepo) InsertOutboxEvent(ctx context.Context, event *model.OutboxEvent) error {
 	result := extractDB(ctx, r.db).WithContext(ctx).Create(event)
-	
+
 	if result.Error != nil {
 		return fmt.Errorf("db insert outbox event: %w", result.Error)
 	}

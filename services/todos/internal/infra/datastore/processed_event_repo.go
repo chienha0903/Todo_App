@@ -25,7 +25,7 @@ func NewProcessedEventGateway(repo *processedEventRepo) gateway.ProcessedEventGa
 
 func (r *processedEventRepo) Exists(ctx context.Context, eventID string) (bool, error) {
 	var m model.ProcessedEvent
-	
+
 	result := r.db.WithContext(ctx).
 		Where("event_id = ?", eventID).
 		First(&m)

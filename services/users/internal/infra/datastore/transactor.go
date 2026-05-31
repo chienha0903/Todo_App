@@ -1,6 +1,6 @@
 package datastore
 
-import(
+import (
 	"context"
 
 	"gorm.io/gorm"
@@ -18,10 +18,10 @@ func (t *GormTransactor) WithinTransaction(ctx context.Context, fn func(ctx cont
 	return t.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		ctxWithTx := context.WithValue(ctx, "tx", tx)
 		return fn(ctxWithTx)
-	})	
+	})
 }
 
-func extractDB(ctx context.Context,db *gorm.DB) *gorm.DB {
+func extractDB(ctx context.Context, db *gorm.DB) *gorm.DB {
 	if tx, ok := ctx.Value("tx").(*gorm.DB); ok {
 		return tx
 	}

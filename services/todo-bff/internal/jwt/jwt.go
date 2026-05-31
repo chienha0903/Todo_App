@@ -21,11 +21,11 @@ func ParseToken(tokenStr, secret string) (*Claims, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	claims, ok := token.Claims.(*Claims)
 	if !ok || !token.Valid {
 		return nil, gojwt.ErrTokenInvalidClaims
 	}
-	
+
 	return claims, nil
 }

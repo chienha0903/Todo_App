@@ -13,14 +13,13 @@ import (
 	todousecase "github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo"
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/input"
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/output"
-
 )
 
 var _ todousecase.TodoUpdater = (*TodoUpdater)(nil)
 
 type TodoUpdater struct {
-	cmdGW gateway.TodoCommandGateway
-	qryGW gateway.TodoQueryGateway
+	cmdGW      gateway.TodoCommandGateway
+	qryGW      gateway.TodoQueryGateway
 	transactor gateway.TransactionGateway
 }
 

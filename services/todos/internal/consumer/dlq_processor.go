@@ -37,7 +37,7 @@ func (p *DLQProcessor) Start(ctx context.Context) error {
 	msgs, err := ch.Consume(
 		rabbitmq.QueueUserDeleteRequestedDLQ,
 		"dlq-processor",
-		false, 
+		false,
 		false, false, false, nil,
 	)
 	if err != nil {
@@ -67,10 +67,10 @@ type dlqMessageInfo struct {
 }
 
 type deathEntry struct {
-	Queue     string `json:"queue"`
-	Reason    string `json:"reason"`
-	Count     int64  `json:"count"`
-	Exchange  string `json:"exchange"`
+	Queue    string `json:"queue"`
+	Reason   string `json:"reason"`
+	Count    int64  `json:"count"`
+	Exchange string `json:"exchange"`
 }
 
 func (p *DLQProcessor) handleDLQMessage(ctx context.Context, ch *amqp.Channel, msg amqp.Delivery) {
@@ -129,7 +129,7 @@ func (p *DLQProcessor) Replay(ctx context.Context) error {
 			},
 		)
 		if err != nil {
-			_ = msg.Nack(false, true) 
+			_ = msg.Nack(false, true)
 			return fmt.Errorf("replay publish: %w", err)
 		}
 
@@ -173,6 +173,6 @@ func extractDeathInfo(msg amqp.Delivery) []deathEntry {
 		}
 		entries = append(entries, entry)
 	}
-	
+
 	return entries
 }

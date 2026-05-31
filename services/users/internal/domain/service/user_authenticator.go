@@ -21,9 +21,9 @@ const (
 )
 
 type UserAuthenticator struct {
-	qryGW     gateway.UserQueryGateway
+	qryGW      gateway.UserQueryGateway
 	tokenCmdGW gateway.RefreshTokenCommandGateway
-	jwtSecret string
+	jwtSecret  string
 }
 
 func NewUserAuthenticator(qryGW gateway.UserQueryGateway, tokenCmdGW gateway.RefreshTokenCommandGateway, cfg *config.Config) *UserAuthenticator {

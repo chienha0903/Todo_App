@@ -22,7 +22,7 @@ func NewTodoQueryRepo(db *gorm.DB) *todoQueryRepo {
 
 func (r *todoQueryRepo) GetTodo(ctx context.Context, id entity.TodoID) (*entity.Todo, error) {
 	var m model.Todo
-	
+
 	result := extractDB(ctx, r.db).WithContext(ctx).
 		Clauses(clause.Locking{Strength: "UPDATE"}).
 		Where("id = ? AND deleted_at IS NULL", int64(id)).
@@ -72,6 +72,6 @@ func (r *todoQueryRepo) GetTodos(ctx context.Context, userID entity.UserID, page
 		}
 		todos = append(todos, t)
 	}
-	
+
 	return todos, total, nil
 }

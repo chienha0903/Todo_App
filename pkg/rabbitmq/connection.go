@@ -38,10 +38,10 @@ func Connect(url string) (*amqp.Connection, error) {
 func SetupTopology(ch *amqp.Channel) error {
 	if err := ch.ExchangeDeclare(
 		ExchangeDLX, "direct",
-		true, 
-		false, 
+		true,
 		false,
-		false, 
+		false,
+		false,
 		nil,
 	); err != nil {
 		return fmt.Errorf("declare DLX: %w", err)

@@ -19,9 +19,9 @@ func Load() (*Config, error) {
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		AppName: getenv("APP_NAME", "todo-app"),
-		AppPort: getenv("APP_PORT", "50051"),
-		AppEnv:  getenv("APP_ENV", "development"),
+		AppName:     getenv("APP_NAME", "todo-app"),
+		AppPort:     getenv("APP_PORT", "50051"),
+		AppEnv:      getenv("APP_ENV", "development"),
 		DBDSN:       getenv("DB_DSN", "postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable"),
 		RabbitMQURL: getenv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/"),
 	}

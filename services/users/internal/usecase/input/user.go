@@ -1,10 +1,10 @@
 package input
 
 type CreateUserInput struct {
-	Email        string
-	Username     string
+	Email    string
+	Username string
 	Password string
-	Role         string
+	Role     string
 }
 
 type GetUserInput struct {
@@ -17,11 +17,11 @@ type ListUsersInput struct {
 }
 
 type UpdateUserInput struct {
-	ID           int64
-	Email        string
-	Username     string
+	ID       int64
+	Email    string
+	Username string
 	Password string
-	Role         string
+	Role     string
 }
 
 type DeleteUserInput struct {

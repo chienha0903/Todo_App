@@ -51,7 +51,7 @@ func parseID(id string) (int64, error) {
 	if err != nil || parsed <= 0 {
 		return 0, apperror.InvalidArgument("id must be a positive integer")
 	}
-	
+
 	return parsed, nil
 }
 

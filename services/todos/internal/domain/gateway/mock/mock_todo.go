@@ -151,3 +151,41 @@ func (mr *MockTodoQueryGatewayMockRecorder) GetTodos(ctx, userID, page, pageSize
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTodos", reflect.TypeOf((*MockTodoQueryGateway)(nil).GetTodos), ctx, userID, page, pageSize)
 }
+
+// MockTransactionGateway is a mock of TransactionGateway interface.
+type MockTransactionGateway struct {
+	ctrl     *gomock.Controller
+	recorder *MockTransactionGatewayMockRecorder
+	isgomock struct{}
+}
+
+// MockTransactionGatewayMockRecorder is the mock recorder for MockTransactionGateway.
+type MockTransactionGatewayMockRecorder struct {
+	mock *MockTransactionGateway
+}
+
+// NewMockTransactionGateway creates a new mock instance.
+func NewMockTransactionGateway(ctrl *gomock.Controller) *MockTransactionGateway {
+	mock := &MockTransactionGateway{ctrl: ctrl}
+	mock.recorder = &MockTransactionGatewayMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockTransactionGateway) EXPECT() *MockTransactionGatewayMockRecorder {
+	return m.recorder
+}
+
+// WithinTransaction mocks base method.
+func (m *MockTransactionGateway) WithinTransaction(ctx context.Context, fn func(context.Context) error) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WithinTransaction", ctx, fn)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WithinTransaction indicates an expected call of WithinTransaction.
+func (mr *MockTransactionGatewayMockRecorder) WithinTransaction(ctx, fn any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithinTransaction", reflect.TypeOf((*MockTransactionGateway)(nil).WithinTransaction), ctx, fn)
+}

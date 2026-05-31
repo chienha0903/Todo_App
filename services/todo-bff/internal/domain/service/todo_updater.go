@@ -43,7 +43,7 @@ func validateUpdate(in *input.UpdateTodo) error {
 	if !hasUpdateField(in) {
 		return apperror.InvalidArgument("at least one field is required")
 	}
-	
+
 	return validateOptionalRFC3339(in.DueDate)
 }
 

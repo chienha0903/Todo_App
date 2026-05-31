@@ -24,7 +24,7 @@ func NewOutboxPublisher(q gateway.OutboxQueryGateway, conn *amqp.Connection) *Ou
 type publishedMessage struct {
 	EventID   string          `json:"event_id"`
 	EventType string          `json:"event_type"`
-	Payload   json.RawMessage `json:"payload"` 
+	Payload   json.RawMessage `json:"payload"`
 }
 
 func (p *OutboxPublisher) PublishBatch(ctx context.Context) error {
@@ -64,13 +64,13 @@ func (p *OutboxPublisher) PublishBatch(ctx context.Context) error {
 
 		err = ch.PublishWithContext(ctx,
 			rabbitmq.ExchangeName,
-			ev.EventType, 
-			false,        
-			false,        
+			ev.EventType,
+			false,
+			false,
 			amqp.Publishing{
 				ContentType:  "application/json",
-				DeliveryMode: amqp.Persistent, 
-				MessageId:    ev.EventID,       
+				DeliveryMode: amqp.Persistent,
+				MessageId:    ev.EventID,
 				Body:         body,
 			},
 		)
