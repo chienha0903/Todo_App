@@ -3,6 +3,8 @@ package datastore
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"time"
 
 	pkgerrors "github.com/chienha0903/Todo_App/pkg/errors"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
@@ -49,6 +51,22 @@ func (r *todoCommandRepo) DeleteTodo(ctx context.Context, id entity.TodoID) erro
 	}
 
 	return ensureTodoAffected(result.RowsAffected)
+}
+
+func (r *todoCommandRepo) SoftDeleteByUserID(ctx context.Context, userID int64) error {
+	now := time.Now()
+	result := r.db.WithContext(ctx).
+		Model(&model.Todo{}).
+		Where("user_id = ? AND deleted_at IS NULL", userID).
+		Updates(map[string]any{
+			"deleted_at": now,
+			"updated_at": now,
+		})
+	if result.Error != nil {
+		return fmt.Errorf("db soft delete todos by user: %w", result.Error)
+	}
+	slog.Info("soft deleted todos", "user_id", userID, "count", result.RowsAffected)
+	return nil
 }
 
 func ensureTodoAffected(rowsAffected int64) error {

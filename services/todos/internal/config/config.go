@@ -7,10 +7,11 @@ import (
 )
 
 type Config struct {
-	AppName string
-	AppPort string
-	AppEnv  string
-	DBDSN   string
+	AppName     string
+	AppPort     string
+	AppEnv      string
+	DBDSN       string
+	RabbitMQURL string
 }
 
 func Load() (*Config, error) {
@@ -21,7 +22,8 @@ func Load() (*Config, error) {
 		AppName: getenv("APP_NAME", "todo-app"),
 		AppPort: getenv("APP_PORT", "50051"),
 		AppEnv:  getenv("APP_ENV", "development"),
-		DBDSN:   getenv("DB_DSN", "postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable"),
+		DBDSN:       getenv("DB_DSN", "postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable"),
+		RabbitMQURL: getenv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/"),
 	}
 	return cfg, nil
 }

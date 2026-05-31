@@ -83,6 +83,20 @@ func (mr *MockTodoCommandGatewayMockRecorder) UpdateTodo(ctx, todo any) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTodo", reflect.TypeOf((*MockTodoCommandGateway)(nil).UpdateTodo), ctx, todo)
 }
 
+// SoftDeleteByUserID mocks base method.
+func (m *MockTodoCommandGateway) SoftDeleteByUserID(ctx context.Context, userID int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SoftDeleteByUserID", ctx, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SoftDeleteByUserID indicates an expected call of SoftDeleteByUserID.
+func (mr *MockTodoCommandGatewayMockRecorder) SoftDeleteByUserID(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SoftDeleteByUserID", reflect.TypeOf((*MockTodoCommandGateway)(nil).SoftDeleteByUserID), ctx, userID)
+}
+
 // MockTodoQueryGateway is a mock of TodoQueryGateway interface.
 type MockTodoQueryGateway struct {
 	ctrl     *gomock.Controller

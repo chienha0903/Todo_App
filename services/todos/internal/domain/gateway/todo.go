@@ -12,6 +12,7 @@ type TodoCommandGateway interface {
 	CreateTodo(ctx context.Context, todo *entity.Todo) error
 	UpdateTodo(ctx context.Context, todo *entity.Todo) error
 	DeleteTodo(ctx context.Context, id entity.TodoID) error
+	SoftDeleteByUserID(ctx context.Context, userID int64) error
 }
 
 type TodoQueryGateway interface {
