@@ -27,6 +27,8 @@ func InitializeApp(cfg *config.Config) (*grpc.Server, func(), error) {
 		datastore.NewRefreshTokenQueryGateway,
 		datastore.NewGormTransactor,
 		wire.Bind(new(gateway.TransactionGateway), new(*datastore.GormTransactor)),
+		datastore.NewOutboxRepo,
+		datastore.NewOutboxCommandGateway,
 
 		// domain service
 		service.NewUserCreater,
