@@ -8,13 +8,15 @@ import (
 
 func ToModel(u *entity.User) *model.User {
 	return &model.User{
-		UserID:   int64(u.UserID),
-		Username: u.Username.Value(),
-		Email:    u.Email.Value(),
-		Password: u.Password.Value(),
-		Role:     u.Role.String(),
+		UserID:    int64(u.UserID),
+		Username:  u.Username.Value(),
+		Email:     u.Email.Value(),
+		Password:  u.Password.Value(),
+		Role:      u.Role.String(),
+		Status:    u.Status.String(),
 		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
+		DeletedAt: u.DeletedAt,
 	}
 }
 
@@ -39,13 +41,20 @@ func ToEntity(m *model.User) (*entity.User, error) {
 		return nil, err
 	}
 
+	status, err := vo.NewUserStatus(m.Status)
+	if err != nil {
+		return nil, err
+	}
+
 	return &entity.User{
 		UserID:    entity.UserID(m.UserID),
 		Username:  username,
 		Email:     email,
 		Password:  password,
 		Role:      role,
+		Status:    status,
 		CreatedAt: m.CreatedAt,
 		UpdatedAt: m.UpdatedAt,
+		DeletedAt: m.DeletedAt,
 	}, nil
 }

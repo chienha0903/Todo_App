@@ -12,6 +12,7 @@ type Todo struct {
 	DueDate     *time.Time `gorm:"column:due_date"`
 	CreatedAt   time.Time  `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt   time.Time  `gorm:"column:updated_at;autoUpdateTime"`
+	DeletedAt   *time.Time `gorm:"column:deleted_at;index"`
 }
 
 func (Todo) TableName() string {

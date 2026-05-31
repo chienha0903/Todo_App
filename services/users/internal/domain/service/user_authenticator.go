@@ -48,6 +48,10 @@ func (s *UserAuthenticator) Login(ctx context.Context, in *input.UserLoginInput)
 		return nil, errors.New("invalid email or password")
 	}
 
+	if user.Status.IsDeleting() || user.Status.IsDeleted() {
+		return nil, errors.New("account is being deleted")
+	}
+
 	accessToken, err := userjwt.Generate(int64(user.UserID), user.Role.String(), s.jwtSecret, accessTokenTTL)
 	if err != nil {
 		return nil, fmt.Errorf("UserAuthenticator.Login generate access token: %w", err)

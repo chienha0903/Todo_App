@@ -79,6 +79,7 @@ func newUserFromCreateInput(in *input.CreateUserInput, now time.Time) (*entity.U
 		Email:     email,
 		Password:  hashedPassword,
 		Role:      role,
+		Status:    vo.UserStatusActive,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}, nil

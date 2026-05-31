@@ -2,14 +2,16 @@ APP_TODOS      = todos
 APP_USERS      = users
 APP_BFF        = bff
 BIN_DIR        = bin
-DB_DSN        ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable
+# DB_DSN        ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable
+DB_DSN_TODOS  ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable&x-migrations-table=schema_migrations_todos
+DB_DSN_USERS  ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable&x-migrations-table=schema_migrations_users
 MIGRATIONS_DIR = services/todos/internal/infra/datastore/migrations
 MIGRATIONS_DIR_USERS = services/users/internal/infra/datastore/migrations
 
 .PHONY: run-todos run-users run-bff build build-todos build-users build-bff proto mock wire generate tidy fmt vet \
         docker-up docker-down docker-logs \
         migrate-todos-up migrate-todos-down migrate-todos-version migrate-todos-force migrate-todos-new \
-        migrate-users-up migrate-users-down migrate-users-version migrate-users-new
+        migrate-users-up migrate-users-down migrate-users-version migrate-users-force migrate-users-new
 
 ## Chạy gRPC todos service
 run-todos:
@@ -75,16 +77,16 @@ vet:
 
 ## Migration todos (cần: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest)
 migrate-todos-up:
-	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN)" up
+	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN_TODOS)" up
 
 migrate-todos-down:
-	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN)" down 1
+	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN_TODOS)" down 1
 
 migrate-todos-version:
-	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN)" version
+	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN_TODOS)" version
 
 migrate-todos-force:
-	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN)" force $(version)
+	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN_TODOS)" force $(version)
 
 ## Dùng: make migrate-todos-new name=add_tags_table
 migrate-todos-new:
@@ -92,13 +94,16 @@ migrate-todos-new:
 
 ## Migration cho users service
 migrate-users-up:
-	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_DSN)" up
+	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_DSN_USERS)" up
 
 migrate-users-down:
-	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_DSN)" down 1
+	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_DSN_USERS)" down 1
 
 migrate-users-version:
-	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_DSN)" version
+	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_DSN_USERS)" version
+
+migrate-users-force:
+	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_DSN_USERS)" force $(version)
 
 ## Dùng: make migrate-users-new name=add_something
 migrate-users-new:

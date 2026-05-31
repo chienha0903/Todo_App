@@ -23,7 +23,10 @@ func NewTodoQueryRepo(db *gorm.DB) *todoQueryRepo {
 func (r *todoQueryRepo) GetTodo(ctx context.Context, id entity.TodoID) (*entity.Todo, error) {
 	var m model.Todo
 	
-	result := extractDB(ctx, r.db).WithContext(ctx).Clauses(clause.Locking{Strength: "UPDATE"}).First(&m, int64(id))
+	result := extractDB(ctx, r.db).WithContext(ctx).
+		Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("id = ? AND deleted_at IS NULL", int64(id)).
+		First(&m)
 	if result.Error != nil {
 		if stderrors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil // service layer sẽ tạo NewNotFound
@@ -43,15 +46,16 @@ func (r *todoQueryRepo) GetTodos(ctx context.Context, userID entity.UserID, page
 	var total int64
 
 	if err := r.db.WithContext(ctx).Model(&model.Todo{}).
-		Where("user_id = ?", int64(userID)).
+		Where("user_id = ? AND deleted_at IS NULL", int64(userID)).
 		Count(&total).Error; err != nil {
 		return nil, 0, fmt.Errorf("db count todos: %w", err)
 	}
 
 	offset := int((page - 1) * pageSize)
 	var ms []model.Todo
+
 	result := r.db.WithContext(ctx).
-		Where("user_id = ?", int64(userID)).
+		Where("user_id = ? AND deleted_at IS NULL", int64(userID)).
 		Order("created_at DESC").
 		Limit(int(pageSize)).
 		Offset(offset).

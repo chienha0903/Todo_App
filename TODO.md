@@ -35,7 +35,6 @@
 ### Buổi 3 — Thứ 3, 19/05 · DB sâu + Error/Context
 - [x] Thêm transaction vào 1 use case cụ thể trong project
 - [x] Kiểm tra và fix các chỗ chưa tận dụng context cancel/timeout
-- [ ] Viết guideline phân biệt lỗi trả ra client vs chỉ log nội bộ
 
 ### Buổi 4 — Thứ 6, 22/05 · Async + Wrap up
 - [ ] Viết design proposal async: chọn 1 bài toán trong Todo App, so sánh sync vs queue vs job
@@ -53,7 +52,7 @@
 - [x] gRPC handler implement đủ 4 RPC + error mapping
 - [x] Wire DI: kết nối toàn bộ dependency chain cho User service
 - [ ] Unit test với mockgen + table-driven test
-- [ ] BFF: thêm HTTP endpoint cho User + cập nhật README
+- [x] BFF: thêm HTTP endpoint cho User + cập nhật README
 
 ---
 
