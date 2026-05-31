@@ -7,15 +7,15 @@ import (
 )
 
 type Config struct {
-	AppName   string
-	AppPort   string
-	AppEnv    string
-	DBDSN     string
-	JWTSecret string
+	AppName     string
+	AppPort     string
+	AppEnv      string
+	DBDSN       string
+	JWTSecret   string
+	RabbitMQURL string
 }
 
 func Load() (*Config, error) {
-	// Load .env if exists. Ignore error to allow pure environment-based config.
 	_ = godotenv.Load()
 
 	cfg := &Config{
@@ -23,7 +23,8 @@ func Load() (*Config, error) {
 		AppPort: getenv("APP_PORT", "50052"),
 		AppEnv:  getenv("APP_ENV", "development"),
 		DBDSN:   getenv("DB_DSN", "postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable"),
-		JWTSecret: getenv("JWT_SECRET", "chien-apvn"),
+		JWTSecret:   getenv("JWT_SECRET", "chien-apvn"),
+		RabbitMQURL: getenv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/"),
 	}
 	return cfg, nil
 }

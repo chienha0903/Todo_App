@@ -1,0 +1,20 @@
+# --- Build stage ---
+FROM golang:alpine AS builder
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN go build -o /bin/users-worker ./services/users/cmd/worker/main.go
+
+# --- Runtime stage ---
+FROM alpine:3.19
+
+RUN apk --no-cache add ca-certificates tzdata
+
+COPY --from=builder /bin/users-worker /bin/users-worker
+
+ENTRYPOINT ["/bin/users-worker"]
