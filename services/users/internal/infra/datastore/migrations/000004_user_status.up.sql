@@ -1,0 +1,5 @@
+CREATE TYPE user_status AS ENUM ('ACTIVE', 'DELETING', 'DELETED');
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS status user_status NOT NULL DEFAULT 'ACTIVE';
+
+CREATE INDEX IF NOT EXISTS idx_users_status ON users (status);
