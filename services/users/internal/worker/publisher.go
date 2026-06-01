@@ -14,11 +14,12 @@ import (
 
 type OutboxPublisher struct {
 	outboxQuery gateway.OutboxQueryGateway
+	outboxCmd   gateway.OutboxCommandGateway
 	amqpConn    *amqp.Connection
 }
 
-func NewOutboxPublisher(q gateway.OutboxQueryGateway, conn *amqp.Connection) *OutboxPublisher {
-	return &OutboxPublisher{outboxQuery: q, amqpConn: conn}
+func NewOutboxPublisher(q gateway.OutboxQueryGateway, cmd gateway.OutboxCommandGateway, conn *amqp.Connection) *OutboxPublisher {
+	return &OutboxPublisher{outboxQuery: q, outboxCmd: cmd, amqpConn: conn}
 }
 
 type publishedMessage struct {
@@ -55,10 +56,11 @@ func (p *OutboxPublisher) PublishBatch(ctx context.Context) error {
 			EventType: ev.EventType,
 			Payload:   ev.Payload,
 		}
+		
 		body, err := json.Marshal(msg)
 		if err != nil {
 			slog.Error("marshal event failed", "event_id", ev.EventID, "error", err)
-			_ = p.outboxQuery.MarkAsFailed(ctx, ev.ID, err.Error())
+			_ = p.outboxCmd.MarkAsFailed(ctx, ev.ID, err.Error())
 			continue
 		}
 
@@ -76,11 +78,11 @@ func (p *OutboxPublisher) PublishBatch(ctx context.Context) error {
 		)
 		if err != nil {
 			slog.Error("publish event failed", "event_id", ev.EventID, "error", err)
-			_ = p.outboxQuery.MarkAsFailed(ctx, ev.ID, err.Error())
+			_ = p.outboxCmd.MarkAsFailed(ctx, ev.ID, err.Error())
 			continue
 		}
 
-		if err := p.outboxQuery.MarkAsPublished(ctx, ev.ID); err != nil {
+		if err := p.outboxCmd.MarkAsPublished(ctx, ev.ID); err != nil {
 			slog.Error("mark published failed", "event_id", ev.EventID, "error", err)
 		} else {
 			slog.Info("event published", "event_id", ev.EventID, "type", ev.EventType)

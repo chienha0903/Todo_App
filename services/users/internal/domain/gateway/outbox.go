@@ -8,10 +8,10 @@ import (
 
 type OutboxCommandGateway interface {
 	InsertOutboxEvent(ctx context.Context, event *model.OutboxEvent) error
+	MarkAsPublished(ctx context.Context, id int64) error
+	MarkAsFailed(ctx context.Context, id int64, errMsg string) error
 }
 
 type OutboxQueryGateway interface {
 	GetUnpublishedEvents(ctx context.Context, limit int) ([]*model.OutboxEvent, error)
-	MarkAsPublished(ctx context.Context, id int64) error
-	MarkAsFailed(ctx context.Context, id int64, errMsg string) error
 }

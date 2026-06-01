@@ -93,6 +93,7 @@ func (c *UserDeleteConsumer) handleMessage(ctx context.Context, msg amqp.Deliver
 			"user_id", parsed.Payload.UserID,
 			"retry_count", retryCount,
 		)
+
 		if retryCount >= maxRetries {
 			slog.Warn("max retries exceeded, moving to DLQ",
 				"event_id", parsed.EventID,
@@ -102,6 +103,7 @@ func (c *UserDeleteConsumer) handleMessage(ctx context.Context, msg amqp.Deliver
 		} else {
 			_ = msg.Nack(false, true)
 		}
+
 		return
 	}
 

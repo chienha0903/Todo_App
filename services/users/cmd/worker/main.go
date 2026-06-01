@@ -44,7 +44,8 @@ func run() error {
 
 	outboxRepo := datastore.NewOutboxRepo(db)
 	outboxQueryGW := datastore.NewOutboxQueryGateway(outboxRepo)
-	publisher := worker.NewOutboxPublisher(outboxQueryGW, conn)
+	outboxCmdGW := datastore.NewOutboxCommandGateway(outboxRepo)
+	publisher := worker.NewOutboxPublisher(outboxQueryGW, outboxCmdGW, conn)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

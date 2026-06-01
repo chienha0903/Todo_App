@@ -11,6 +11,20 @@ import (
 	"github.com/chienha0903/Todo_App/pkg/rabbitmq"
 )
 
+type dlqMessageInfo struct {
+	MessageID  string          `json:"message_id"`
+	RoutingKey string          `json:"routing_key"`
+	Body       json.RawMessage `json:"body"`
+	DeathInfo  []deathEntry    `json:"death_info"`
+}
+
+type deathEntry struct {
+	Queue    string `json:"queue"`
+	Reason   string `json:"reason"`
+	Count    int64  `json:"count"`
+	Exchange string `json:"exchange"`
+}
+
 type DLQProcessor struct {
 	amqpConn *amqp.Connection
 }
@@ -57,20 +71,6 @@ func (p *DLQProcessor) Start(ctx context.Context) error {
 			p.handleDLQMessage(ctx, ch, msg)
 		}
 	}
-}
-
-type dlqMessageInfo struct {
-	MessageID  string          `json:"message_id"`
-	RoutingKey string          `json:"routing_key"`
-	Body       json.RawMessage `json:"body"`
-	DeathInfo  []deathEntry    `json:"death_info"`
-}
-
-type deathEntry struct {
-	Queue    string `json:"queue"`
-	Reason   string `json:"reason"`
-	Count    int64  `json:"count"`
-	Exchange string `json:"exchange"`
 }
 
 func (p *DLQProcessor) handleDLQMessage(ctx context.Context, ch *amqp.Channel, msg amqp.Delivery) {

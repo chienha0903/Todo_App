@@ -73,7 +73,6 @@ func (r *outboxRepo) MarkAsFailed(ctx context.Context, id int64, errMsg string) 
 		Model(&model.OutboxEvent{}).
 		Where("id = ?", id).
 		Updates(map[string]any{
-			// SQL expression: tránh race condition nếu 2 worker update cùng lúc
 			"retry_count": gorm.Expr("retry_count + 1"),
 			"last_error":  errMsg,
 		})

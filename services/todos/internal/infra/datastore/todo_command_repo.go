@@ -55,6 +55,7 @@ func (r *todoCommandRepo) DeleteTodo(ctx context.Context, id entity.TodoID) erro
 
 func (r *todoCommandRepo) SoftDeleteByUserID(ctx context.Context, userID int64) error {
 	now := time.Now()
+
 	result := r.db.WithContext(ctx).
 		Model(&model.Todo{}).
 		Where("user_id = ? AND deleted_at IS NULL", userID).
@@ -65,7 +66,9 @@ func (r *todoCommandRepo) SoftDeleteByUserID(ctx context.Context, userID int64) 
 	if result.Error != nil {
 		return fmt.Errorf("db soft delete todos by user: %w", result.Error)
 	}
+
 	slog.Info("soft deleted todos", "user_id", userID, "count", result.RowsAffected)
+
 	return nil
 }
 
@@ -73,5 +76,6 @@ func ensureTodoAffected(rowsAffected int64) error {
 	if rowsAffected == 0 {
 		return pkgerrors.ErrRecordNotFound
 	}
+	
 	return nil
 }
