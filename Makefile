@@ -5,8 +5,8 @@ BIN_DIR        = bin
 IMAGE_PREFIX  ?= ghcr.io/chienha0903
 VERSION       ?= dev
 # DB_DSN        ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable
-DB_DSN_TODOS  ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable&x-migrations-table=schema_migrations_todos
-DB_DSN_USERS  ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable&x-migrations-table=schema_migrations_users
+DB_TODO_DSN=postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable
+DB_USERS_DSN=postgres://postgres:postgres@localhost:5433/user_db?sslmode=disable
 MIGRATIONS_DIR = services/todos/internal/infra/datastore/migrations
 MIGRATIONS_DIR_USERS = services/users/internal/infra/datastore/migrations
 
@@ -106,16 +106,16 @@ ci: fmt-check vet test build
 
 ## Migration todos (cần: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest)
 migrate-todos-up:
-	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN_TODOS)" up
+	migrate -path $(MIGRATIONS_DIR) -database "$(DB_TODO_DSN)" up
 
 migrate-todos-down:
-	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN_TODOS)" down 1
+	migrate -path $(MIGRATIONS_DIR) -database "$(DB_TODO_DSN)" down 1
 
 migrate-todos-version:
-	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN_TODOS)" version
+	migrate -path $(MIGRATIONS_DIR) -database "$(DB_TODO_DSN)" version
 
 migrate-todos-force:
-	migrate -path $(MIGRATIONS_DIR) -database "$(DB_DSN_TODOS)" force $(version)
+	migrate -path $(MIGRATIONS_DIR) -database "$(DB_TODO_DSN)" force $(version)
 
 ## Dùng: make migrate-todos-new name=add_tags_table
 migrate-todos-new:
@@ -123,16 +123,16 @@ migrate-todos-new:
 
 ## Migration cho users service
 migrate-users-up:
-	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_DSN_USERS)" up
+	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_USERS_DSN)" up
 
 migrate-users-down:
-	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_DSN_USERS)" down 1
+	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_USERS_DSN)" down 1
 
 migrate-users-version:
-	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_DSN_USERS)" version
+	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_USERS_DSN)" version
 
 migrate-users-force:
-	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_DSN_USERS)" force $(version)
+	migrate -path $(MIGRATIONS_DIR_USERS) -database "$(DB_USERS_DSN)" force $(version)
 
 ## Dùng: make migrate-users-new name=add_something
 migrate-users-new:

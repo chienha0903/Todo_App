@@ -15,6 +15,11 @@ FROM alpine:3.19
 
 RUN apk --no-cache add ca-certificates tzdata
 
+WORKDIR /app
+
 COPY --from=builder /bin/todos-consumer /bin/todos-consumer
+
+COPY --from=builder /app/services/todos/internal/infra/datastore/migrations \
+  ./services/todos/internal/infra/datastore/migrations
 
 ENTRYPOINT ["/bin/todos-consumer"]

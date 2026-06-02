@@ -31,7 +31,7 @@ func NewDB(cfg *config.Config) (*gorm.DB, func(), error) {
 
 func RunMigrations(databaseURL string) error {
 	m, err := migrate.New(
-		"file://services/todos/migrations",
+		"file://services/todos/internal/infra/datastore/migrations",
 		databaseURL,
 	)
 	if err != nil {

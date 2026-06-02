@@ -3,7 +3,7 @@ FROM golang:alpine AS builder
 
 WORKDIR /app
 
-# Copy go.mod/go.sum từ root (single module)
+# Copy go.mod/go.sum từ root
 COPY go.mod go.sum ./
 RUN go mod download
 
@@ -18,7 +18,12 @@ FROM alpine:3.19
 
 RUN apk --no-cache add ca-certificates tzdata
 
+WORKDIR /app
+
 COPY --from=builder /bin/todos /bin/todos
+
+COPY --from=builder /app/services/todos/internal/infra/datastore/migrations \
+  ./services/todos/internal/infra/datastore/migrations
 
 EXPOSE 50051
 

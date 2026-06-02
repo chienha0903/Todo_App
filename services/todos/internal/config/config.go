@@ -20,9 +20,9 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		AppName:     getenv("APP_NAME", "todo-app"),
-		AppPort:     getenv("APP_PORT", "50051"),
+		AppPort:     getenv("APP_TODO_PORT", "50051"),
 		AppEnv:      getenv("APP_ENV", "development"),
-		DBDSN:       getenv("DB_DSN", "postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable"),
+		DBDSN:       getenv("DB_TODO_DSN", "postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable"),
 		RabbitMQURL: getenv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/"),
 	}
 	return cfg, nil

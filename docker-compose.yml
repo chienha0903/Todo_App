@@ -11,9 +11,27 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_todo_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d todo_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+  postgres-users:
+    image: postgres:16-alpine
+    container_name: user_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_user_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d user_db"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -50,11 +68,11 @@ services:
       APP_NAME: users
       APP_PORT: "50052"
       APP_ENV: development
-      DB_DSN: "postgres://postgres:postgres@postgres:5432/todo_db?sslmode=disable"
+      DB_USERS_DSN: "postgres://postgres:postgres@postgres-users:5432/user_db?sslmode=disable"
       JWT_SECRET: "chien-apvn"
       RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
     depends_on:
-      postgres:
+      postgres-users:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
@@ -66,10 +84,10 @@ services:
     container_name: todo_users_worker
     restart: unless-stopped
     environment:
-      DB_DSN: "postgres://postgres:postgres@postgres:5432/todo_db?sslmode=disable"
+      DB_USERS_DSN: "postgres://postgres:postgres@postgres-users:5432/user_db?sslmode=disable"
       RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
     depends_on:
-      postgres:
+      postgres-users:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
@@ -78,7 +96,7 @@ services:
     build:
       context: .
       dockerfile: services/todos/Dockerfile
-    container_name: todo_grpc
+    container_name: todo_todos
     restart: unless-stopped
     ports:
       - "50051:50051"
@@ -86,7 +104,7 @@ services:
       APP_NAME: todo-app
       APP_PORT: "50051"
       APP_ENV: development
-      DB_DSN: "postgres://postgres:postgres@postgres:5432/todo_db?sslmode=disable"
+      DB_TODO_DSN: "postgres://postgres:postgres@postgres:5432/todo_db?sslmode=disable"
       RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
     depends_on:
       postgres:
@@ -101,7 +119,7 @@ services:
     container_name: todo_consumer
     restart: unless-stopped
     environment:
-      DB_DSN: "postgres://postgres:postgres@postgres:5432/todo_db?sslmode=disable"
+      DB_TODO_DSN: "postgres://postgres:postgres@postgres:5432/todo_db?sslmode=disable"
       RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
     depends_on:
       postgres:
@@ -128,5 +146,6 @@ services:
       - users
 
 volumes:
-  postgres_data:
+  postgres_todo_data:
+  postgres_user_data:
   rabbitmq_data:

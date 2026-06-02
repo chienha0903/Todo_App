@@ -10,6 +10,7 @@ import (
 
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/gateway"
 	"github.com/chienha0903/Todo_App/services/users/internal/infra/datastore/model"
+	"github.com/google/uuid"
 )
 
 type outboxRepo struct {
@@ -29,6 +30,10 @@ func NewOutboxQueryGateway(repo *outboxRepo) gateway.OutboxQueryGateway {
 }
 
 func (r *outboxRepo) InsertOutboxEvent(ctx context.Context, event *model.OutboxEvent) error {
+	if event.EventID == "" {
+		event.EventID = uuid.NewString()
+	}
+
 	result := extractDB(ctx, r.db).WithContext(ctx).Create(event)
 
 	if result.Error != nil {

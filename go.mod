@@ -8,6 +8,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/google/wire v0.7.0
 	github.com/joho/godotenv v1.5.1
+	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/vektah/gqlparser/v2 v2.5.33
 	go.uber.org/mock v0.6.0
 	golang.org/x/crypto v0.52.0
@@ -32,7 +33,6 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-sqlite3 v1.14.22 // indirect
-	github.com/rabbitmq/amqp091-go v1.10.0 // indirect
 	github.com/sosodev/duration v1.4.0 // indirect
 	golang.org/x/net v0.54.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
