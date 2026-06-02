@@ -29,6 +29,9 @@ jobs:
       - name: Check code formatting (gofmt)
         run: make fmt-check
 
+      - name : Check code linting (golangci-lint)
+        run: make lint
+
       - name: Run go vet
         run: make vet
 

@@ -4,6 +4,10 @@ APP_BFF        = bff
 BIN_DIR        = bin
 IMAGE_PREFIX  ?= ghcr.io/chienha0903
 VERSION       ?= dev
+LOCALBIN      ?= $(shell pwd)/bin
+
+GOLANGCI_LINT_VERSION ?= v1.61.0
+GOLANGCI_LINT 		  ?= $(LOCALBIN)/golangci-lint
 # DB_DSN        ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable
 DB_DSN_TODOS  ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable&x-migrations-table=schema_migrations_todos
 DB_DSN_USERS  ?= postgres://postgres:postgres@localhost:5432/todo_db?sslmode=disable&x-migrations-table=schema_migrations_users
@@ -13,7 +17,7 @@ MIGRATIONS_DIR_USERS = services/users/internal/infra/datastore/migrations
 .PHONY: run-todos run-users run-bff \
         build build-todos build-users build-bff build-worker build-consumer \
         proto mock wire generate \
-        tidy fmt fmt-check vet test ci \
+        tidy fmt fmt-check lint lint-fix vet test ci \
         docker-up docker-down docker-logs docker-build \
         migrate-todos-up migrate-todos-down migrate-todos-version migrate-todos-force migrate-todos-new \
         migrate-users-up migrate-users-down migrate-users-version migrate-users-force migrate-users-new
@@ -93,6 +97,15 @@ fmt-check:
 		exit 1; \
 	fi
 	@echo "gofmt: OK"
+
+## Kiểm tra linting code – dùng cho CI (không sửa file, chỉ báo lỗi)
+##lint: Chạy golangci-lint
+lint: $(GOLANGCI_LINT)
+	$(GOLANGCI_LINT) run ./...
+
+##lint-fix: Tự động sửa lỗi linting (nếu golangci-lint hỗ trợ)
+lint-fix: $(GOLANGCI_LINT)
+	$(GOLANGCI_LINT) run --fix ./...
 
 vet:
 	go vet ./...
