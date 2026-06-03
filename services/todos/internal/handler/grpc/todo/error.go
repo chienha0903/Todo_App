@@ -3,9 +3,10 @@ package todo
 import (
 	stderrors "errors"
 
-	apperrors "github.com/chienha0903/Todo_App/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	apperrors "github.com/chienha0903/Todo_App/pkg/errors"
 )
 
 func toGRPCError(err error) error {

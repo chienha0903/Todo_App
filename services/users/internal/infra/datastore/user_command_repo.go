@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"gorm.io/gorm"
+
 	pkgerrors "github.com/chienha0903/Todo_App/pkg/errors"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/entity"
 	"github.com/chienha0903/Todo_App/services/users/internal/infra/datastore/maper"
 	"github.com/chienha0903/Todo_App/services/users/internal/infra/datastore/model"
-	"gorm.io/gorm"
 )
 
 type userCommandRepo struct {

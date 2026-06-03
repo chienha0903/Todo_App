@@ -14,7 +14,7 @@ func RecoveryMiddleware(next http.Handler) http.Handler {
 				logRecoveredPanic(r.Context(), r, rec)
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte(`{"errors":[{"message":"internal server error"}]}`))
+				_, _ = w.Write([]byte(`{"errors":[{"message":"internal server error"}]}`))
 			}
 		}()
 

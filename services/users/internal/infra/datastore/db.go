@@ -3,13 +3,14 @@ package datastore
 import (
 	"fmt"
 
-	"github.com/chienha0903/Todo_App/services/users/internal/config"
-	"github.com/chienha0903/Todo_App/services/users/internal/domain/gateway"
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/chienha0903/Todo_App/services/users/internal/config"
+	"github.com/chienha0903/Todo_App/services/users/internal/domain/gateway"
 )
 
 func NewDB(cfg *config.Config) (*gorm.DB, func(), error) {

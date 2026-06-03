@@ -7,12 +7,13 @@
 package di
 
 import (
+	"google.golang.org/grpc"
+
 	"github.com/chienha0903/Todo_App/services/users/internal/config"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/service"
 	grpc2 "github.com/chienha0903/Todo_App/services/users/internal/handler/grpc"
 	"github.com/chienha0903/Todo_App/services/users/internal/handler/grpc/user"
 	"github.com/chienha0903/Todo_App/services/users/internal/infra/datastore"
-	"google.golang.org/grpc"
 )
 
 // Injectors from wire.go:

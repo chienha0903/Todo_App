@@ -26,3 +26,6 @@ issues:
       linters:
         - errcheck
         - unparam
+    - text: "`creater` is a misspelling"
+      linters:
+        - misspell

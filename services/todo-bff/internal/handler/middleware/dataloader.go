@@ -8,7 +8,9 @@ import (
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/loader"
 )
 
-const loadersCtxKey = "loaders"
+type loadersCtxKeyType struct{}
+
+var loadersCtxKey = loadersCtxKeyType{}
 
 // DataLoaderMiddleware injects a fresh set of DataLoaders into each request's context.
 // A new Loaders instance is created per request so caches never leak across requests.

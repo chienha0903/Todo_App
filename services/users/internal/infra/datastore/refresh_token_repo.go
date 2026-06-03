@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/entity"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/gateway"
 	"github.com/chienha0903/Todo_App/services/users/internal/infra/datastore/model"
-	"gorm.io/gorm"
 )
 
 type RefreshTokenRepo struct {
