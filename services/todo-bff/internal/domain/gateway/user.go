@@ -17,6 +17,7 @@ type UserGateway interface {
 	RefreshToken(ctx context.Context, in *input.RefreshToken) (*AuthTokens, error)
 	ChangePassword(ctx context.Context, in *input.ChangePassword) error
 	GetUser(ctx context.Context, in *input.GetUser) (*output.User, error)
+	GetUsersByIDs(ctx context.Context, in *input.GetUsersByIDs) ([]*output.User, error)
 	ListUsers(ctx context.Context, in *input.ListUsers) (*output.UserPage, error)
 	UpdateUser(ctx context.Context, in *input.UpdateUser) (*output.User, error)
 	DeleteUser(ctx context.Context, in *input.DeleteUser) error

@@ -69,6 +69,7 @@ type ComplexityRoot struct {
 		Status      func(childComplexity int) int
 		Title       func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
+		User        func(childComplexity int) int
 		UserID      func(childComplexity int) int
 	}
 
@@ -324,6 +325,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Todo.UpdatedAt(childComplexity), true
+	case "Todo.user":
+		if e.ComplexityRoot.Todo.User == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Todo.User(childComplexity), true
 	case "Todo.userId":
 		if e.ComplexityRoot.Todo.UserID == nil {
 			break
@@ -554,6 +561,7 @@ type Todo {
   dueDate:     String
   createdAt:   String!
   updatedAt:   String!
+  user:        User
 }
 
 type TodoPage {
@@ -676,6 +684,8 @@ func (ec *executionContext) childFields_Todo(ctx context.Context, field graphql.
 		return ec.fieldContext_Todo_createdAt(ctx, field)
 	case "updatedAt":
 		return ec.fieldContext_Todo_updatedAt(ctx, field)
+	case "user":
+		return ec.fieldContext_Todo_user(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
 }
@@ -1985,6 +1995,38 @@ func (ec *executionContext) _Todo_updatedAt(ctx context.Context, field graphql.C
 }
 func (ec *executionContext) fieldContext_Todo_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Todo", field, false, false, errors.New("field of type String does not have child fields"))
+}
+
+func (ec *executionContext) _Todo_user(ctx context.Context, field graphql.CollectedField, obj *model.Todo) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Todo_user(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return obj.User, nil
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *model.User) graphql.Marshaler {
+			return ec.marshalOUser2ᚖgithubᚗcomᚋchienha0903ᚋTodo_AppᚋservicesᚋtodoᚑbffᚋinternalᚋhandlerᚋgraphᚋmodelᚐUser(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_Todo_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Todo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_User(ctx, field)
+		},
+	}
+	return fc, nil
 }
 
 func (ec *executionContext) _TodoPage_items(ctx context.Context, field graphql.CollectedField, obj *model.TodoPage) (ret graphql.Marshaler) {
@@ -4045,6 +4087,8 @@ func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "user":
+			out.Values[i] = ec._Todo_user(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -31,6 +31,7 @@ type Todo {
   dueDate:     String
   createdAt:   String!
   updatedAt:   String!
+  user:        User
 }
 
 type TodoPage {

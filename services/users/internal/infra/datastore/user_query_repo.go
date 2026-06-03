@@ -68,6 +68,33 @@ func (r *userQueryRepo) GetUsers(ctx context.Context, page, pageSize int32) ([]*
 	return users, total, nil
 }
 
+func (r *userQueryRepo) GetUsersByIDs(ctx context.Context, ids []entity.UserID) ([]*entity.User, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+
+	rawIDs := make([]int64, len(ids))
+	for i, id := range ids {
+		rawIDs[i] = int64(id)
+	}
+
+	var ms []model.User
+	if err := r.db.WithContext(ctx).Where("id IN ?", rawIDs).Find(&ms).Error; err != nil {
+		return nil, fmt.Errorf("db get users by ids: %w", err)
+	}
+
+	users := make([]*entity.User, 0, len(ms))
+	for i := range ms {
+		u, err := maper.ToEntity(&ms[i])
+		if err != nil {
+			return nil, fmt.Errorf("db get users by ids mapper: %w", err)
+		}
+		users = append(users, u)
+	}
+
+	return users, nil
+}
+
 func (r *userQueryRepo) GetUserByEmail(ctx context.Context, email string) (*entity.User, error) {
 	var m model.User
 

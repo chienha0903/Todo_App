@@ -56,6 +56,7 @@ type Todo struct {
 	DueDate     *string      `json:"dueDate,omitempty"`
 	CreatedAt   string       `json:"createdAt"`
 	UpdatedAt   string       `json:"updatedAt"`
+	User        *User        `json:"user,omitempty"`
 }
 
 type TodoPage struct {

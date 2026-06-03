@@ -101,7 +101,9 @@ func (r *queryResolver) Todo(ctx context.Context, id string) (*model.Todo, error
 	if err != nil {
 		return nil, err
 	}
-	return toModel(todo), nil
+	m := toModel(todo)
+	populateUsers(ctx, []*model.Todo{m})
+	return m, nil
 }
 
 // Todos is the resolver for the todos field.
@@ -129,5 +131,7 @@ func (r *queryResolver) Todos(ctx context.Context, userID int, page *int, pageSi
 	if err != nil {
 		return nil, err
 	}
-	return toPageModel(result), nil
+	todoPage := toPageModel(result)
+	populateUsers(ctx, todoPage.Items)
+	return todoPage, nil
 }

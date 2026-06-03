@@ -11,6 +11,10 @@ type GetUserInput struct {
 	ID int64
 }
 
+type GetUsersByIDsInput struct {
+	IDs []int64
+}
+
 type ListUsersInput struct {
 	Page     int32
 	PageSize int32

@@ -86,6 +86,14 @@ func (g *grpcGateway) GetUser(ctx context.Context, in *userinput.GetUser) (*outp
 	return toOutput(resp.GetUser()), nil
 }
 
+func (g *grpcGateway) GetUsersByIDs(ctx context.Context, in *userinput.GetUsersByIDs) ([]*output.User, error) {
+	resp, err := g.client.GetUsersByIDs(ctx, &userpb.GetUsersByIDsRequest{Ids: in.IDs})
+	if err != nil {
+		return nil, err
+	}
+	return toOutputs(resp.GetUsers()), nil
+}
+
 func (g *grpcGateway) ListUsers(ctx context.Context, in *userinput.ListUsers) (*output.UserPage, error) {
 	resp, err := g.client.ListUsers(ctx, &userpb.ListUsersRequest{
 		Page:     in.Page,

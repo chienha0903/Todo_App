@@ -21,6 +21,10 @@ func ToGetUserInput(req *userpb.GetUserRequest) *input.GetUserInput {
 	return &input.GetUserInput{ID: req.Id}
 }
 
+func ToGetUsersByIDsInput(req *userpb.GetUsersByIDsRequest) *input.GetUsersByIDsInput {
+	return &input.GetUsersByIDsInput{IDs: req.Ids}
+}
+
 func ToUpdateUserInput(req *userpb.UpdateUserRequest) *input.UpdateUserInput {
 	return &input.UpdateUserInput{
 		ID:       req.Id,

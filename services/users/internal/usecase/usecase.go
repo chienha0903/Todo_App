@@ -15,6 +15,10 @@ type UserGetter interface {
 	Get(ctx context.Context, in *input.GetUserInput) (*output.UserGetterOutput, error)
 }
 
+type UserBatchGetter interface {
+	GetByIDs(ctx context.Context, in *input.GetUsersByIDsInput) ([]output.User, error)
+}
+
 type UserUpdater interface {
 	Update(ctx context.Context, in *input.UpdateUserInput) (*output.UserUpdaterOutput, error)
 }

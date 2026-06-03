@@ -4,6 +4,10 @@ type GetUser struct {
 	ID int64
 }
 
+type GetUsersByIDs struct {
+	IDs []int64
+}
+
 type ListUsers struct {
 	Page     int32
 	PageSize int32

@@ -150,6 +150,34 @@ func requireAdmin(ctx context.Context) error {
 	return nil
 }
 
+// populateUsers fills the User field on each todo using the per-request DataLoader.
+//
+// Two-phase pattern (idiomatic graph-gophers/dataloader/v7):
+//  1. Call Load() for every todo — non-blocking, registers all IDs into the same
+//     batch window without triggering any RPC yet.
+//  2. Execute each thunk — the first call dispatches the batch; the rest read from
+//     the already-completed result. Duplicate IDs share the same thunk automatically.
+func populateUsers(ctx context.Context, todos []*model.Todo) {
+	loaders := middleware.GetLoaders(ctx)
+	if loaders == nil || len(todos) == 0 {
+		return
+	}
+
+	// Phase 1: register all IDs — all end up in the same 2ms batch window.
+	thunks := make([]func() (*useroutput.User, error), len(todos))
+	for i, t := range todos {
+		thunks[i] = loaders.UserByID.Load(ctx, int64(t.UserID))
+	}
+
+	// Phase 2: resolve — batch RPC fires on the first thunk() call.
+	for i, thunk := range thunks {
+		u, err := thunk()
+		if err == nil && u != nil {
+			todos[i].User = toUserModel(u)
+		}
+	}
+}
+
 func toUserPageModel(p *useroutput.UserPage) *model.UserPage {
 	items := make([]*model.User, 0, len(p.Items))
 
