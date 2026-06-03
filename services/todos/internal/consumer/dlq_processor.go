@@ -73,7 +73,7 @@ func (p *DLQProcessor) Start(ctx context.Context) error {
 	}
 }
 
-func (p *DLQProcessor) handleDLQMessage(_ context.Context, ch *amqp.Channel, msg amqp.Delivery) {
+func (p *DLQProcessor) handleDLQMessage(_ context.Context, _ *amqp.Channel, msg amqp.Delivery) {
 	info := dlqMessageInfo{
 		MessageID:  msg.MessageId,
 		RoutingKey: msg.RoutingKey,
