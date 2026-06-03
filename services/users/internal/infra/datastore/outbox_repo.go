@@ -8,9 +8,10 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
+	"github.com/google/uuid"
+
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/gateway"
 	"github.com/chienha0903/Todo_App/services/users/internal/infra/datastore/model"
-	"github.com/google/uuid"
 )
 
 type outboxRepo struct {

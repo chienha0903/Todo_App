@@ -3,13 +3,14 @@
 package di
 
 import (
+	"github.com/google/wire"
+
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/config"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/domain/service"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/resolver"
 	infratodo "github.com/chienha0903/Todo_App/services/todo-bff/internal/infra/todo"
 	infrauser "github.com/chienha0903/Todo_App/services/todo-bff/internal/infra/user"
 	todousecase "github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/todo"
-	"github.com/google/wire"
 )
 
 func InitializeApp(cfg *config.Config) (*resolver.Resolver, func(), error) {

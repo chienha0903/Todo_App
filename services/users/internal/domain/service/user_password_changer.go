@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"golang.org/x/crypto/bcrypt"
+
 	pkgerrors "github.com/chienha0903/Todo_App/pkg/errors"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/entity"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/gateway"
 	vo "github.com/chienha0903/Todo_App/services/users/internal/domain/valueobject"
 	"github.com/chienha0903/Todo_App/services/users/internal/usecase"
 	"github.com/chienha0903/Todo_App/services/users/internal/usecase/input"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var _ usecase.UserPasswordChanger = (*UserPasswordChanger)(nil)

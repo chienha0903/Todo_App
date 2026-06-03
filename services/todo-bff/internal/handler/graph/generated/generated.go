@@ -13,9 +13,10 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
+
+	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/graph/model"
 )
 
 // region    ************************** generated!.gotpl **************************

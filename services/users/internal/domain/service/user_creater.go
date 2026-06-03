@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
+
 	pkgerrors "github.com/chienha0903/Todo_App/pkg/errors"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/entity"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/gateway"
@@ -12,7 +14,6 @@ import (
 	"github.com/chienha0903/Todo_App/services/users/internal/usecase"
 	"github.com/chienha0903/Todo_App/services/users/internal/usecase/input"
 	"github.com/chienha0903/Todo_App/services/users/internal/usecase/output"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var _ usecase.UserCreater = (*UserCreater)(nil)

@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"testing"
 
+	"go.uber.org/mock/gomock"
+
 	apperrors "github.com/chienha0903/Todo_App/pkg/errors"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 	gatewaymock "github.com/chienha0903/Todo_App/services/todos/internal/domain/gateway/mock"
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/input"
-	"go.uber.org/mock/gomock"
 )
 
 func TestTodoDeleterDelete(t *testing.T) {

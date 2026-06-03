@@ -60,8 +60,8 @@ func ToDeleteTodoInput(req *todopb.DeleteTodoRequest) *input.DeleteTodoInput {
 
 func ToProtoTodo(t *output.Todo) *todopb.Todo {
 	proto := &todopb.Todo{
-		Id:          int64(t.ID),
-		UserId:      int64(t.UserID),
+		Id:          t.ID,
+		UserId:      t.UserID,
 		Title:       t.Title,
 		Description: t.Description,
 		Status:      t.Status,

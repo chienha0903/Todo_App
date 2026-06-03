@@ -13,8 +13,9 @@ import (
 	context "context"
 	reflect "reflect"
 
-	entity "github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 	gomock "go.uber.org/mock/gomock"
+
+	entity "github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 )
 
 // MockTodoCommandGateway is a mock of TodoCommandGateway interface.

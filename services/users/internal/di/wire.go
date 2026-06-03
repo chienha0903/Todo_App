@@ -3,6 +3,9 @@
 package di
 
 import (
+	"github.com/google/wire"
+	"google.golang.org/grpc"
+
 	"github.com/chienha0903/Todo_App/services/users/internal/config"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/gateway"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/service"
@@ -10,8 +13,6 @@ import (
 	userhandler "github.com/chienha0903/Todo_App/services/users/internal/handler/grpc/user"
 	"github.com/chienha0903/Todo_App/services/users/internal/infra/datastore"
 	"github.com/chienha0903/Todo_App/services/users/internal/usecase"
-	"github.com/google/wire"
-	"google.golang.org/grpc"
 )
 
 func InitializeApp(cfg *config.Config) (*grpc.Server, func(), error) {

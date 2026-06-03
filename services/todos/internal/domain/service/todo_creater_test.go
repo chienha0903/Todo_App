@@ -6,13 +6,14 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/mock/gomock"
+
 	apperrors "github.com/chienha0903/Todo_App/pkg/errors"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 	gatewaymock "github.com/chienha0903/Todo_App/services/todos/internal/domain/gateway/mock"
 	vo "github.com/chienha0903/Todo_App/services/todos/internal/domain/valueobject"
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/input"
 	"github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo/output"
-	"go.uber.org/mock/gomock"
 )
 
 func TestTodoCreaterCreate(t *testing.T) {

@@ -6,11 +6,12 @@ import (
 	"log/slog"
 	"time"
 
+	"gorm.io/gorm"
+
 	pkgerrors "github.com/chienha0903/Todo_App/pkg/errors"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore/mapper"
 	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore/model"
-	"gorm.io/gorm"
 )
 
 type todoCommandRepo struct {

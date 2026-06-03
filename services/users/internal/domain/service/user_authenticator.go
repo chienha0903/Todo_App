@@ -6,13 +6,14 @@ import (
 	"fmt"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/chienha0903/Todo_App/services/users/internal/config"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/entity"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/gateway"
 	userjwt "github.com/chienha0903/Todo_App/services/users/internal/infra/jwt"
 	"github.com/chienha0903/Todo_App/services/users/internal/usecase/input"
 	"github.com/chienha0903/Todo_App/services/users/internal/usecase/output"
-	"golang.org/x/crypto/bcrypt"
 )
 
 const (

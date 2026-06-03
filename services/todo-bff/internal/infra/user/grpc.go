@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+
 	userpb "github.com/chienha0903/Todo_App/proto/user"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/config"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/domain/gateway"
 	userinput "github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/user/input"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/user/output"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 type ClientConn grpc.ClientConn

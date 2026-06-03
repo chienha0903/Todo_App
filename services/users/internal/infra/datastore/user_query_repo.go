@@ -5,11 +5,12 @@ import (
 	stderrors "errors"
 	"fmt"
 
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/entity"
 	"github.com/chienha0903/Todo_App/services/users/internal/infra/datastore/maper"
 	"github.com/chienha0903/Todo_App/services/users/internal/infra/datastore/model"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type userQueryRepo struct {
