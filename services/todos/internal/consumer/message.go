@@ -19,7 +19,7 @@ type UserDeleteRequestedPayload struct {
 
 func parseUserDeleteRequested(body []byte) (*UserDeleteRequestedMessage, error) {
 	var msg UserDeleteRequestedMessage
-	
+
 	if err := json.Unmarshal(body, &msg); err != nil {
 		return nil, fmt.Errorf("unmarshal: %w", err)
 	}

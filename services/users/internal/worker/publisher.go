@@ -56,7 +56,7 @@ func (p *OutboxPublisher) PublishBatch(ctx context.Context) error {
 			EventType: ev.EventType,
 			Payload:   ev.Payload,
 		}
-		
+
 		body, err := json.Marshal(msg)
 		if err != nil {
 			slog.Error("marshal event failed", "event_id", ev.EventID, "error", err)

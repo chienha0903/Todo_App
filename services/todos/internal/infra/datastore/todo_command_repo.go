@@ -76,6 +76,6 @@ func ensureTodoAffected(rowsAffected int64) error {
 	if rowsAffected == 0 {
 		return pkgerrors.ErrRecordNotFound
 	}
-	
+
 	return nil
 }
