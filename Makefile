@@ -13,7 +13,7 @@ MIGRATIONS_DIR_USERS = services/users/internal/infra/datastore/migrations
 .PHONY: run-todos run-users run-bff \
         build build-todos build-users build-bff build-worker build-consumer \
         proto mock wire generate \
-        tidy fmt fmt-check vet test ci \
+        tidy fmt fmt-check vet test test-integration ci \
         docker-up docker-down docker-logs docker-build \
         migrate-todos-up migrate-todos-down migrate-todos-version migrate-todos-force migrate-todos-new \
         migrate-users-up migrate-users-down migrate-users-version migrate-users-force migrate-users-new
@@ -100,6 +100,10 @@ vet:
 ## Chạy toàn bộ unit tests
 test:
 	go test ./...
+
+## Chạy integration tests (cần database, dùng build tag integration)
+test-integration:
+	go test -tags=integration ./...
 
 ## Chạy toàn bộ CI checks: format → vet → test → build
 ci: fmt-check vet test build

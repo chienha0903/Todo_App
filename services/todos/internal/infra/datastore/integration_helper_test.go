@@ -7,9 +7,14 @@ import (
 	"math/rand"
 	"net/url"
 	"os"
+	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -17,6 +22,26 @@ import (
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/entity"
 	vo "github.com/chienha0903/Todo_App/services/todos/internal/domain/valueobject"
 )
+
+// migrationsDir trả về absolute path đến thư mục migrations.
+// go test đổi working directory về package dir nên không thể dùng relative path từ project root.
+func migrationsDir() string {
+	_, filename, _, _ := runtime.Caller(0)
+	return filepath.Join(filepath.Dir(filename), "migrations")
+}
+
+func runTestMigrations(t *testing.T, databaseURL string) {
+	t.Helper()
+	src := "file://" + filepath.ToSlash(migrationsDir())
+	m, err := migrate.New(src, databaseURL)
+	if err != nil {
+		t.Fatalf("init migrate: %v", err)
+	}
+	defer m.Close()
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		t.Fatalf("migrate up: %v", err)
+	}
+}
 
 // newTestDB tạo một PostgreSQL database tạm thời, random tên, chạy migration,
 // và tự động DROP database đó sau khi test kết thúc.
@@ -48,13 +73,11 @@ func newTestDB(t *testing.T) *gorm.DB {
 		t.Fatalf("create test db %q: %v", dbName, err)
 	}
 
-	// chạy migration trên test DB
+	// chạy migration trên test DB dùng absolute path
 	testURL := *u
 	testURL.Path = "/" + dbName
 	testDSN := testURL.String()
-	if err := RunMigrations(testDSN); err != nil {
-		t.Fatalf("migrations on %q: %v", dbName, err)
-	}
+	runTestMigrations(t, testDSN)
 
 	db, err := gorm.Open(postgres.Open(testDSN), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
