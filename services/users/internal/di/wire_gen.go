@@ -7,13 +7,13 @@
 package di
 
 import (
-	"google.golang.org/grpc"
-
 	"github.com/chienha0903/Todo_App/services/users/internal/config"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/service"
 	grpc2 "github.com/chienha0903/Todo_App/services/users/internal/handler/grpc"
 	"github.com/chienha0903/Todo_App/services/users/internal/handler/grpc/user"
 	"github.com/chienha0903/Todo_App/services/users/internal/infra/datastore"
+	"github.com/chienha0903/Todo_App/services/users/internal/infra/redis"
+	"google.golang.org/grpc"
 )
 
 // Injectors from wire.go:
@@ -32,19 +32,25 @@ func InitializeApp(cfg *config.Config) (*grpc.Server, func(), error) {
 	userBatchGetter := service.NewUserBatchGetter(userQueryGateway)
 	userLister := service.NewUserLister(userQueryGateway)
 	gormTransactor := datastore.NewGormTransactor(db)
+	userUpdater := service.NewUserUpdater(userCommandGateway, userQueryGateway, gormTransactor)
 	outboxRepo := datastore.NewOutboxRepo(db)
 	outboxCommandGateway := datastore.NewOutboxCommandGateway(outboxRepo)
-	userUpdater := service.NewUserUpdater(userCommandGateway, userQueryGateway, gormTransactor)
 	userDeleter := service.NewUserDeleter(userCommandGateway, userQueryGateway, outboxCommandGateway, gormTransactor)
-	refreshTokenRepo := datastore.NewRefreshTokenRepo(db)
-	refreshTokenCommandGateway := datastore.NewRefreshTokenCommandGateway(refreshTokenRepo)
+	client, cleanup2, err := redisstore.NewClient(cfg)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	refreshTokenRepo := redisstore.NewRefreshTokenRepo(client)
+	refreshTokenCommandGateway := redisstore.NewRefreshTokenCommandGateway(refreshTokenRepo)
 	userAuthenticator := service.NewUserAuthenticator(userQueryGateway, refreshTokenCommandGateway, cfg)
-	refreshTokenQueryGateway := datastore.NewRefreshTokenQueryGateway(refreshTokenRepo)
+	refreshTokenQueryGateway := redisstore.NewRefreshTokenQueryGateway(refreshTokenRepo)
 	userRefresher := service.NewUserRefresher(refreshTokenCommandGateway, refreshTokenQueryGateway, cfg)
-	userPasswordChanger := service.NewUserPasswordChanger(userQueryGateway, userCommandGateway, refreshTokenCommandGateway, gormTransactor)
+	userPasswordChanger := service.NewUserPasswordChanger(userQueryGateway, userCommandGateway, outboxCommandGateway, gormTransactor)
 	userHandler := user.NewUserHandler(userCreater, userGetter, userBatchGetter, userLister, userUpdater, userDeleter, userAuthenticator, userRefresher, userPasswordChanger)
 	server := grpc2.NewGRPCServer(cfg, userHandler)
 	return server, func() {
+		cleanup2()
 		cleanup()
 	}, nil
 }

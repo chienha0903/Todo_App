@@ -54,6 +54,20 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  # ── Cache ────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: todo_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   # ── Core Services ────────────────────────────────────────────────────────
   users:
@@ -71,10 +85,13 @@ services:
       DB_USERS_DSN: "postgres://postgres:postgres@postgres-users:5432/user_db?sslmode=disable"
       JWT_SECRET: "chien-apvn-super-secret-key-2024"
       RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
+      REDIS_URL: "redis://redis:6379/0"
     depends_on:
       postgres-users:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   users-outbox-worker:
@@ -151,3 +168,4 @@ volumes:
   postgres_todo_data:
   postgres_user_data:
   rabbitmq_data:
+  redis_data: 

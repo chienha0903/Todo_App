@@ -48,13 +48,29 @@ func (r *outboxRepo) GetUnpublishedEvents(ctx context.Context, limit int) ([]*mo
 	var events []*model.OutboxEvent
 
 	err := r.db.WithContext(ctx).
-		Where("published_at IS NULL AND retry_count < 5").
+		Where("published_at IS NULL AND retry_count < 5 AND aggregate_type != ?", "cache").
 		Order("created_at ASC").
 		Limit(limit).
 		Clauses(clause.Locking{Strength: "UPDATE", Options: "SKIP LOCKED"}).
 		Find(&events).Error
 	if err != nil {
 		return nil, fmt.Errorf("db get unpublished events: %w", err)
+	}
+
+	return events, nil
+}
+
+func (r *outboxRepo) GetUnpublishedEventsByAggregateType(ctx context.Context, aggregateType string, limit int) ([]*model.OutboxEvent, error) {
+	var events []*model.OutboxEvent
+
+	err := r.db.WithContext(ctx).
+		Where("published_at IS NULL AND retry_count < 5 AND aggregate_type = ?", aggregateType).
+		Order("created_at ASC").
+		Limit(limit).
+		Clauses(clause.Locking{Strength: "UPDATE", Options: "SKIP LOCKED"}).
+		Find(&events).Error
+	if err != nil {
+		return nil, fmt.Errorf("db get unpublished events by aggregate type: %w", err)
 	}
 
 	return events, nil

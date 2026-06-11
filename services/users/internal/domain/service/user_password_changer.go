@@ -8,8 +8,10 @@ import (
 
 	pkgerrors "github.com/chienha0903/Todo_App/pkg/errors"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/entity"
+	"github.com/chienha0903/Todo_App/services/users/internal/domain/event"
 	"github.com/chienha0903/Todo_App/services/users/internal/domain/gateway"
 	vo "github.com/chienha0903/Todo_App/services/users/internal/domain/valueobject"
+	"github.com/chienha0903/Todo_App/services/users/internal/infra/datastore/model"
 	"github.com/chienha0903/Todo_App/services/users/internal/usecase"
 	"github.com/chienha0903/Todo_App/services/users/internal/usecase/input"
 )
@@ -19,20 +21,20 @@ var _ usecase.UserPasswordChanger = (*UserPasswordChanger)(nil)
 type UserPasswordChanger struct {
 	qryGW      gateway.UserQueryGateway
 	cmdGW      gateway.UserCommandGateway
-	tokenCmdGW gateway.RefreshTokenCommandGateway
+	outboxGW   gateway.OutboxCommandGateway
 	transactor gateway.TransactionGateway
 }
 
 func NewUserPasswordChanger(
 	qryGW gateway.UserQueryGateway,
 	cmdGW gateway.UserCommandGateway,
-	tokenCmdGW gateway.RefreshTokenCommandGateway,
+	outboxGW gateway.OutboxCommandGateway,
 	transactor gateway.TransactionGateway,
 ) *UserPasswordChanger {
 	return &UserPasswordChanger{
 		qryGW:      qryGW,
 		cmdGW:      cmdGW,
-		tokenCmdGW: tokenCmdGW,
+		outboxGW:   outboxGW,
 		transactor: transactor,
 	}
 }
@@ -65,8 +67,17 @@ func (s *UserPasswordChanger) ChangePassword(ctx context.Context, in *input.Chan
 			return fmt.Errorf("UserPasswordChanger.ChangePassword update: %w", err)
 		}
 
-		if err := s.tokenCmdGW.DeleteByUserID(ctx, in.UserID); err != nil {
-			return fmt.Errorf("UserPasswordChanger.ChangePassword delete tokens: %w", err)
+		payload, err := (&event.DeleteUserTokensPayload{UserID: in.UserID}).ToJSON()
+		if err != nil {
+			return fmt.Errorf("UserPasswordChanger.ChangePassword marshal cache payload: %w", err)
+		}
+		if err := s.outboxGW.InsertOutboxEvent(ctx, &model.OutboxEvent{
+			AggregateType: event.CacheAggregateType,
+			AggregateID:   in.UserID,
+			EventType:     event.CacheEventDeleteUserTokens,
+			Payload:       payload,
+		}); err != nil {
+			return fmt.Errorf("UserPasswordChanger.ChangePassword insert cache event: %w", err)
 		}
 
 		return nil

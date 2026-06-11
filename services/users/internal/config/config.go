@@ -16,6 +16,7 @@ type Config struct {
 	DBDSN       string
 	JWTSecret   string
 	RabbitMQURL string
+	RedisURL    string
 }
 
 func Load() (*Config, error) {
@@ -28,6 +29,7 @@ func Load() (*Config, error) {
 		DBDSN:       getenv("DB_USERS_DSN", "postgres://postgres:postgres@localhost:5433/user_db?sslmode=disable"),
 		JWTSecret:   getenv("JWT_SECRET", ""),
 		RabbitMQURL: getenv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/"),
+		RedisURL:    getenv("REDIS_URL", "redis://localhost:6379/0"),
 	}
 
 	if len(cfg.JWTSecret) < minJWTSecretLen {

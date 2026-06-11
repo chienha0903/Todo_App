@@ -14,4 +14,5 @@ type OutboxCommandGateway interface {
 
 type OutboxQueryGateway interface {
 	GetUnpublishedEvents(ctx context.Context, limit int) ([]*model.OutboxEvent, error)
+	GetUnpublishedEventsByAggregateType(ctx context.Context, aggregateType string, limit int) ([]*model.OutboxEvent, error)
 }

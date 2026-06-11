@@ -12,6 +12,7 @@ import (
 	"github.com/chienha0903/Todo_App/pkg/rabbitmq"
 	"github.com/chienha0903/Todo_App/services/users/internal/config"
 	"github.com/chienha0903/Todo_App/services/users/internal/infra/datastore"
+	redisstore "github.com/chienha0903/Todo_App/services/users/internal/infra/redis"
 	"github.com/chienha0903/Todo_App/services/users/internal/worker"
 )
 
@@ -42,10 +43,21 @@ func run() error {
 	}
 	defer conn.Close()
 
+	redisClient, redisCleanup, err := redisstore.NewClient(cfg)
+	if err != nil {
+		return fmt.Errorf("connect redis: %w", err)
+	}
+	defer redisCleanup()
+
 	outboxRepo := datastore.NewOutboxRepo(db)
 	outboxQueryGW := datastore.NewOutboxQueryGateway(outboxRepo)
 	outboxCmdGW := datastore.NewOutboxCommandGateway(outboxRepo)
+
+	tokenRepo := redisstore.NewRefreshTokenRepo(redisClient)
+	tokenCmdGW := redisstore.NewRefreshTokenCommandGateway(tokenRepo)
+
 	publisher := worker.NewOutboxPublisher(outboxQueryGW, outboxCmdGW, conn)
+	invalidator := worker.NewCacheInvalidator(outboxQueryGW, outboxCmdGW, tokenCmdGW)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -58,6 +70,9 @@ func run() error {
 	if err := publisher.PublishBatch(ctx); err != nil {
 		slog.Error("initial publish batch failed", "error", err)
 	}
+	if err := invalidator.ProcessBatch(ctx); err != nil {
+		slog.Error("initial cache invalidation batch failed", "error", err)
+	}
 
 	for {
 		select {
@@ -67,6 +82,9 @@ func run() error {
 		case <-ticker.C:
 			if err := publisher.PublishBatch(ctx); err != nil {
 				slog.Error("publish batch failed", "error", err)
+			}
+			if err := invalidator.ProcessBatch(ctx); err != nil {
+				slog.Error("cache invalidation batch failed", "error", err)
 			}
 		}
 	}
