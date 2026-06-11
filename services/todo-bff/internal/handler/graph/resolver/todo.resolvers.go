@@ -116,7 +116,7 @@ func (r *queryResolver) Todos(ctx context.Context, userID int, page *int, pageSi
 	if err := middleware.RequireAuth(ctx); err != nil {
 		return nil, err
 	}
-	
+
 	callerID, _ := middleware.GetUserID(ctx)
 	role, _ := middleware.GetRole(ctx)
 	if role != "ADMIN" {

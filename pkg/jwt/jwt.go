@@ -11,20 +11,20 @@ type Claims struct {
 }
 
 func ParseToken(tokenStr, secret string) (*Claims, error) {
-    token, err := gojwt.ParseWithClaims(tokenStr, &Claims{}, func(t *gojwt.Token) (any, error) {
-        if _, ok := t.Method.(*gojwt.SigningMethodHMAC); !ok {
-            return nil, gojwt.ErrSignatureInvalid
-        }
-        return []byte(secret), nil
-    })
-    if err != nil {
-        return nil, err
-    }
+	token, err := gojwt.ParseWithClaims(tokenStr, &Claims{}, func(t *gojwt.Token) (any, error) {
+		if _, ok := t.Method.(*gojwt.SigningMethodHMAC); !ok {
+			return nil, gojwt.ErrSignatureInvalid
+		}
+		return []byte(secret), nil
+	})
+	if err != nil {
+		return nil, err
+	}
 
-    claims, ok := token.Claims.(*Claims)
-    if !ok || !token.Valid {
-        return nil, gojwt.ErrTokenInvalidClaims
-    }
+	claims, ok := token.Claims.(*Claims)
+	if !ok || !token.Valid {
+		return nil, gojwt.ErrTokenInvalidClaims
+	}
 
-    return claims, nil
+	return claims, nil
 }
