@@ -1,10 +1,13 @@
 package config
 
 import (
+	"errors"
 	"os"
 
 	"github.com/joho/godotenv"
 )
+
+const minJWTSecretLen = 32
 
 type Config struct {
 	AppName     string
@@ -19,13 +22,18 @@ func Load() (*Config, error) {
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		AppName:     getenv("APP_NAME", "todo-app"),
+		AppName:     getenv("APP_NAME", "users"),
 		AppPort:     getenv("APP_USERS_PORT", "50052"),
 		AppEnv:      getenv("APP_ENV", "development"),
-		DBDSN:       getenv("DB_USERS_DSN", "postgres://postgres:postgres@localhost:5432/users_db?sslmode=disable"),
-		JWTSecret:   getenv("JWT_SECRET", "chien-apvn"),
+		DBDSN:       getenv("DB_USERS_DSN", "postgres://postgres:postgres@localhost:5433/user_db?sslmode=disable"),
+		JWTSecret:   getenv("JWT_SECRET", ""),
 		RabbitMQURL: getenv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/"),
 	}
+
+	if len(cfg.JWTSecret) < minJWTSecretLen {
+		return nil, errors.New("config: JWT_SECRET must be at least 32 characters")
+	}
+
 	return cfg, nil
 }
 

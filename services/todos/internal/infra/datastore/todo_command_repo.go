@@ -57,7 +57,7 @@ func (r *todoCommandRepo) DeleteTodo(ctx context.Context, id entity.TodoID) erro
 func (r *todoCommandRepo) SoftDeleteByUserID(ctx context.Context, userID int64) error {
 	now := time.Now()
 
-	result := r.db.WithContext(ctx).
+	result := extractDB(ctx, r.db).WithContext(ctx).
 		Model(&model.Todo{}).
 		Where("user_id = ? AND deleted_at IS NULL", userID).
 		Updates(map[string]any{

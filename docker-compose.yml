@@ -69,7 +69,7 @@ services:
       APP_PORT: "50052"
       APP_ENV: development
       DB_USERS_DSN: "postgres://postgres:postgres@postgres-users:5432/user_db?sslmode=disable"
-      JWT_SECRET: "chien-apvn"
+      JWT_SECRET: "chien-apvn-super-secret-key-2024"
       RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
     depends_on:
       postgres-users:
@@ -141,6 +141,7 @@ services:
       APP_ENV: development
       TODOS_GRPC_ADDR: "todos:50051"
       USERS_GRPC_ADDR: "users:50052"
+      JWT_SECRET: "chien-apvn-super-secret-key-2024"
     depends_on:
       - todos
       - users

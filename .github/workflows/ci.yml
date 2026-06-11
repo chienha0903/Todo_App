@@ -67,7 +67,7 @@ jobs:
   ci:
     name: Build & Test
     runs-on: ubuntu-latest
-    needs: lint
+    needs: [lint, integration-test]
 
     steps:
       - name: Checkout source code

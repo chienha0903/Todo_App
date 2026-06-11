@@ -48,7 +48,7 @@ func (r *outboxRepo) GetUnpublishedEvents(ctx context.Context, limit int) ([]*mo
 	var events []*model.OutboxEvent
 
 	err := r.db.WithContext(ctx).
-		Where("published_at IS NULL").
+		Where("published_at IS NULL AND retry_count < 5").
 		Order("created_at ASC").
 		Limit(limit).
 		Clauses(clause.Locking{Strength: "UPDATE", Options: "SKIP LOCKED"}).

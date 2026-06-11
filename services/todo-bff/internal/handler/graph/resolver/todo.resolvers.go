@@ -19,11 +19,14 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.CreateTod
 		return nil, err
 	}
 
+	// Always use the authenticated caller's ID — never trust client-supplied userId.
+	callerID, _ := middleware.GetUserID(ctx)
+
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
 
 	todo, err := r.creater.Create(ctx, &ucin.CreateTodo{
-		UserID:      int64(input.UserID),
+		UserID:      callerID,
 		Title:       input.Title,
 		Description: input.Description,
 		Priority:    string(input.Priority),
@@ -106,10 +109,18 @@ func (r *queryResolver) Todo(ctx context.Context, id string) (*model.Todo, error
 	return m, nil
 }
 
+const maxPageSize = 100
+
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context, userID int, page *int, pageSize *int) (*model.TodoPage, error) {
 	if err := middleware.RequireAuth(ctx); err != nil {
 		return nil, err
+	}
+	
+	callerID, _ := middleware.GetUserID(ctx)
+	role, _ := middleware.GetRole(ctx)
+	if role != "ADMIN" {
+		userID = int(callerID)
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
@@ -121,6 +132,9 @@ func (r *queryResolver) Todos(ctx context.Context, userID int, page *int, pageSi
 	}
 	if pageSize != nil && *pageSize > 0 {
 		ps = *pageSize
+		if ps > maxPageSize {
+			ps = maxPageSize
+		}
 	}
 
 	result, err := r.lister.List(ctx, &ucin.ListTodos{

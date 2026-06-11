@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -26,6 +27,11 @@ func NewDB(cfg *config.Config) (*gorm.DB, func(), error) {
 	if err := sqlDB.Ping(); err != nil {
 		return nil, nil, fmt.Errorf("datastore: ping db: %w", err)
 	}
+
+	sqlDB.SetMaxOpenConns(25)
+	sqlDB.SetMaxIdleConns(5)
+	sqlDB.SetConnMaxLifetime(5 * time.Minute)
+	sqlDB.SetConnMaxIdleTime(1 * time.Minute)
 
 	return db, func() { _ = sqlDB.Close() }, nil
 }

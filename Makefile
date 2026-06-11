@@ -13,7 +13,7 @@ MIGRATIONS_DIR_USERS = services/users/internal/infra/datastore/migrations
 .PHONY: run-todos run-users run-bff \
         build build-todos build-users build-bff build-worker build-consumer \
         proto mock wire generate \
-        tidy fmt fmt-check vet test test-integration ci \
+        tidy fmt fmt-check vet test test-cover test-integration lint ci \
         docker-up docker-down docker-logs docker-build \
         migrate-todos-up migrate-todos-down migrate-todos-version migrate-todos-force migrate-todos-new \
         migrate-users-up migrate-users-down migrate-users-version migrate-users-force migrate-users-new
@@ -101,12 +101,21 @@ vet:
 test:
 	go test ./...
 
+## Chạy unit tests với coverage report
+test-cover:
+	go test -coverprofile=coverage.out ./...
+	go tool cover -func=coverage.out
+
 ## Chạy integration tests (cần database, dùng build tag integration)
 test-integration:
 	go test -tags=integration ./...
 
-## Chạy toàn bộ CI checks: format → vet → test → build
-ci: fmt-check vet test build
+## Chạy golangci-lint
+lint:
+	golangci-lint run ./...
+
+## Chạy toàn bộ CI checks: format → vet → lint → test → build
+ci: fmt-check vet lint test build
 
 ## Migration todos (cần: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest)
 migrate-todos-up:

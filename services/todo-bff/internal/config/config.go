@@ -1,12 +1,15 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
 
 	"github.com/joho/godotenv"
 )
+
+const minJWTSecretLen = 32
 
 type Config struct {
 	AppName        string
@@ -27,15 +30,21 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("config: parse REQUEST_TIMEOUT: %w", err)
 	}
 
-	return &Config{
+	cfg := &Config{
 		AppName:        getenv("APP_NAME", "todo-bff"),
 		AppPort:        getenv("BFF_PORT", getenv("APP_PORT", "8080")),
 		AppEnv:         getenv("APP_ENV", "development"),
 		TodosGRPCAddr:  getenv("TODOS_GRPC_ADDR", "localhost:50051"),
 		UsersGRPCAddr:  getenv("USERS_GRPC_ADDR", "localhost:50052"),
-		JWTSecret:      getenv("JWT_SECRET", "chien-apvn"),
+		JWTSecret:      getenv("JWT_SECRET", ""),
 		RequestTimeout: requestTimeout,
-	}, nil
+	}
+
+	if len(cfg.JWTSecret) < minJWTSecretLen {
+		return nil, errors.New("config: JWT_SECRET must be at least 32 characters")
+	}
+
+	return cfg, nil
 }
 
 func getenv(key, defaultValue string) string {
