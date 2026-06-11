@@ -34,7 +34,7 @@ func InitializeApp(cfg *config.Config) (*grpc.Server, func(), error) {
 	todoUpdater := service.NewTodoUpdater(todoCommandGateway, todoQueryGateway, gormTransactor)
 	todoDeleter := service.NewTodoDeleter(todoCommandGateway)
 	todoHandler := todo.NewTodoHandler(todoCreater, todoGetter, todoLister, todoUpdater, todoDeleter)
-	server := grpc2.NewGRPCServer(todoHandler)
+	server := grpc2.NewGRPCServer(cfg, todoHandler)
 	return server, func() {
 		cleanup()
 	}, nil

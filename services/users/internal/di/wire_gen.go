@@ -43,7 +43,7 @@ func InitializeApp(cfg *config.Config) (*grpc.Server, func(), error) {
 	userRefresher := service.NewUserRefresher(refreshTokenCommandGateway, refreshTokenQueryGateway, cfg)
 	userPasswordChanger := service.NewUserPasswordChanger(userQueryGateway, userCommandGateway, refreshTokenCommandGateway, gormTransactor)
 	userHandler := user.NewUserHandler(userCreater, userGetter, userBatchGetter, userLister, userUpdater, userDeleter, userAuthenticator, userRefresher, userPasswordChanger)
-	server := grpc2.NewGRPCServer(userHandler)
+	server := grpc2.NewGRPCServer(cfg, userHandler)
 	return server, func() {
 		cleanup()
 	}, nil

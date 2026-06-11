@@ -6,20 +6,37 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 
 	userpb "github.com/chienha0903/Todo_App/proto/user"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/config"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/domain/gateway"
+	"github.com/chienha0903/Todo_App/services/todo-bff/internal/handler/middleware"
 	userinput "github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/user/input"
 	"github.com/chienha0903/Todo_App/services/todo-bff/internal/usecase/user/output"
 )
 
 type ClientConn grpc.ClientConn
 
+func forwardAuthInterceptor(
+	ctx context.Context,
+	method string,
+	req, reply any,
+	cc *grpc.ClientConn,
+	invoker grpc.UnaryInvoker,
+	opts ...grpc.CallOption,
+) error {
+	if token, ok := middleware.GetToken(ctx); ok && token != "" {
+		ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+token)
+	}
+	return invoker(ctx, method, req, reply, cc, opts...)
+}
+
 func NewGRPCConn(cfg *config.Config) (*ClientConn, func(), error) {
 	conn, err := grpc.NewClient(
 		cfg.UsersGRPCAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(forwardAuthInterceptor),
 	)
 
 	if err != nil {

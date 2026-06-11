@@ -7,14 +7,16 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	todopb "github.com/chienha0903/Todo_App/proto/todo"
+	"github.com/chienha0903/Todo_App/services/todos/internal/config"
 	todohandler "github.com/chienha0903/Todo_App/services/todos/internal/handler/grpc/todo"
 )
 
-func NewGRPCServer(h *todohandler.TodoHandler) *grpc.Server {
+func NewGRPCServer(cfg *config.Config, h *todohandler.TodoHandler) *grpc.Server {
 	srv := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			UnaryRecoveryInterceptor,
 			UnaryLoggingInterceptor,
+			UnaryAuthInterceptor(cfg.JWTSecret),
 		),
 	)
 	todopb.RegisterTodoServiceServer(srv, h)

@@ -105,6 +105,7 @@ services:
       APP_PORT: "50051"
       APP_ENV: development
       DB_TODO_DSN: "postgres://postgres:postgres@postgres:5432/todo_db?sslmode=disable"
+      JWT_SECRET: "chien-apvn-super-secret-key-2024"
       RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
     depends_on:
       postgres:

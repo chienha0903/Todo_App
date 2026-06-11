@@ -14,6 +14,7 @@ type contextKey string
 const (
 	ctxUserID contextKey = "user_id"
 	ctxRole   contextKey = "role"
+	ctxToken  contextKey = "token"
 )
 
 func AuthMiddleware(jwtSecret string) func(http.Handler) http.Handler {
@@ -26,6 +27,7 @@ func AuthMiddleware(jwtSecret string) func(http.Handler) http.Handler {
 				if err == nil {
 					ctx := context.WithValue(r.Context(), ctxUserID, claim.UserID)
 					ctx = context.WithValue(ctx, ctxRole, claim.Role)
+					ctx = context.WithValue(ctx, ctxToken, token)
 					r = r.WithContext(ctx)
 				}
 			}
@@ -53,6 +55,11 @@ func GetUserID(ctx context.Context) (int64, bool) {
 func GetRole(ctx context.Context) (string, bool) {
 	role, ok := ctx.Value(ctxRole).(string)
 	return role, ok
+}
+
+func GetToken(ctx context.Context) (string, bool) {
+	token, ok := ctx.Value(ctxToken).(string)
+	return token, ok
 }
 
 func RequireAuth(ctx context.Context) error {
