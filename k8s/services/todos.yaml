@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: users
+  name: todos
   namespace: todo-app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: users
+      app: todos
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -16,7 +16,7 @@ spec:
   template:
     metadata:
       labels:
-        app: users
+        app: todos
     spec:
       initContainers:
         - name: wait-for-postgres
@@ -25,8 +25,8 @@ spec:
             - sh
             - -c
             - |
-              until nc -z postgres-users-svc 5432; do
-                echo "waiting for postgres-users..."; sleep 2;
+              until nc -z postgres-todo-svc 5432; do
+                echo "waiting for postgres-todo..."; sleep 2;
               done
         - name: wait-for-rabbitmq
           image: busybox:1.36
@@ -37,36 +37,27 @@ spec:
               until nc -z rabbitmq-svc 5672; do
                 echo "waiting for rabbitmq..."; sleep 2;
               done
-        - name: wait-for-redis
-          image: busybox:1.36
-          command:
-            - sh
-            - -c
-            - |
-              until nc -z redis-svc 6379; do
-                echo "waiting for redis..."; sleep 2;
-              done
       containers:
-        - name: users
-          image: todo-users:latest
+        - name: todos
+          image: todo-todos:latest
           imagePullPolicy: Never
           ports:
-            - containerPort: 50052
+            - containerPort: 50051
           env:
             - name: APP_NAME
-              value: "users"
-            - name: APP_USERS_PORT
-              value: "50052"
+              value: "todo-app"
+            - name: APP_TODO_PORT
+              value: "50051"
             - name: APP_ENV
               valueFrom:
                 configMapKeyRef:
                   name: app-config
                   key: APP_ENV
-            - name: DB_USERS_DSN
+            - name: DB_TODO_DSN
               valueFrom:
                 secretKeyRef:
                   name: app-secret
-                  key: DB_USERS_DSN
+                  key: DB_TODO_DSN
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -77,11 +68,6 @@ spec:
                 secretKeyRef:
                   name: app-secret
                   key: RABBITMQ_URL
-            - name: REDIS_URL
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: REDIS_URL
           resources:
             requests:
               memory: "64Mi"
@@ -91,26 +77,26 @@ spec:
               cpu: "200m"
           readinessProbe:
             tcpSocket:
-              port: 50052
+              port: 50051
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 3
           livenessProbe:
             tcpSocket:
-              port: 50052
+              port: 50051
             initialDelaySeconds: 30
             periodSeconds: 15
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: users-svc
+  name: todos-svc
   namespace: todo-app
 spec:
   type: ClusterIP
   selector:
-    app: users
+    app: todos
   ports:
-    - port: 50052
-      targetPort: 50052
+    - port: 50051
+      targetPort: 50051
       name: grpc
