@@ -49,8 +49,8 @@ func NewRefreshTokenQueryGateway(r *RefreshTokenRepo) gateway.RefreshTokenQueryG
 	return r
 }
 
-func tokenKey(hash string) string  { return tokenKeyPrefix + hash }
-func userKey(userID int64) string  { return fmt.Sprintf("%s%d", userKeyPrefix, userID) }
+func tokenKey(hash string) string { return tokenKeyPrefix + hash }
+func userKey(userID int64) string { return fmt.Sprintf("%s%d", userKeyPrefix, userID) }
 
 // StoreRefreshToken lưu token vào Redis với TTL tự động.
 // Đồng thời ghi hash vào Set của user để DeleteByUserID có thể tìm được.

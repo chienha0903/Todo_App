@@ -3,8 +3,8 @@ package event
 import "encoding/json"
 
 const (
-	CacheAggregateType          = "cache"
-	CacheEventDeleteUserTokens  = "cache.delete_user_tokens"
+	CacheAggregateType         = "cache"
+	CacheEventDeleteUserTokens = "cache.delete_user_tokens"
 )
 
 type DeleteUserTokensPayload struct {

@@ -12,7 +12,7 @@ import (
 	grpchandler "github.com/chienha0903/Todo_App/services/users/internal/handler/grpc"
 	userhandler "github.com/chienha0903/Todo_App/services/users/internal/handler/grpc/user"
 	"github.com/chienha0903/Todo_App/services/users/internal/infra/datastore"
-	redisstore "github.com/chienha0903/Todo_App/services/users/internal/infra/redis" 
+	redisstore "github.com/chienha0903/Todo_App/services/users/internal/infra/redis"
 	"github.com/chienha0903/Todo_App/services/users/internal/usecase"
 )
 
