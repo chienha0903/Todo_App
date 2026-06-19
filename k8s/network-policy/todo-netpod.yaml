@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: todos-allow-bff-only
+  namespace: todo-app
+spec:
+  podSelector:
+    matchLabels:
+      app: todos
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: todo-bff
+      ports:
+        - port: 50051
+          protocol: TCP

@@ -33,14 +33,17 @@ spec:
           readinessProbe:
             exec:
               command: ["rabbitmq-diagnostics", "ping"]
-            initialDelaySeconds: 20
+            initialDelaySeconds: 40
             periodSeconds: 10
+            timeoutSeconds: 10
             failureThreshold: 6
           livenessProbe:
             exec:
               command: ["rabbitmq-diagnostics", "ping"]
-            initialDelaySeconds: 40
-            periodSeconds: 15
+            initialDelaySeconds: 120
+            periodSeconds: 20
+            timeoutSeconds: 10
+            failureThreshold: 6
           resources:
             requests:
               memory: "256Mi"
