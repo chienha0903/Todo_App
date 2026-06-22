@@ -43,6 +43,8 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 50051
+            - containerPort: 8081
+              name: debug-http
           env:
             - name: APP_NAME
               value: "todo-app"
@@ -68,6 +70,10 @@ spec:
                 secretKeyRef:
                   name: app-secret
                   key: RABBITMQ_URL
+            - name: ENABLE_DEBUG_RACE
+              value: "true"
+            - name: DEBUG_PORT
+              value: "8081"
           resources:
             requests:
               memory: "64Mi"
@@ -100,3 +106,6 @@ spec:
     - port: 50051
       targetPort: 50051
       name: grpc
+    - port: 8081
+      targetPort: 8081
+      name: debug-http

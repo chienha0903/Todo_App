@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/chienha0903/Todo_App/services/todos/internal/config"
 	"github.com/chienha0903/Todo_App/services/todos/internal/di"
+	"github.com/chienha0903/Todo_App/services/todos/internal/domain/service"
+	debughandler "github.com/chienha0903/Todo_App/services/todos/internal/handler/debug"
 	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore"
 )
 
@@ -38,6 +41,12 @@ func run() error {
 		return fmt.Errorf("init grpc server: %w", err)
 	}
 	defer cleanup()
+
+	if cfg.EnableDebugRace {
+		if err := startDebugServer(cfg); err != nil {
+			return fmt.Errorf("start debug server: %w", err)
+		}
+	}
 
 	lis, err := net.Listen("tcp", ":"+cfg.AppPort)
 	if err != nil {
@@ -67,6 +76,34 @@ func run() error {
 	case err := <-errCh:
 		return err
 	}
+}
+
+// startDebugServer khởi tạo DB connection riêng + HTTP server riêng cho race demo.
+// Hoàn toàn tách biệt khỏi gRPC server và connection pool production.
+func startDebugServer(cfg *config.Config) error {
+	db, dbCleanup, err := datastore.NewDB(cfg)
+	if err != nil {
+		return fmt.Errorf("debug db: %w", err)
+	}
+
+	transactor := datastore.NewGormTransactor(db)
+	repo := datastore.NewRaceDemoRepo(db)
+	gw := datastore.NewRaceDemoGateway(repo)
+	debugger := service.NewRaceDebugger(gw, transactor)
+
+	mux := http.NewServeMux()
+	debughandler.NewRaceHandler(debugger).RegisterRoutes(mux)
+
+	go func() {
+		addr := ":" + cfg.DebugPort
+		slog.Info("debug server started", "component", "debug_http", "port", cfg.DebugPort)
+		if err := http.ListenAndServe(addr, mux); err != nil && err != http.ErrServerClosed {
+			slog.Error("debug server error", "error", err)
+		}
+		dbCleanup()
+	}()
+
+	return nil
 }
 
 func logGRPCServerStarted(cfg *config.Config) {

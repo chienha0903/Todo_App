@@ -41,8 +41,8 @@ kubectl rollout status statefulset/redis           -n todo-app --timeout=120s
 write_step 6 8 "Application Services"
 kubectl apply -f k8s/services/
 
-write step 7 8 "Network Policies"
-kubectl apply -f k8s/network-policies/
+write_step 7 8 "Network Policies"
+kubectl apply -f k8s/network-policy/
 
 write_step 8 8 "Ingress"
 kubectl apply -f k8s/ingress.yaml
