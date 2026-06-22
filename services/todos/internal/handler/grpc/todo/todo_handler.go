@@ -3,14 +3,23 @@ package todo
 import (
 	"context"
 
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	otelcodes "go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	todopb "github.com/chienha0903/Todo_App/proto/todo"
 	"github.com/chienha0903/Todo_App/services/todos/internal/handler/grpc/caller"
 	"github.com/chienha0903/Todo_App/services/todos/internal/handler/grpc/mapper"
+	"github.com/chienha0903/Todo_App/services/todos/internal/observability/tracing"
 	todousecase "github.com/chienha0903/Todo_App/services/todos/internal/usecase/todo"
 )
+
+// tracer is package-level and lazily delegates to the real TracerProvider once
+// tracing.Init() sets it via otel.SetTracerProvider. Noop until then.
+var tracer = otel.Tracer("todos/handler")
 
 type TodoHandler struct {
 	todopb.UnimplementedTodoServiceServer
@@ -41,25 +50,49 @@ func (h *TodoHandler) CreateTodo(
 	ctx context.Context,
 	req *todopb.CreateTodoRequest,
 ) (*todopb.CreateTodoResponse, error) {
+	ctx, hSpan := tracer.Start(ctx, "handler.CreateTodo",
+		trace.WithAttributes(
+			attribute.String("grpc.method", "CreateTodo"),
+			attribute.Int64("user.id", req.UserId),
+		))
+	defer hSpan.End()
+
 	c, ok := caller.FromContext(ctx)
 	if !ok {
-		return nil, status.Error(codes.Unauthenticated, "missing caller identity")
+		err := status.Error(codes.Unauthenticated, "missing caller identity")
+		tracing.RecordError(hSpan, err)
+		return nil, err
 	}
 
 	if c.Role != "ADMIN" && req.UserId != c.UserID {
-		return nil, status.Error(codes.PermissionDenied, "cannot create todo for another user")
+		err := status.Error(codes.PermissionDenied, "cannot create todo for another user")
+		tracing.RecordError(hSpan, err)
+		return nil, err
 	}
 
 	in, err := mapper.ToCreateTodoInput(req)
 	if err != nil {
+		tracing.RecordError(hSpan, err)
 		return nil, toGRPCError(err)
 	}
 
+	ctx, ucSpan := tracer.Start(ctx, "usecase.CreateTodo",
+		trace.WithAttributes(
+			attribute.String("usecase.name", "CreateTodo"),
+			attribute.Int64("user.id", req.UserId),
+		))
 	out, err := h.creater.Create(ctx, in)
 	if err != nil {
+		tracing.RecordError(ucSpan, err)
+		ucSpan.End()
+		tracing.RecordError(hSpan, err)
 		return nil, toGRPCError(err)
 	}
+	ucSpan.SetStatus(otelcodes.Ok, "")
+	ucSpan.End()
 
+	hSpan.SetAttributes(attribute.Int64("todo.id", out.ID))
+	hSpan.SetStatus(otelcodes.Ok, "")
 	return &todopb.CreateTodoResponse{Todo: mapper.ToProtoTodo(out)}, nil
 }
 

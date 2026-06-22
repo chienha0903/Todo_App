@@ -9,12 +9,14 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/chienha0903/Todo_App/services/todos/internal/config"
 	"github.com/chienha0903/Todo_App/services/todos/internal/di"
 	"github.com/chienha0903/Todo_App/services/todos/internal/domain/service"
 	debughandler "github.com/chienha0903/Todo_App/services/todos/internal/handler/debug"
 	"github.com/chienha0903/Todo_App/services/todos/internal/infra/datastore"
+	"github.com/chienha0903/Todo_App/services/todos/internal/observability/tracing"
 )
 
 func main() {
@@ -31,6 +33,19 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("load config: %w", err)
 	}
+
+	shutdownTracer, err := tracing.Init(context.Background(), cfg.AppName, "", cfg.AppEnv)
+	if err != nil {
+		slog.Warn("tracing init failed, continuing without tracing", "error", err)
+		shutdownTracer = func(context.Context) error { return nil }
+	}
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if shutdownErr := shutdownTracer(ctx); shutdownErr != nil {
+			slog.Error("tracing shutdown error", "error", shutdownErr)
+		}
+	}()
 
 	if err := datastore.RunMigrations(cfg.DBDSN); err != nil {
 		return fmt.Errorf("run migrations: %w", err)

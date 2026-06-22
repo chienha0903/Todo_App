@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -13,6 +14,7 @@ import (
 
 func NewGRPCServer(cfg *config.Config, h *todohandler.TodoHandler) *grpc.Server {
 	srv := grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
 			UnaryRecoveryInterceptor,
 			UnaryLoggingInterceptor,
