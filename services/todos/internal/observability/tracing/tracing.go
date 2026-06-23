@@ -3,6 +3,7 @@ package tracing
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"go.opentelemetry.io/otel"
@@ -21,11 +22,13 @@ func Init(ctx context.Context, defaultServiceName, serviceVersion, env string) (
 	noop := func(context.Context) error { return nil }
 
 	if os.Getenv("OTEL_ENABLED") != "true" {
+		slog.Info("tracing disabled (OTEL_ENABLED != true)")
 		return noop, nil
 	}
 
 	endpoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
 	if endpoint == "" {
+		slog.Warn("tracing disabled: OTEL_EXPORTER_OTLP_ENDPOINT not set")
 		return noop, nil
 	}
 
@@ -34,16 +37,22 @@ func Init(ctx context.Context, defaultServiceName, serviceVersion, env string) (
 		serviceName = s
 	}
 
-	dialOpts := []grpc.DialOption{}
-	if os.Getenv("OTEL_EXPORTER_OTLP_INSECURE") == "true" {
-		dialOpts = append(dialOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	isInsecure := os.Getenv("OTEL_EXPORTER_OTLP_INSECURE") == "true"
+	slog.Info("tracing init", "endpoint", endpoint, "service", serviceName, "insecure", isInsecure)
+
+	// Build gRPC connection explicitly so connection errors surface at startup.
+	grpcOpts := []grpc.DialOption{}
+	if isInsecure {
+		grpcOpts = append(grpcOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	}
+	conn, err := grpc.NewClient(endpoint, grpcOpts...)
+	if err != nil {
+		return noop, fmt.Errorf("tracing: dial otlp endpoint %s: %w", endpoint, err)
 	}
 
-	exporter, err := otlptracegrpc.New(ctx,
-		otlptracegrpc.WithEndpoint(endpoint),
-		otlptracegrpc.WithDialOption(dialOpts...),
-	)
+	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithGRPCConn(conn))
 	if err != nil {
+		_ = conn.Close()
 		return noop, fmt.Errorf("tracing: create otlp exporter: %w", err)
 	}
 
@@ -73,6 +82,7 @@ func Init(ctx context.Context, defaultServiceName, serviceVersion, env string) (
 		propagation.Baggage{},
 	))
 
+	slog.Info("tracing ready", "service", serviceName, "endpoint", endpoint)
 	return tp.Shutdown, nil
 }
 
