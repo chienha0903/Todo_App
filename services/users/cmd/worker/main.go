@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -65,14 +66,9 @@ func run() error {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
-	slog.Info("outbox worker started", "poll_interval", "5s")
+	slog.Info("outbox worker started", "poll_interval", "5s", "mode", "concurrent")
 
-	if err := publisher.PublishBatch(ctx); err != nil {
-		slog.Error("initial publish batch failed", "error", err)
-	}
-	if err := invalidator.ProcessBatch(ctx); err != nil {
-		slog.Error("initial cache invalidation batch failed", "error", err)
-	}
+	runBatch(ctx, publisher, invalidator)
 
 	for {
 		select {
@@ -80,12 +76,28 @@ func run() error {
 			slog.Info("outbox worker shutting down")
 			return nil
 		case <-ticker.C:
-			if err := publisher.PublishBatch(ctx); err != nil {
-				slog.Error("publish batch failed", "error", err)
-			}
-			if err := invalidator.ProcessBatch(ctx); err != nil {
-				slog.Error("cache invalidation batch failed", "error", err)
-			}
+			runBatch(ctx, publisher, invalidator)
 		}
 	}
+}
+
+func runBatch(ctx context.Context, publisher *worker.OutboxPublisher, invalidator *worker.CacheInvalidator) {
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		if err := publisher.PublishBatch(ctx); err != nil {
+			slog.Error("publish batch failed", "error", err)
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		if err := invalidator.ProcessBatch(ctx); err != nil {
+			slog.Error("cache invalidation batch failed", "error", err)
+		}
+	}()
+
+	wg.Wait()
 }

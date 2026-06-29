@@ -74,6 +74,23 @@ spec:
               value: "true"
             - name: DEBUG_PORT
               value: "8081"
+            - name: OTEL_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: OTEL_ENABLED
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: OTEL_EXPORTER_OTLP_ENDPOINT
+            - name: OTEL_EXPORTER_OTLP_INSECURE
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: OTEL_EXPORTER_OTLP_INSECURE
+            - name: OTEL_SERVICE_NAME
+              value: "todos"
           resources:
             requests:
               memory: "64Mi"
