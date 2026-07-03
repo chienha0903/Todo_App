@@ -47,7 +47,7 @@ func run() error {
 	processedGW := datastore.NewProcessedEventGateway(datastore.NewProcessedEventRepo(db))
 	txGW := datastore.NewGormTransactor(db)
 
-	mainConsumer := consumer.NewUserDeleteConsumer(todoCmd, processedGW, txGW, conn)
+	mainConsumer := consumer.NewUserDeleteConsumer(todoCmd, processedGW, txGW, conn, cfg.ConsumerWorkerPoolSize)
 	dlqProcessor := consumer.NewDLQProcessor(conn)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

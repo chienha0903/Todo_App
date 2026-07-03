@@ -3,6 +3,7 @@ package consumer
 import (
 	"context"
 	"log/slog"
+	"sync"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 
@@ -13,10 +14,11 @@ import (
 const maxRetries = 3
 
 type UserDeleteConsumer struct {
-	todoCmd       gateway.TodoCommandGateway
-	processedRepo gateway.ProcessedEventGateway
-	txGW          gateway.TransactionGateway
-	amqpConn      *amqp.Connection
+	todoCmd        gateway.TodoCommandGateway
+	processedRepo  gateway.ProcessedEventGateway
+	txGW           gateway.TransactionGateway
+	amqpConn       *amqp.Connection
+	workerPoolSize int
 }
 
 func NewUserDeleteConsumer(
@@ -24,12 +26,14 @@ func NewUserDeleteConsumer(
 	processedRepo gateway.ProcessedEventGateway,
 	txGW gateway.TransactionGateway,
 	conn *amqp.Connection,
+	workerPoolSize int,
 ) *UserDeleteConsumer {
 	return &UserDeleteConsumer{
-		todoCmd:       todoCmd,
-		processedRepo: processedRepo,
-		txGW:          txGW,
-		amqpConn:      conn,
+		todoCmd:        todoCmd,
+		processedRepo:  processedRepo,
+		txGW:           txGW,
+		amqpConn:       conn,
+		workerPoolSize: workerPoolSize,
 	}
 }
 
@@ -44,7 +48,8 @@ func (c *UserDeleteConsumer) Start(ctx context.Context) error {
 		return err
 	}
 
-	if err := ch.Qos(1, 0, false); err != nil {
+	// QoS khớp với số worker: RabbitMQ không gửi quá workerPoolSize message chưa Ack
+	if err := ch.Qos(c.workerPoolSize, 0, false); err != nil {
 		return err
 	}
 
@@ -56,19 +61,54 @@ func (c *UserDeleteConsumer) Start(ctx context.Context) error {
 		return err
 	}
 
-	slog.Info("todo consumer started")
+	// jobs là buffered channel dùng để phân phối message đến các worker.
+	// Buffer = workerPoolSize để main loop không bị block khi tất cả worker đang bận.
+	jobs := make(chan amqp.Delivery, c.workerPoolSize)
+
+	var wg sync.WaitGroup
+	for i := range c.workerPoolSize {
+		wg.Add(1)
+		go func(workerID int) {
+			defer wg.Done()
+			c.runWorker(ctx, workerID, jobs)
+		}(i)
+	}
+
+	slog.Info("todo consumer started", "worker_pool_size", c.workerPoolSize)
 
 	for {
 		select {
 		case <-ctx.Done():
+			close(jobs) // báo tất cả worker dừng sau khi drain
+			wg.Wait()
 			return nil
 		case msg, ok := <-msgs:
 			if !ok {
+				close(jobs)
+				wg.Wait()
 				return nil
 			}
-			c.handleMessage(ctx, msg)
+			// Gửi vào jobs; nếu ctx bị cancel trước khi có slot thì Nack để requeue
+			select {
+			case jobs <- msg:
+			case <-ctx.Done():
+				_ = msg.Nack(false, true)
+				close(jobs)
+				wg.Wait()
+				return nil
+			}
 		}
 	}
+}
+
+// runWorker đọc message từ jobs channel và xử lý tuần tự.
+// Khi jobs bị close, vòng range tự kết thúc.
+func (c *UserDeleteConsumer) runWorker(ctx context.Context, workerID int, jobs <-chan amqp.Delivery) {
+	slog.Info("worker started", "worker_id", workerID)
+	for msg := range jobs {
+		c.handleMessage(ctx, msg)
+	}
+	slog.Info("worker stopped", "worker_id", workerID)
 }
 
 func (c *UserDeleteConsumer) handleMessage(ctx context.Context, msg amqp.Delivery) {
