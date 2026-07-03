@@ -8,6 +8,7 @@ import (
 	nethttp "net/http"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
 	"time"
 
@@ -96,5 +97,6 @@ func logHTTPServerStarted(cfg *config.Config) {
 		"port", cfg.AppPort,
 		"env", cfg.AppEnv,
 		"todos_grpc_addr", cfg.TodosGRPCAddr,
+		"GOMAXPROCS", runtime.GOMAXPROCS(0),
 	)
 }

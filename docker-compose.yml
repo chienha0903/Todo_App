@@ -160,6 +160,7 @@ services:
       TODOS_GRPC_ADDR: "todos:50051"
       USERS_GRPC_ADDR: "users:50052"
       JWT_SECRET: "chien-apvn-super-secret-key-2024"
+      GOMAXPROCS: "${GOMAXPROCS:-}"
     depends_on:
       - todos
       - users
